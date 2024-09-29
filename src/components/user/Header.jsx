@@ -1,16 +1,34 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
+  const stickerRef = useRef(null); // useRef to reference the sticker element
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); // Thay đổi thời gian tùy thuộc vào thời gian tải của bạn
+    }, 1000);
 
-    return () => clearTimeout(timer);
+    const handleScroll = () => {
+      if (!stickerRef.current) return; // Safeguard if the ref is not attached
+      const stickerPosition = stickerRef.current.offsetTop; // Get the top offset of the sticker
+
+      const scrollTop = window.scrollY;
+
+      if (scrollTop > stickerPosition) {
+        stickerRef.current.classList.add("is-sticky");
+      } else {
+        stickerRef.current.classList.remove("is-sticky");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      clearTimeout(timer); // Clear the timeout
+      window.removeEventListener("scroll", handleScroll); // Remove scroll listener
+    };
   }, []);
 
   return (
@@ -23,53 +41,53 @@ function Header() {
         </div>
       )}
 
-      <div className="top-header-area" id="sticker">
+      <div className="top-header-area" id="sticker" ref={stickerRef}>
         <div className="container">
           <div className="row">
             <div className="col-lg-12 col-sm-12 text-center">
               <div className="main-menu-wrap">
                 <div className="site-logo">
-                  <Link to="/">
-                    <img src="assets/img/logo.png" alt="Logo" />
-                  </Link>
+                  <a href="/">
+                    <img src="/assets/img/logo.png" alt="Logo" />
+                  </a>
                 </div>
 
                 <nav className="main-menu">
                   <ul>
                     <li className="current-list-item">
-                      <Link to="/">Home</Link>
+                      <a href="/">Home</a>
                     </li>
                     <li>
-                      <Link to="/">Page</Link>
+                      <a href="/admin/login">Page</a>
                       <ul className="sub-menu">
                         <li>
-                          <Link to="./404">404 page</Link>
+                          <a href="/404">404 page</a>
                         </li>
                         <li>
-                          <Link to="./cart">Cart</Link>
+                          <a href="/cart">Cart</a>
                         </li>
                         <li>
-                          <Link to="./checkout">Check Out</Link>
+                          <a href="/checkout">Check Out</a>
                         </li>
                         <li>
-                          <Link to="./shop">Shop</Link>
+                          <a href="/shop">Shop</a>
                         </li>
                       </ul>
                     </li>
                     <li>
-                      <Link to="./single-product">Product</Link>
+                      <a href="/single-product">Product</a>
                     </li>
                     <li>
-                      <Link to="./shop">Shop</Link>
+                      <a href="/shop">Shop</a>
                       <ul className="sub-menu">
                         <li>
-                          <Link to="./checkout">Check Out</Link>
+                          <a href="/checkout">Check Out</a>
                         </li>
                         <li>
-                          <Link to="./single-product">Single Product</Link>
+                          <a href="/single-product">Single Product</a>
                         </li>
                         <li>
-                          <Link to="./cart">Cart</Link>
+                          <a href="/cart">Cart</a>
                         </li>
                       </ul>
                     </li>

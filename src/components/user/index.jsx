@@ -1,6 +1,11 @@
+import React from "react";
+import Header from "./Header";
+import Footer from "./Footer";
+
 function index() {
   return (
     <>
+      <Header />
       <div className="homepage-slider">
         <div className="single-homepage-slider homepage-bg-1">
           <div className="container">
@@ -437,6 +442,8 @@ function index() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }

@@ -44,7 +44,7 @@ function Footer() {
                 <h2 className="widget-title">Subscribe</h2>
                 <p>Subscribe to our mailing list to get the latest updates.</p>
                 <form action="/">
-                  <input type="email" placeholder="Email" />
+                  <input type="email" style={{outline: "none"}} placeholder="Email" />
                   <button type="submit">
                     <i className="fas fa-paper-plane"></i>
                   </button>

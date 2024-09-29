@@ -1,29 +1,11 @@
 import React from "react";
+import Header from "./Header";
+import Footer from "./Footer";
 
 function checkout() {
   return (
     <>
-      <div className="search-area">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-12">
-              <span className="close-btn">
-                <i className="fas fa-window-close"></i>
-              </span>
-              <div className="search-bar">
-                <div className="search-bar-tablecell">
-                  <h3>Search For:</h3>
-                  <input type="text" placeholder="Keywords" />
-                  <button type="submit">
-                    Search <i className="fas fa-search"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <Header />
       <div className="breadcrumb-section breadcrumb-bg">
         <div className="container">
           <div className="row">
@@ -40,7 +22,7 @@ function checkout() {
       <div className="checkout-section mt-150 mb-150">
         <div className="container">
           <div className="row">
-            <div className="col-lg-8">
+            <div className="col-lg-7">
               <div className="checkout-accordion-wrap">
                 <div className="accordion" id="accordionExample">
                   <div className="card single-accordion">
@@ -54,7 +36,7 @@ function checkout() {
                           aria-expanded="true"
                           aria-controls="collapseOne"
                         >
-                          Billing Address
+                          Thông tin khách hàng
                         </button>
                       </h5>
                     </div>
@@ -67,27 +49,18 @@ function checkout() {
                     >
                       <div className="card-body">
                         <div className="billing-address-form">
-                          <form action="/">
+                          <form action="index.html">
                             <p>
-                              <input type="text" placeholder="Name" />
+                              <input type="text" placeholder="Họ tên" />
                             </p>
                             <p>
                               <input type="email" placeholder="Email" />
                             </p>
                             <p>
-                              <input type="text" placeholder="Address" />
+                              <input type="text" placeholder="Địa chỉ" />
                             </p>
                             <p>
-                              <input type="tel" placeholder="Phone" />
-                            </p>
-                            <p>
-                              <textarea
-                                name="bill"
-                                id="bill"
-                                cols="30"
-                                rows="10"
-                                placeholder="Say Something"
-                              ></textarea>
+                              <input type="tel" placeholder="Số điện thoại" />
                             </p>
                           </form>
                         </div>
@@ -105,7 +78,7 @@ function checkout() {
                           aria-expanded="false"
                           aria-controls="collapseTwo"
                         >
-                          Shipping Address
+                          Địa chỉ giao hàng
                         </button>
                       </h5>
                     </div>
@@ -115,11 +88,10 @@ function checkout() {
                       aria-labelledby="headingTwo"
                       data-parent="#accordionExample"
                     >
-                      <div className="card-body">
-                        <div className="shipping-address-form">
-                          <p>Your shipping address form is here.</p>
-                        </div>
-                      </div>
+                      <>
+                        Tổng cộng 95.000 VNĐ Phí ship 15.000 VNĐ Tổng thành tiền
+                        110.000 VNĐ
+                      </>
                     </div>
                   </div>
                   <div className="card single-accordion">
@@ -133,7 +105,7 @@ function checkout() {
                           aria-expanded="false"
                           aria-controls="collapseThree"
                         >
-                          Card Details
+                          Hình thức thanh toán
                         </button>
                       </h5>
                     </div>
@@ -145,7 +117,14 @@ function checkout() {
                     >
                       <div className="card-body">
                         <div className="card-details">
-                          <p>Your card details goes here.</p>
+                          <div className="thanhtoantructiep">
+                            <input type="radio" name="payment" /> Thanh toán khi
+                            nhận hàng
+                          </div>
+                          <div className="thanhtoanvnpay">
+                            <input type="radio" name="payment" /> Thanh toán
+                            bằng ví VNPay
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -154,56 +133,57 @@ function checkout() {
               </div>
             </div>
 
-            <div className="col-lg-4">
+            <div className="col-lg-5">
               <div className="order-details-wrap">
                 <table className="order-details">
                   <thead>
                     <tr>
-                      <th>Your order Details</th>
-                      <th>Price</th>
+                      <th>Giỏ hàng </th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody className="order-details-body">
                     <tr>
-                      <td>Product</td>
-                      <td>Total</td>
+                      <td>Sản phẩm</td>
+                      <td>Số lượng</td>
+                      <td>Giá</td>
+                      <td>Tổng tiền</td>
                     </tr>
                     <tr>
-                      <td>Strawberry</td>
-                      <td>$85.00</td>
+                      <td>Cafe đen</td>
+                      <td>2</td>
+                      <td>10.000 VNĐ</td>
+                      <td>20.000 VNĐ</td>
                     </tr>
                     <tr>
-                      <td>Berry</td>
-                      <td>$70.00</td>
+                      <td>Cafe sữa </td>
+                      <td>1</td>
+                      <td>15.000 VNĐ</td>
+                      <td>15.000 VNĐ</td>
                     </tr>
                     <tr>
-                      <td>Lemon</td>
-                      <td>$35.00</td>
+                      <td>Trà chanh</td>
+                      <td>4</td>
+                      <td>10.000 VNĐ</td>
+                      <td>60.000 VNĐ</td>
                     </tr>
                   </tbody>
-                  <tbody className="checkout-details">
-                    <tr>
-                      <td>Subtotal</td>
-                      <td>$190</td>
-                    </tr>
-                    <tr>
-                      <td>Shipping</td>
-                      <td>$50</td>
-                    </tr>
-                    <tr>
-                      <td>Total</td>
-                      <td>$240</td>
-                    </tr>
-                  </tbody>
+                  <>
+                    Tổng cộng 95.000 VNĐ Phí ship 15.000 VNĐ Tổng thành tiền
+                    110.000 VNĐ
+                  </>
                 </table>
                 <a href="#" className="boxed-btn">
-                  Place Order
+                  Thanh toán
                 </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
