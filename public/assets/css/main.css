@@ -1328,11 +1328,13 @@ ul.product-share li:hover a {
   -webkit-transition: 0.3s;
   -o-transition: 0.3s;
   transition: 0.3s;
+  background-color: #fff !important;
 }
 
 .single-product-item:hover {
   -webkit-box-shadow: none;
   box-shadow: none;
+  transform: scale(1.015);
 }
 
 .search-bar-tablecell button[type=submit] {
@@ -2772,4 +2774,184 @@ table.order-details tbody td {
   display: table-cell;
   vertical-align: middle;
   width: 100%;
+}
+
+/* -----------------------------------------------------------------------------
+
+# 404 Page Styles
+
+----------------------------------------------------------------------------- */
+
+
+.login-form {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h3 {
+  font-weight: bold;
+  color: #343a40;
+}
+
+.login-form .ant-checkbox-wrapper {
+  color: #343a40;
+}
+
+.login-form .btn-form {
+  padding: 0;
+  font-size: 16px;
+}
+
+.login-form .btn-sign {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-form .btn-sign:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+
+.login-form .btn-gg {
+  background-color: #ffffff;
+  color: #f44242;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.4s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.login-form .btn-gg:hover {
+  background-color: #ff0000 !important;
+  border-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    padding: 20px;
+  }
+
+  .login-form h3 {
+    font-size: 24px;
+  }
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5; 
+  width: 100%;
+}
+
+.register-container .card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: .25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.register-image-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 !important;
+}
+
+.register-image {
+  border-top-left-radius: .25rem;
+  border-top-right-radius: 1.2rem;
+  border-bottom-left-radius: .25rem;
+  border-bottom-right-radius: 1.2rem;
+  height: 470px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.register-card {
+  border-radius: .25rem;
+  margin: 0 !important;
+}
+
+.register-container .ant-card {
+  border: none !important;
+  height: 470px;
+}
+
+.register-container .ant-col {
+  padding: 0 !important;
+}
+
+.register-title {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.register-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.reset-button {
+  margin-right: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.reset-button {
+  margin-right: 1rem;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  transition: background-color 0.1s ease, color 0.1s ease, transform 0.1s ease;
+  position: relative;
+}
+
+.reset-button:hover {
+  background-color: #e0e0e0 !important;
+  color: #000000 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.submit-button {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.1s ease, color 0.1s ease, transform 0.1s ease;
+  position: relative;
+}
+
+.submit-button:hover {
+  background-color: #d99b00 !important;
+  border-color: #d99b00 !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }

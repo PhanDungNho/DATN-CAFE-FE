@@ -1,30 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Header from "./Header";
+import Footer from "./Footer";
 
 function product() {
   return (
     <>
-      <div className="search-area">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-12">
-              <span className="close-btn">
-                <i className="fas fa-window-close"></i>
-              </span>
-              <div className="search-bar">
-                <div className="search-bar-tablecell">
-                  <h3>Search For:</h3>
-                  <input type="text" placeholder="Keywords" />
-                  <button type="submit">
-                    Search <i className="fas fa-search"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <Header />
       <div className="breadcrumb-section breadcrumb-bg">
         <div className="container">
           <div className="row">
@@ -157,14 +138,15 @@ function product() {
                 <p className="product-price">
                   <span>Per Kg</span> 35${" "}
                 </p>
-                <Link to="/cart" className="cart-btn">
+                <a href="/cart" className="cart-btn">
                   <i className="fas fa-shopping-cart"></i> Add to Cart
-                </Link>
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

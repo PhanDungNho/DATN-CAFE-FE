@@ -1,8 +1,11 @@
 import React from "react";
+import Header from "./Header";
+import Footer from "./Footer";
 
 function NotFound() {
   return (
     <>
+      <Header/>
       <div className="search-area">
         <div className="container">
           <div className="row">
@@ -53,6 +56,7 @@ function NotFound() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

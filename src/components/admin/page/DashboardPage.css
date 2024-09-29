@@ -1,0 +1,44 @@
+.site-layout-background{
+    background-color: #fff !important;
+}
+
+.ant-layout{
+    min-height: 100vh;
+}
+
+.ant-layout-header span.ant-btn-icon svg{
+    width: 25px;
+    height: 25px;
+}
+
+.logo h2 {
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+    font-size: 26px;
+}
+
+.content-panel {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    min-height: 80vh;
+    padding: 10px;
+}
+
+.ant-divider {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.layoutForm {
+    padding: 15px;
+}
+
+.ant-layout-header{
+    z-index: 1000;
+}
+
+.ant-btn{
+    outline: none;
+}
