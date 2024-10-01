@@ -48,7 +48,7 @@ getCategory = async (id) => {
     );
   };
   
-
+ 
   findCategoryByNameContainsIgnoreCase = async (query) => {
     return await axios.get(API_CATEGORY + "/find", {
       params: {
