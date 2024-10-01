@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Space, Switch, Table, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
-
 const columns = (editCategory, updateCategoryActive) => [
   {
     title: "Category ID",
@@ -62,7 +61,6 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       pageSize: 10,
     },
   });
-
   const fetchData = () => {
     setLoading(true);
     setTimeout(() => {
@@ -78,12 +76,10 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       });
     }, 1500);
   };
-
   useEffect(fetchData, [
     tableParams.pagination?.current,
     tableParams.pagination?.pageSize,
   ]);
-
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
       pagination,
@@ -91,7 +87,6 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       sortOrder: sorter.order,
       sortField: sorter.field,
     });
-
     if (pagination.pageSize !== tableParams.pagination?.pageSize) {
       setData([]);
     }

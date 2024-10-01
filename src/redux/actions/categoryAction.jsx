@@ -200,91 +200,108 @@ export const clearCategoryState = () => (dispatch) => {
   });
 };
 
-export const updateCategoryActive = (id, active) => async (dispatch) => {
-  const service = new categoryService();
+export const updateCategoryActive =
+  (id, active) => async (dispatch, getState) => {
+    const service = new categoryService();
 
-  try {
-    console.log("Updating category active status");
+    try {
+      console.log("Updating category active status on server");
 
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: true,
+      });
 
-    const response = await service.updateCategoryActive(id, active);
-    console.log(response);
+      const response = await service.updateCategoryActive(id, active);
+      console.log(response);
 
-    if (response.status === 200) {
+      if (response.status === 200) {
+        dispatch({
+          type: CATEGORY_UPDATE_ACTIVE,
+          payload: { id, active },
+        });
+
+        dispatch({
+          type: COMMON_MESSAGE_SET,
+          payload: "Cập nhật trạng thái thành công",
+        });
+      } else {
+        const previousActive = !active;
+        dispatch({
+          type: CATEGORY_UPDATE_ACTIVE,
+          payload: { id, active: previousActive },
+        });
+
+        dispatch({
+          type: COMMON_ERROR_SET,
+          payload: response.message,
+        });
+      }
+    } catch (error) {
+      // Nếu có lỗi, quay lại trạng thái trước đó
+      const previousActive = !active;
       dispatch({
         type: CATEGORY_UPDATE_ACTIVE,
-        payload: response.data,
+        payload: { id, active: previousActive }, // Quay lại trạng thái cũ
       });
 
-      dispatch({
-        type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật trạng thái thành công",
-      });
-    } else {
       dispatch({
         type: COMMON_ERROR_SET,
-        payload: response.message,
+        payload: error.response?.data?.message || error.message,
       });
     }
-  } catch (error) {
-    dispatch({
-      type: COMMON_ERROR_SET,
-      payload: error.response?.data?.message || error.message,
-    });
-  }
 
-  dispatch({
-    type: COMMON_LOADING_SET,
-    payload: false,
-  });
-};
-
-export const findCategoryByNameContainsIgnoreCase = (query) => async (dispatch) => {
-  const service = new categoryService();
-
-  try {
     dispatch({
       type: COMMON_LOADING_SET,
-      payload: true,
+      payload: false,
     });
+  };
 
-    const response = await service.findCategoryByNameContainsIgnoreCase(query);
+export const findCategoryByNameContainsIgnoreCase =
+  (query) => async (dispatch) => {
+    const service = new categoryService();
 
-    // Kiểm tra nếu mã phản hồi không phải là 200
-    if (response.status === 200) {
-      // Nếu response.data là mảng, trả về dữ liệu; ngược lại trả về mảng rỗng
-      const categories = Array.isArray(response.data) ? response.data : [];
+    console.log("Find")
+    try {
       dispatch({
-        type: CATEGORIES_SET,
-        payload: categories,
+        type: COMMON_LOADING_SET,
+        payload: true,
       });
-    } else {
+
+      const response = await service.findCategoryByNameContainsIgnoreCase(
+        query
+      );
+
+      if (response.status === 200) {
+        const categories = Array.isArray(response.data) ? response.data : [];
+        dispatch({
+          type: CATEGORIES_SET,
+          payload: categories,
+        });
+      } else {
+        dispatch({
+          type: CATEGORIES_SET,
+          payload: [],
+        });
+        dispatch({
+          type: COMMON_ERROR_SET,
+          payload:
+            response.message || "An error occurred while fetching categories",
+        });
+      }
+    } catch (error) {
       dispatch({
         type: CATEGORIES_SET,
         payload: [],
       });
       dispatch({
         type: COMMON_ERROR_SET,
-        payload: response.message || 'An error occurred while fetching categories',
+        payload: error.response?.data?.message || error.message,
+      });
+    } finally {
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: false,
       });
     }
-  } catch (error) {
-    dispatch({
-      type: CATEGORIES_SET,
-      payload: [],
-    });
-    dispatch({
-      type: COMMON_ERROR_SET,
-      payload: error.response?.data?.message || error.message,
-    });
-  } finally {
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: false,
-    });
-  }
-};
+  };

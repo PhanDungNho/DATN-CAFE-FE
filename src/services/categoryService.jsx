@@ -55,8 +55,10 @@ getCategory = async (id) => {
         query: query,
       },
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+ 
+        "Authorization": "Bearer " + localStorage.getItem("token"), 
+      },
+ 
     });
   };
 }
