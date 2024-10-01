@@ -63,39 +63,26 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
     },
   });
 
-  const fetchData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setData(categories);
-      setLoading(false);
-      setHasData(categories.length > 0);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: categories.length,
-        },
-      });
-    }, 1500);
-  };
+  useEffect(() => {
+    const fetchData = () => {
+      setLoading(true);
+      // Simulate fetching data
+      setTimeout(() => {
+        setData(categories);
+        setLoading(false);
+        setHasData(categories.length > 0);
+        setTableParams((prev) => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: categories.length,
+          },
+        }));
+      }, 1500);
+    };
 
-  useEffect(fetchData, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-  ]);
-
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      sortOrder: sorter.order,
-      sortField: sorter.field,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
-    }
-  };
+    fetchData();
+  }, [categories]); // Fetch new data when categories change
 
   return (
     <Table
@@ -104,7 +91,6 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       dataSource={hasData ? data : []}
       pagination={tableParams.pagination}
       loading={loading}
-      onChange={handleTableChange}
       size="small"
       locale={{ emptyText: "No categories found" }}
     />

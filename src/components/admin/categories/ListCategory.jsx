@@ -56,18 +56,11 @@ export class ListCategory extends Component {
   
     this.timeout = setTimeout(() => {
       if (query) {
-        this.props.findCategoryByNameContainsIgnoreCase(query).then((result) => {
-          // if (Array.isArray(result)) {
-          //   if (result.length === 0) {
-          //   }
-          // } else {
-          //   this.props.getCategories([]);
-          // }
-        });
+        this.props.findCategoryByNameContainsIgnoreCase(query)
       } else {
         this.props.getCategories();
       }
-    }, 1000);
+    }, 2000);
   };
   
 

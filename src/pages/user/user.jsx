@@ -17,7 +17,6 @@ import WaitOrder from "../../components/user/waitorders";
 import TransOrder from "../../components/user/transorders";
 import SuccessOrder from "../../components/user/successorders";
 import CancelOrder from "../../components/user/cancelorder";
-import ListProduct from "../../components/admin/products/ListProduct";
 
 function User() {
   const navigate = useNavigate();
