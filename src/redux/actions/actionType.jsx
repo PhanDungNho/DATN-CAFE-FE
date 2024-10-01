@@ -16,3 +16,11 @@ export const COMMON_LOADING_SET = 'COMMON_LOADING_SET'
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
+
+export const SIZE_SET = "SIZE_SET";
+export const SIZES_SET = "SIZES_SET";
+export const SIZE_STATE_CLEAR = "SIZE_STATE_CLEAR";
+export const SIZE_APPEND = "SIZE_APPEND";
+export const SIZE_UPDATE = "SIZE_UPDATE";
+export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
+export const SIZES_FIND = "SIZES_FIND";
