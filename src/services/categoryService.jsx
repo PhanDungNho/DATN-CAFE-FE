@@ -54,6 +54,9 @@ getCategory = async (id) => {
       params: {
         query: query,
       },
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"), 
+      },
     });
   };
 }
