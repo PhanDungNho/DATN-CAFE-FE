@@ -18,6 +18,7 @@ export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const LOGOUT = "LOGOUT";  // Thêm action type cho logout
 
+
 export const SIZE_SET = "SIZE_SET";
 export const SIZES_SET = "SIZES_SET";
 export const SIZE_STATE_CLEAR = "SIZE_STATE_CLEAR";

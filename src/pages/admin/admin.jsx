@@ -3,8 +3,8 @@ import { Route, Routes } from "react-router-dom";
 import ListProduct from "../../components/admin/products/ListProduct";
 import DashboardPage from "../../components/admin/page/DashboardPage";
 import ListCategory from "../../components/admin/categories/ListCategory";
-import CounterForm from "../../components/admin/sales-counter/CounterForm";
 import ListSize from "../../components/admin/sizes/ListSize";
+import CounterForm from "../../components/admin/sales-counter/CounterForm";
 
 function Admin() {
   return (

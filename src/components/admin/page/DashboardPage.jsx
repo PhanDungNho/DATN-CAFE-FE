@@ -23,7 +23,8 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { logout } from "../../../redux/actions/authActions";
+ 
 function DashboardPage() {
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -50,6 +51,16 @@ function DashboardPage() {
   //     message.error(err);
   //   }
   // }, [msg, err]);
+
+  const handleLogout = () => {
+    // Gọi action logout
+    dispatch(logout());
+  
+    // Điều hướng về trang đăng nhập bằng window.location.href
+    window.location.href = "/login";
+  };
+  
+
 
   return (
     <Layout>
@@ -137,6 +148,7 @@ function DashboardPage() {
               key: "9",
               icon: <MdLogout />,
               label: "Logout",
+              onClick: handleLogout,
             },
           ]}
         />
