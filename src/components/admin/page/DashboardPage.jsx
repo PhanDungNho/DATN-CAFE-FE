@@ -141,7 +141,8 @@ function DashboardPage() {
             {
               key: "8",
               icon: <MdSupervisorAccount />,
-              label: "Accounts",
+              label: "Sizes",
+              onClick: () => navigate("/admin/sizes/list"),
             },
             {
               key: "9",
