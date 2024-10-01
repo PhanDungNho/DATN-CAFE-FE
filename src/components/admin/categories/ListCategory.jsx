@@ -60,7 +60,7 @@ export class ListCategory extends Component {
       } else {
         this.props.getCategories();
       }
-    }, 2000);
+    }, 1500);
   };
   
 
