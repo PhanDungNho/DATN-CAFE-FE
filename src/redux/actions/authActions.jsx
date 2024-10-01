@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE } from "./actionType";
+import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT } from "./actionType";
 import { API_LOGIN } from "../../services/constant"; // Import API_LOGIN từ file constants
 
 export const login = (username, password) => async (dispatch) => {
@@ -41,4 +41,15 @@ export const login = (username, password) => async (dispatch) => {
       payload: error.response ? error.response.data.message : "Login failed",
     });
   }
+};
+
+export const logout = () => (dispatch) => {
+  // Xóa token từ localStorage
+  localStorage.removeItem("token");
+
+  // Dispatch hành động LOGOUT để cập nhật lại state trong Redux
+  dispatch({ type: LOGOUT });
+
+  // Điều hướng người dùng trở về trang đăng nhập
+  window.location.href = "/login"; // Hoặc dùng history.push("/login") nếu dùng React Router
 };

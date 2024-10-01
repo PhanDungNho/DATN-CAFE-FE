@@ -48,12 +48,15 @@ getCategory = async (id) => {
     );
   };
   
-
+ 
   findCategoryByNameContainsIgnoreCase = async (query) => {
     return await axios.get(API_CATEGORY + "/find", {
       params: {
         query: query,
       },
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
+      }
     });
   };
 }
