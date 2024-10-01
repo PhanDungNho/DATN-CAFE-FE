@@ -24,3 +24,4 @@ export const SIZE_APPEND = "SIZE_APPEND";
 export const SIZE_UPDATE = "SIZE_UPDATE";
 export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
 export const SIZES_FIND = "SIZES_FIND";
+export const LOGOUT = "LOGOUT";  // Thêm action type cho logout

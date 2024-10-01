@@ -261,6 +261,7 @@ export const findCategoryByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
     const service = new categoryService();
 
+    console.log("Find")
     try {
       dispatch({
         type: COMMON_LOADING_SET,
@@ -271,9 +272,7 @@ export const findCategoryByNameContainsIgnoreCase =
         query
       );
 
-      // Kiểm tra nếu mã phản hồi không phải là 200
       if (response.status === 200) {
-        // Nếu response.data là mảng, trả về dữ liệu; ngược lại trả về mảng rỗng
         const categories = Array.isArray(response.data) ? response.data : [];
         dispatch({
           type: CATEGORIES_SET,

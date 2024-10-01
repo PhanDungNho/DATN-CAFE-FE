@@ -1,7 +1,7 @@
 import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
-    LOGIN_FAILURE,
+    LOGIN_FAILURE,  LOGOUT,
 } from "../actions/actionType";
   
   
@@ -38,6 +38,16 @@ import {
           isAuthenticated: false,
           error: action.payload,
         };
+        case LOGOUT: // Thêm xử lý cho LOGOUT
+        return {
+          ...state,
+          loading: false,
+          isAuthenticated: false,
+          user: null,
+          roles: [],
+          error: null,
+        };
+
       default:
         return state;
     }

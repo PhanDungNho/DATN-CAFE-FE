@@ -19,7 +19,7 @@ export class ListCategory extends Component {
     super(props);
 
     this.state = {
-      category: {},
+      category: {id: "", name: "", active: true},
       open: false,
       query: "",
     };
@@ -60,7 +60,7 @@ export class ListCategory extends Component {
       } else {
         this.props.getCategories();
       }
-    }, 2000);
+    }, 1500);
   };
   
 
@@ -105,7 +105,7 @@ export class ListCategory extends Component {
           <Col md={6} style={{ textAlign: "right", paddingRight: 5 }}>
             <Button
               type="primary"
-              onClick={() => this.setState({ category: {}, open: true })}
+              onClick={() => this.setState({ category: {id: "", name: "", active: true}, open: true })}
             >
               New Category
             </Button>
