@@ -92,29 +92,10 @@ function DashboardPage() {
               onClick: () => navigate("/admin/categories/list"),
             },
             {
-              key: "O21",
+              key: "3",
               icon: <MdPrecisionManufacturing />,
               label: "Others",
-              children: [
-                {
-                  key: "O211",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Manufacturers",
-                  onClick: () => navigate("/manufacturers/list"),
-                },
-                {
-                  key: "O212",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Countries",
-                  onClick: () => navigate("/countries/list"),
-                },
-                {
-                  key: "O213",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Provinces",
-                  onClick: () => navigate("/provinces/list"),
-                },
-              ],
+              onClick: () => navigate("/admin/orders"),
             },
             {
               key: "4",
