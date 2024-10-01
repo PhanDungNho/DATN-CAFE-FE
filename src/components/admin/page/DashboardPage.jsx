@@ -23,7 +23,8 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { logout } from "../../../redux/actions/authActions";
+ 
 function DashboardPage() {
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -50,6 +51,16 @@ function DashboardPage() {
   //     message.error(err);
   //   }
   // }, [msg, err]);
+
+  const handleLogout = () => {
+    // Gọi action logout
+    dispatch(logout());
+  
+    // Điều hướng về trang đăng nhập bằng window.location.href
+    window.location.href = "/login";
+  };
+  
+
 
   return (
     <Layout>
@@ -92,29 +103,10 @@ function DashboardPage() {
               onClick: () => navigate("/admin/categories/list"),
             },
             {
-              key: "O21",
+              key: "3",
               icon: <MdPrecisionManufacturing />,
               label: "Others",
-              children: [
-                {
-                  key: "O211",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Manufacturers",
-                  onClick: () => navigate("/manufacturers/list"),
-                },
-                {
-                  key: "O212",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Countries",
-                  onClick: () => navigate("/countries/list"),
-                },
-                {
-                  key: "O213",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Provinces",
-                  onClick: () => navigate("/provinces/list"),
-                },
-              ],
+              onClick: () => navigate("/admin/orders"),
             },
             {
               key: "4",
@@ -149,12 +141,14 @@ function DashboardPage() {
             {
               key: "8",
               icon: <MdSupervisorAccount />,
-              label: "Accounts",
+              label: "Sizes",
+              onClick: () => navigate("/admin/sizes/list"),
             },
             {
               key: "9",
               icon: <MdLogout />,
               label: "Logout",
+              onClick: handleLogout,
             },
           ]}
         />
