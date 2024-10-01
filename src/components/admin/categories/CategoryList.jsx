@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Space, Switch, Table, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
-
 const columns = (editCategory, updateCategoryActive) => [
   {
     title: "Category ID",
@@ -62,27 +61,36 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       pageSize: 10,
     },
   });
-
-  useEffect(() => {
-    const fetchData = () => {
-      setLoading(true);
-      // Simulate fetching data
-      setTimeout(() => {
-        setData(categories);
-        setLoading(false);
-        setHasData(categories.length > 0);
-        setTableParams((prev) => ({
-          ...prev,
-          pagination: {
-            ...prev.pagination,
-            total: categories.length,
-          },
-        }));
-      }, 1500);
-    };
-
-    fetchData();
-  }, [categories]); // Fetch new data when categories change
+  const fetchData = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setData(categories);
+      setLoading(false);
+      setHasData(categories.length > 0);
+      setTableParams({
+        ...tableParams,
+        pagination: {
+          ...tableParams.pagination,
+          total: categories.length,
+        },
+      });
+    }, 1000);
+  };
+  useEffect(fetchData, [
+    tableParams.pagination?.current,
+    tableParams.pagination?.pageSize,
+  ]);
+  const handleTableChange = (pagination, filters, sorter) => {
+    setTableParams({
+      pagination,
+      filters,
+      sortOrder: sorter.order,
+      sortField: sorter.field,
+    });
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
 
   return (
     <Table
@@ -91,6 +99,7 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       dataSource={hasData ? data : []}
       pagination={tableParams.pagination}
       loading={loading}
+      onChange={handleTableChange}
       size="small"
       locale={{ emptyText: "No categories found" }}
     />
