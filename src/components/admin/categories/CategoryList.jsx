@@ -74,7 +74,7 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
           total: categories.length,
         },
       });
-    }, 1500);
+    }, 1000);
   };
   useEffect(fetchData, [
     tableParams.pagination?.current,
