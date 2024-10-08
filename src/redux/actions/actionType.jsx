@@ -25,3 +25,20 @@ export const SIZE_UPDATE = "SIZE_UPDATE";
 export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
 export const SIZES_FIND = "SIZES_FIND";
 export const LOGOUT = "LOGOUT";  // Thêm action type cho logout
+
+
+export const ACCOUNT_SET = "ACCOUNT_SET";
+export const ACCOUNTS_SET = "ACCOUNTS_SET";
+export const ACCOUNT_STATE_CLEAR = "ACCOUNT_STATE_CLEAR";
+export const ACCOUNT_APPEND = "ACCOUNT_APPEND";
+export const ACCOUNT_UPDATE = "ACCOUNT_UPDATE";
+export const ACCOUNT_UPDATE_ACTIVE = "ACCOUNT_UPDATE_ACTIVE";
+export const ACCOUNTS_FIND = "ACCOUNTS_FIND";
+
+export const TOPPING_SET = "TOPPING_SET";
+export const TOPPINGS_SET = "TOPPINGS_SET";
+export const TOPPING_STATE_CLEAR = "TOPPING_STATE_CLEAR";
+export const TOPPING_APPEND = "TOPPING_APPEND";
+export const TOPPING_UPDATE = "TOPPING_UPDATE";
+export const TOPPING_UPDATE_ACTIVE = "TOPPING_UPDATE_ACTIVE";
+export const TOPPINGS_FIND = "TOPPINGS_FIND";
