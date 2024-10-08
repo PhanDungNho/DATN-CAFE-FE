@@ -17,6 +17,9 @@ import WaitOrder from "../../components/user/waitorders";
 import TransOrder from "../../components/user/transorders";
 import SuccessOrder from "../../components/user/successorders";
 import CancelOrder from "../../components/user/cancelorder";
+import NewPassword from "../../components/user/newpassword";
+import ForgotPassword from "../../components/user/forgotpassword";
+import OtpPassword from "../../components/user/otp";
 
 function User() {
   const navigate = useNavigate();
@@ -38,7 +41,9 @@ function User() {
         <Route path="/single-product" element={<Product />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/forgotpassword/otp/newpassword" element={<NewPassword />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/forgotpassword/otp" element={<OtpPassword />} />
 
         {/* Route cho ManagerUser với đường dẫn /manager */}
        <Route path="/manager/*" element={<ManagerUser />} >
