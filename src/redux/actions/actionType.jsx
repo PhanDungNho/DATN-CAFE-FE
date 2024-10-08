@@ -24,4 +24,14 @@ export const SIZE_APPEND = "SIZE_APPEND";
 export const SIZE_UPDATE = "SIZE_UPDATE";
 export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
 export const SIZES_FIND = "SIZES_FIND";
-export const LOGOUT = "LOGOUT";  // Thêm action type cho logout
+
+export const TOPPING_SET = "TOPPING_SET";
+export const TOPPINGS_SET = "TOPPINGS_SET";
+export const TOPPING_STATE_CLEAR = "TOPPING_STATE_CLEAR";
+export const TOPPING_APPEND = "TOPPING_APPEND";
+export const TOPPING_UPDATE = "TOPPING_UPDATE";
+export const TOPPING_UPDATE_ACTIVE = "TOPPING_UPDATE_ACTIVE";
+export const TOPPINGS_FIND = "TOPPINGS_FIND";
+
+
+export const LOGOUT = "LOGOUT";  

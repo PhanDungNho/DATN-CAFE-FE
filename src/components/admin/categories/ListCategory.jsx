@@ -129,6 +129,7 @@ export class ListCategory extends Component {
           onCancel={() => {
             this.setState({ ...this.state, open: false });
           }}
+          
         />
       </>
     );

@@ -6,27 +6,21 @@ function index() {
   return (
     <>
       <Header />
-      <div className="homepage-slider">
-        <div className="single-homepage-slider homepage-bg-1">
-          <div className="container">
-            <div className="row">
-              <div className="col-md-12 col-lg-7 offset-lg-1 offset-xl-0">
-                <div className="hero-text">
-                  <div className="hero-text-tablecell">
-                    <p className="subtitle">Fresh & Organic</p>
-                    <h1>Delicious Seasonal Fruits</h1>
-                    <div className="hero-btns">
-                      <a href="/shop" className="boxed-btn">
-                        Fruit Collection
-                      </a>
-                    </div>
-                  </div>
+      <div className="hero-area hero-bg">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-10 offset-lg-1 text-center">
+              <div className="hero-text">
+                <div className="hero-text-tablecell">
+                  <h1>WELCOME TO WALACOFFEE</h1>
+                  <p className="subtitle">Coffee &amp; Tea</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
 
       <div className="list-section pt-80 pb-80">
         <div className="container">
