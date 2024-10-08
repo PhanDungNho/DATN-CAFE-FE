@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { FaLock } from "react-icons/fa";
 import { MdDriveFileRenameOutline } from "react-icons/md";
+import { GoogleOutlined } from "@ant-design/icons";
 
 const Register = () => {
   const onFinish = (values) => {
@@ -15,99 +16,105 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      <div className="card">
-        <Row gutter={16}>
-          <Col xs={24} xl={12} className="register-image-col">
+    <div
+      className="register-container"
+      style={{
+        backgroundImage: "url('assets/img/nennnn.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        padding: "50px", 
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center", 
+        justifyContent: "center",
+      }}
+    >
+      <div className="card" style={{ maxWidth: "1000px", width: "100%" , height: "600px" , opacity: "0.95"}}>
+        <Row gutter={32} align="middle" justify="center">
+          <Col xs={24} xl={14} className="register-image-col">
             <img
-              src="/assets/img/banner.jpg" // Đường dẫn tới hình ảnh trong thư mục public
+              src="/assets/img/nenregister2.png"
               alt="Sample"
               className="register-image img-fluid"
+              style={{
+                width: "630px", 
+                height: "550px",
+                objectFit: "cover", 
+                borderRadius: "10px", 
+                opacity:"none",
+              }}
             />
           </Col>
-          <Col xs={24} xl={12}>
-            <Card className="register-card">
-              <h3 className="register-title">Đăng ký</h3>
+          <Col xs={16} xl={10}>
+            <Card
+              className="register-card"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.1)", // Tăng độ trong suốt
+                borderRadius: "10px",
+                padding: "10px", 
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", 
+                
+              }}
+            >
+              <h3 className="register-title" style={{ textAlign: "center", marginBottom: "5px" }}>
+                Đăng ký
+              </h3>
               <Form onFinish={onFinish}>
                 <Form.Item
                   name="username"
-                  rules={[
-                    { required: true, message: "Please input your username!" },
-                  ]}
+                  rules={[{ required: true, message: "Please input your username!" }]}
                 >
                   <Input prefix={<UserOutlined />} placeholder="Tài khoản" />
                 </Form.Item>
                 <Form.Item
                   name="fullname"
-                  rules={[
-                    { required: true, message: "Please input your full name!" },
-                  ]}
+                  rules={[{ required: true, message: "Please input your full name!" }]}
                 >
-                  <Input
-                    prefix={<MdDriveFileRenameOutline />}
-                    placeholder="Họ và tên"
-                  />
+                  <Input prefix={<MdDriveFileRenameOutline />} placeholder="Họ và tên" />
                 </Form.Item>
                 <Form.Item
                   name="email"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input your email!",
-                      type: "email",
-                    },
-                  ]}
+                  rules={[{
+                    required: true,
+                    message: "Please input your email!",
+                    type: "email",
+                  }]}
                 >
                   <Input prefix={<MailOutlined />} placeholder="Email" />
                 </Form.Item>
                 <Form.Item
                   name="password"
-                  rules={[
-                    { required: true, message: "Please input your password!" },
-                  ]}
+                  rules={[{ required: true, message: "Please input your password!" }]}
                 >
                   <Input.Password prefix={<FaLock />} placeholder="Mật khẩu" />
                 </Form.Item>
                 <Form.Item
                   name="confirmpassword"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please confirm your password!",
-                    },
-                  ]}
+                  rules={[{ required: true, message: "Please confirm your password!" }]}
                 >
-                  <Input.Password
-                    prefix={<LockOutlined />}
-                    placeholder="Nhập lại mật khẩu"
-                  />
+                  <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" />
                 </Form.Item>
                 <Form.Item
                   name="phone"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input your phone number!",
-                    },
-                  ]}
+                  rules={[{ required: true, message: "Please input your phone number!" }]}
                 >
-                  <Input
-                    prefix={<PhoneOutlined />}
-                    placeholder="Số điện thoại"
-                  />
+                  <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
                 </Form.Item>
-                <div className="register-buttons">
-                  <Button type="default" className="reset-button">
-                    Reset all
-                  </Button>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="submit-button"
-                  >
-                    Submit
-                  </Button>
+                <div className="register-buttons" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Button type="default" className="reset-button">Reset all</Button>
+                  <Button type="primary" htmlType="submit" className="submit-button">Submit</Button>
                 </div>
+                <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
+
+                  <Form.Item>
+                    <Button
+                      type="default"
+                      className="btn-block btn-form btn-gg"
+                      icon={<GoogleOutlined />}
+                    >
+                      Đăng ký với Google
+                    </Button>
+                  </Form.Item>
               </Form>
             </Card>
           </Col>

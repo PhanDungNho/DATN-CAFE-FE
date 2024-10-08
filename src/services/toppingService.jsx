@@ -1,7 +1,9 @@
 import axios from "axios";
 import { API_TOPPING } from "./constant";
 
+
 export default class ToppingService {
+
   insertTopping = async (topping) => {
     return await axios.post(API_TOPPING, topping, {
       headers: {
@@ -9,7 +11,6 @@ export default class ToppingService {
       }
     });
   };
-  
 
   updateTopping = async (id, topping) => {
     return await axios.patch(API_TOPPING + "/" + id, topping, {
@@ -36,6 +37,7 @@ getTopping = async (id) => {
   });
 };
 
+
   updateToppingActive = async (id, active) => {
     return await axios.patch(
       API_TOPPING + "/" + id + "/toggle-active",
@@ -48,7 +50,7 @@ getTopping = async (id) => {
     );
   };
   
- 
+
   findToppingByNameContainsIgnoreCase = async (query) => {
     return await axios.get(API_TOPPING + "/find", {
       params: {
@@ -62,3 +64,4 @@ getTopping = async (id) => {
     });
   };
 }
+

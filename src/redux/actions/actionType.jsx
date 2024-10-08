@@ -1,5 +1,10 @@
 export const PRODUCT_SET = "PRODUCT_SET";
 export const PRODUCTS_SET = "PRODUCTS_SET";
+export const PRODUCT_APPEND = "PRODUCT_APPEND";
+export const PRODUCT_UPDATE = "PRODUCT_UPDATE";
+export const PRODUCT_UPDATE_ACTIVE = "PRODUCT_UPDATE_ACTIVE";
+export const PRODUCTS_FIND = "PRODUCTS_FIND";
+export const PRODUCT_STATE_CLEAR = "PRODUCT_STATE_CLEAR"
 
 export const CATEGORY_SET = "CATEGORY_SET";
 export const CATEGORIES_SET = "CATEGORIES_SET";
@@ -16,6 +21,7 @@ export const COMMON_LOADING_SET = 'COMMON_LOADING_SET'
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
+export const LOGOUT = "LOGOUT"; 
 
 export const SIZE_SET = "SIZE_SET";
 export const SIZES_SET = "SIZES_SET";
@@ -24,8 +30,7 @@ export const SIZE_APPEND = "SIZE_APPEND";
 export const SIZE_UPDATE = "SIZE_UPDATE";
 export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
 export const SIZES_FIND = "SIZES_FIND";
-export const LOGOUT = "LOGOUT";  // Thêm action type cho logout
-
+export const LOGOUT = "LOGOUT";  
 
 export const ACCOUNT_SET = "ACCOUNT_SET";
 export const ACCOUNTS_SET = "ACCOUNTS_SET";
