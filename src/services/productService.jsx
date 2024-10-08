@@ -2,6 +2,13 @@ import axios from "axios";
 import { API_PRODUCT } from "./constant";
 
 export default class ProductService {
+
+  getProducts = async () => {
+    return await axios.get(API_PRODUCT, {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
+      }
+
   insertProduct(product) {
     const formData = new FormData();
 
@@ -23,6 +30,7 @@ export default class ProductService {
         "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
+
     });
   }
 
@@ -70,9 +78,12 @@ export default class ProductService {
   getProduct = async (id) => {
     return await axios.get(API_PRODUCT + "/" + id + "/get", {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
+
+        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
+      }
     });
+
+
   };
 
   static deleteProductImage = async (fileName) => {
@@ -125,5 +136,6 @@ export default class ProductService {
       }
     );
     return response;
+
   }
 }

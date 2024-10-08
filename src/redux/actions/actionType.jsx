@@ -30,6 +30,15 @@ export const SIZE_APPEND = "SIZE_APPEND";
 export const SIZE_UPDATE = "SIZE_UPDATE";
 export const SIZE_UPDATE_ACTIVE = "SIZE_UPDATE_ACTIVE";
 export const SIZES_FIND = "SIZES_FIND";
+export const LOGOUT = "LOGOUT";  
+
+export const ACCOUNT_SET = "ACCOUNT_SET";
+export const ACCOUNTS_SET = "ACCOUNTS_SET";
+export const ACCOUNT_STATE_CLEAR = "ACCOUNT_STATE_CLEAR";
+export const ACCOUNT_APPEND = "ACCOUNT_APPEND";
+export const ACCOUNT_UPDATE = "ACCOUNT_UPDATE";
+export const ACCOUNT_UPDATE_ACTIVE = "ACCOUNT_UPDATE_ACTIVE";
+export const ACCOUNTS_FIND = "ACCOUNTS_FIND";
 
 export const TOPPING_SET = "TOPPING_SET";
 export const TOPPINGS_SET = "TOPPINGS_SET";

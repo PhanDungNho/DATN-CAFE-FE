@@ -1,19 +1,9 @@
 import axios from "axios";
-import { API_TOPPING } from "./constant";
+import { API_ORDER } from "./constant";
 
-
-export default class ToppingService {
-
-  insertTopping = async (topping) => {
-    return await axios.post(API_TOPPING, topping, {
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
-    });
-  };
-
-  updateTopping = async (id, topping) => {
-    return await axios.patch(API_TOPPING + "/" + id, topping, {
+export default class OrderService {
+  insertOrder = async (order) => {
+    return await axios.post(API_ORDER, order, {
       headers: {
         "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
       }
@@ -21,26 +11,34 @@ export default class ToppingService {
   };
   
 
-getToppings = async () => {
-  return await axios.get(API_TOPPING, {
+  updateOrder = async (id, order) => {
+    return await axios.patch(API_ORDER + "/" + id, order, {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
+      }
+    });
+  };
+  
+
+getOrders = async () => {
+  return await axios.get(API_ORDER, {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
     }
   });
 };
 
-getTopping = async (id) => {
-  return await axios.get(API_TOPPING + "/" + id + "/get", {
+getOrder = async (id) => {
+  return await axios.get(API_ORDER + "/" + id + "/get", {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
     }
   });
 };
 
-
-  updateToppingActive = async (id, active) => {
+  updateOrderActive = async (id, active) => {
     return await axios.patch(
-      API_TOPPING + "/" + id + "/toggle-active",
+      API_ORDER + "/" + id + "/toggle-active",
       { active }, // Gửi `active` dưới dạng object
       {
         headers: {
@@ -50,9 +48,9 @@ getTopping = async (id) => {
     );
   };
   
-
-  findToppingByNameContainsIgnoreCase = async (query) => {
-    return await axios.get(API_TOPPING + "/find", {
+ 
+  findOrderByNameContainsIgnoreCase = async (query) => {
+    return await axios.get(API_ORDER + "/find", {
       params: {
         query: query,
       },
@@ -64,4 +62,3 @@ getTopping = async (id) => {
     });
   };
 }
-
