@@ -42,3 +42,15 @@
 .ant-btn{
     outline: none;
 }
+
+.ant-table  {
+    min-height: 460px;
+}
+
+.upload-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
