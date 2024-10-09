@@ -12,6 +12,8 @@ import {
   Tabs,
   InputNumber,
   Select,
+  Badge,
+  Tag,
   // Checkbox,
 } from "antd";
 import {
@@ -116,66 +118,75 @@ const CounterForm = () => {
   };
 
   const handleAddToCart = (variantId, productId) => {
-    const selectedVariant = data
-      .flatMap((product) =>
-        product.productVariants.map((variant) => ({
-          ...variant,
-          productName: product.name,
-        }))
-      )
-      .find((variant) => variant.id === variantId);
+  const selectedVariant = data
+    .flatMap((product) =>
+      product.productVariants.map((variant) => ({
+        ...variant,
+        productName: product.name,
+      }))
+    )
+    .find((variant) => variant.id === variantId);
 
-    if (selectedVariant) {
-      const newOrders = [...orders];
-      const currentCart = newOrders[activeTab].cart;
+  if (selectedVariant) {
+    const newOrders = [...orders];
+    const currentCart = newOrders[activeTab].cart;
 
-      // Tìm topping đã chọn cho sản phẩm
-      const toppingsWithQuantity = Object.entries(
-        selectedToppings[productId] || {}
-      )
-        .filter(([toppingId, quantity]) => quantity > 0)
-        .map(([toppingId, quantity]) => {
-          // Tìm topping dựa trên id trong toppings
-          const foundTopping = toppings.find((t) => t.id === parseInt(toppingId));
-          return foundTopping
-            ? {
-                id: foundTopping.id,
-                name: foundTopping.name,
-                price: foundTopping.price,
-                quantity: quantity,
-              }
-            : null;
-        })
-        .filter((topping) => topping !== null);
+    // Tìm topping đã chọn cho sản phẩm
+    const toppingsWithQuantity = Object.entries(
+      selectedToppings[productId] || {}
+    )
+      .filter(([toppingId, quantity]) => quantity > 0)
+      .map(([toppingId, quantity]) => {
+        // Tìm topping dựa trên id trong toppings
+        const foundTopping = toppings.find((t) => t.id === parseInt(toppingId));
+        return foundTopping
+          ? {
+              id: foundTopping.id,
+              name: foundTopping.name,
+              price: foundTopping.price,
+              quantity: quantity,
+            }
+          : null;
+      })
+      .filter((topping) => topping !== null);
 
-      // Tạo sản phẩm mới với topping đã chọn
-      const toppingPrice = toppingsWithQuantity.reduce(
-        (total, topping) => total + topping.price * topping.quantity,
-        0
-      );
+    // Tạo sản phẩm mới với topping đã chọn
+    const toppingPrice = toppingsWithQuantity.reduce(
+      (total, topping) => total + topping.price * topping.quantity,
+      0
+    );
 
-      const newItem = {
-        ...selectedVariant,
-        quantity: 1, // Khởi tạo số lượng 1
-        toppings: toppingsWithQuantity,
-        toppingPrice: toppingPrice, // Tính toán giá topping
-        amount: selectedVariant.price + toppingPrice, // Tính toán tổng giá
-      };
+    const newItem = {
+      ...selectedVariant,
+      quantity: 1, // Khởi tạo số lượng 1
+      toppings: toppingsWithQuantity,
+      toppingPrice: toppingPrice, // Tính toán giá topping
+      amount: selectedVariant.price + toppingPrice, // Tính toán tổng giá
+    };
 
-      // Thêm sản phẩm mới vào giỏ hàng
-      currentCart.push(newItem);
+    // Thêm sản phẩm mới vào giỏ hàng
+    currentCart.push(newItem);
 
-      // Cập nhật orders và localStorage
-      setOrders(newOrders);
-      localStorage.setItem("orders", JSON.stringify(newOrders));
+   // Cập nhật orders và localStorage
+   setOrders(newOrders);
+   localStorage.setItem("orders", JSON.stringify(newOrders));
 
-      message.success(
-        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
-      );
-    } else {
-      message.error("Không tìm thấy sản phẩm này.");
-    }
-  };
+   message.success(
+     `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
+   );
+
+   // Reset số lượng topping về 0 cho sản phẩm đã thêm
+   setSelectedToppings((prev) => ({
+     ...prev,
+     [productId]: toppings.reduce((acc, topping) => {
+       acc[topping.id] = 0; // Đặt số lượng mỗi topping về 0
+       return acc;
+     }, {}),
+   }));
+ } else {
+   message.error("Không tìm thấy sản phẩm này.");
+ }
+};
 
   const handleSearch = (value) => {
     console.log("Tìm kiếm:", value);
@@ -235,7 +246,7 @@ const CounterForm = () => {
         orders[index].customerPhone || phoneNumberInput, // Sử dụng customerPhone của đơn hàng hoặc phoneNumberInput
       status: "PAID",
       paymentmethod: paymentMethod, 
-      active: true,
+      active: false, // Đánh dấu đơn hàng là không còn hoạt động
       shippingfee: 0,
       ordertype: 0,
       fulladdresstext: null,
@@ -245,17 +256,40 @@ const CounterForm = () => {
   
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
+      console.log(order)
       await orderService.insertOrder(order);
       
       message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
       
-      // Có thể thêm logic khác sau khi thanh toán thành công như reset giỏ hàng, v.v.
+      // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
+      const newOrders = [...orders];
       
-    } catch (error) {
-      console.error("Lỗi khi thanh toán:", error);
-      message.error("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.");
-    }
-  };
+      // Xóa giỏ hàng của đơn hàng đã thanh toán
+          // Xóa giỏ hàng của đơn hàng đã thanh toán
+    newOrders[index].cart = []; 
+    
+    // Reset thông tin khách hàng
+    newOrders[index].customerName = ""; 
+    newOrders[index].customerPhone = ""; 
+    newOrders[index].customerId = ""; 
+
+    // Reset input số điện thoại
+    setPhoneNumberInput(""); 
+
+    // Cập nhật trạng thái đơn hàng và đóng tab hiện tại
+    setOrders(newOrders);
+    
+    // Cập nhật Local Storage
+    localStorage.setItem("orders", JSON.stringify(newOrders));
+
+    // Đóng tab hiện tại
+    removeCustomer(index.toString()); // Gọi hàm xóa tab
+
+  } catch (error) {
+    console.error("Lỗi khi thanh toán:", error);
+    message.error("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.");
+  }
+};
 
   const addNewOrder = () => {
     let newCustomerIndex = 1;
@@ -318,41 +352,62 @@ const CounterForm = () => {
       key: "price",
       render: (text) => `${text.toLocaleString()}`,
     },
-    {
-      title: "S.L",
-      dataIndex: "quantity",
-      key: "quantity",
-      render: (text, record, index) => (
-        <InputNumber
-          min={1}
-          value={text}
-          onChange={(value) => {
-            const newOrders = [...orders];
-            const itemIndex = newOrders[activeTab].cart.findIndex(
-              (item) => item.id === record.id
-            );
-            if (itemIndex > -1) {
-              newOrders[activeTab].cart[itemIndex].quantity = value;
-              setOrders(newOrders);
-              localStorage.setItem("orders", JSON.stringify(newOrders)); // Cập nhật localStorage khi thay đổi số lượng
-            }
-          }}
-        />
-      ),
-    },
+    // {
+    //   title: "S.L",
+    //   dataIndex: "quantity",
+    //   key: "quantity",
+    //   render: (text, record, index) => (
+    //     <InputNumber
+    //       min={1}
+    //       value={text}
+    //       onChange={(value) => {
+    //         const newOrders = [...orders];
+    //         const itemIndex = newOrders[activeTab].cart.findIndex(
+    //           (item) => item.id === record.id
+    //         );
+    //         if (itemIndex > -1) {
+    //           newOrders[activeTab].cart[itemIndex].quantity = value;
+    //           setOrders(newOrders);
+    //           localStorage.setItem("orders", JSON.stringify(newOrders)); // Cập nhật localStorage khi thay đổi số lượng
+    //         }
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       title: "Toppings",
       dataIndex: "toppings",
       key: "toppings",
       render: (toppings) =>
         toppings
-          .filter((topping) => topping !== null) 
-          .map((topping) => (
-            <p key={topping.id}>
-              {topping.name} ({topping.price.toLocaleString()}) x {topping.quantity} 
-            </p>
-          )),
-    },
+          .filter((topping) => topping !== null)
+          .map((topping) => {
+            // Hàm tạo màu ngẫu nhiên
+            const getRandomColor = () => {
+              const colors = [
+                'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 
+                'cyan', 'blue', 'geekblue', 'purple'
+              ];
+              return colors[Math.floor(Math.random() * colors.length)];
+            };
+    
+            return (
+              <p key={topping.id}>
+                <Tag color={getRandomColor()}>{topping.name}  ({topping.price.toLocaleString()})</Tag>{" "}
+                x {topping.quantity}
+              </p>
+            );
+            // return (
+            //   <p key={topping.id}>
+            //     <Tag color={getRandomColor()}>{topping.name}</Tag>{" "}
+            //     x {topping.quantity}
+            //   </p>
+            // );
+          }),
+    }
+,    
+    
+    
     // {
     //   title: "Thành tiền",
     //   dataIndex: "amount",
@@ -420,7 +475,7 @@ const CounterForm = () => {
         <style>
           {`
             .ant-table-cell {
-              padding: 16px 8px !important;
+              padding: 8px 2px !important;
             }
               .ant-card-body {
                   padding: 12px !important;
@@ -612,47 +667,49 @@ const CounterForm = () => {
                   </Card>
 
                   <Form
-                    onFinish={(values) => handleFinish(values, index)}
-                    style={{ marginTop: "20px" }}
-                  >
-                    <Form.Item name="phoneNumber">
-                      <Input
-                        placeholder="Số điện thoại khách hàng"
-                        value={phoneNumberInput}
-                        onChange={(e) => handlePhoneNumberChange(e, index)} // Truyền index ở đây
-                      />
-                    </Form.Item>
+  onFinish={(values) => handleFinish(values, index)}
+  style={{ marginTop: "20px" }}
+>
+  <Form.Item name="phoneNumber">
+    <Input
+      placeholder="Số điện thoại khách hàng"
+      value={phoneNumberInput}
+      onChange={(e) => handlePhoneNumberChange(e, index)} // Truyền index ở đây
+    />
+  </Form.Item>
 
-                    {orders[index] && (
-                      <div>
-                        <p style={{ color: "green" }}>
-                          Tên khách hàng: {orders[index].customerName}
-                        </p>
-                        <p style={{ color: "green" }}>
-                          Số điện thoại: {orders[index].customerPhone} {/* Hiển thị số điện thoại */}
-                        </p>
-                      </div>
-                    )}
-                      <Form.Item name="paymentMethod" label="Hình thức thanh toán">
-                  <Select
-                    defaultValue="CASH" // Giá trị mặc định
-                    onChange={(value) => setPaymentMethod(value)}
-                  >
-                    <Option value="CASH">Tiền mặt</Option>
-                    <Option value="MOMO">Ví Momo</Option>
-                  </Select>
-                </Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      block
-                      disabled={
-                        orders[index].customerPhone &&
-                        !orders[index].customerName
-                      } // Kiểm tra tên khách hàng của đơn hàng hiện tại
-                    >
-                      Thanh toán
-                    </Button>
+  {orders[index] && (
+    <div>
+      <p style={{ color: "green" }}>
+        Tên khách hàng: {orders[index].customerName}
+      </p>
+      <p style={{ color: "green" }}>
+        Số điện thoại: {orders[index].customerPhone} {/* Hiển thị số điện thoại */}
+      </p>
+    </div>
+  )}
+  
+  <Form.Item name="paymentMethod" label="Hình thức thanh toán">
+    <Select
+      defaultValue="CASH" // Giá trị mặc định
+      onChange={(value) => setPaymentMethod(value)}
+    >
+      <Option value="CASH">Tiền mặt</Option>
+      <Option value="MOMO">Ví Momo</Option>
+    </Select>
+  </Form.Item>
+
+  <Button
+  type="primary"
+  htmlType="submit"
+  block
+  disabled={
+    orders[index].cart.length === 0 || // Kiểm tra nếu giỏ hàng trống
+    (orders[index].customerPhone && !orders[index].customerName) // Kiểm tra tên khách hàng của đơn hàng hiện tại
+  }
+>
+  Thanh toán
+</Button>
                   </Form>
                 </Tabs.TabPane>
               ))}
