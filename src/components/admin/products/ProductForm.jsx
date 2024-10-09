@@ -38,7 +38,7 @@ export class ProductForm extends Component {
   };
 
   render() {
-    const { product = {} } = this.props;
+    const { product = {}, onDeleteProductImage  } = this.props;
 
     return (
       <Form
@@ -93,12 +93,14 @@ export class ProductForm extends Component {
 
             <UploadImage
               onUpdateFileList={this.props.onUpdateFileList}
+              onDeleteProductImage={onDeleteProductImage}
               fileList={this.state.images.map((image) => ({
                 uid: image.id || image.url,
-                name: image.name || image.url.split("/").pop(),
+                name: image.filename || image.url.split("/").pop(),
                 status: "done", 
                 url: ProductService.getProductImageUrl(image.url), 
                 originFileObj: null,
+             
               }))}
             />
           </Col>
@@ -145,6 +147,7 @@ ProductForm.propTypes = {
   categories: PropTypes.array.isRequired,
   onSubmitForm: PropTypes.func.isRequired,
   onUpdateFileList: PropTypes.func.isRequired,
+  onDeleteProductImage: PropTypes.func.isRequired,
 };
 
 export default ProductForm;

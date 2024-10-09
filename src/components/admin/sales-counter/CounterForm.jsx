@@ -23,7 +23,6 @@ import ProductService from "../../../services/productService";
 import AccountService from "../../../services/accountService";
 import ToppingService from "../../../services/toppingService";
 import OrderService from "../../../services/orderService";
- 
 
 const { Content, Footer } = Layout;
 const { Search } = Input;
@@ -56,8 +55,7 @@ const CounterForm = () => {
         const initialSelectedVariants = {};
         response.data.forEach((product) => {
           if (product.productVariants.length > 0) {
-            initialSelectedVariants[product.id] =
-              product.productVariants[0].id; // Chọn size đầu tiên
+            initialSelectedVariants[product.id] = product.productVariants[0].id; // Chọn size đầu tiên
           }
         });
         setSelectedVariants(initialSelectedVariants); // Cập nhật state
@@ -136,7 +134,9 @@ const CounterForm = () => {
         .filter(([toppingId, quantity]) => quantity > 0)
         .map(([toppingId, quantity]) => {
           // Tìm topping dựa trên id trong toppings
-          const foundTopping = toppings.find((t) => t.id === parseInt(toppingId));
+          const foundTopping = toppings.find(
+            (t) => t.id === parseInt(toppingId)
+          );
           return foundTopping
             ? {
                 id: foundTopping.id,
@@ -184,16 +184,17 @@ const CounterForm = () => {
     const enteredPhone = e.target.value;
     setPhoneNumberInput(enteredPhone);
 
-    const foundAccount = accounts.find((account) => account.phone === enteredPhone);
+    const foundAccount = accounts.find(
+      (account) => account.phone === enteredPhone
+    );
 
     setOrders((prevOrders) => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
         message.success("Đã nhập đúng số điện thoại!");
-        updatedOrders[index].customerName =
-          foundAccount.fullname;  
-        updatedOrders[index].customerPhone = enteredPhone;  
-        updatedOrders[index].customerId =       foundAccount.username;  
+        updatedOrders[index].customerName = foundAccount.fullname;
+        updatedOrders[index].customerPhone = enteredPhone;
+        updatedOrders[index].customerId = foundAccount.username;
       } else {
         updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
@@ -208,10 +209,12 @@ const CounterForm = () => {
       quantity: item.quantity,
       momentprice: item.price,
       note: item.note,
-      totalPrice: (item.price * item.quantity) + item.toppings.reduce(
-        (total, topping) => total + (topping.price * topping.quantity),
-        0
-      ), 
+      totalPrice:
+        item.price * item.quantity +
+        item.toppings.reduce(
+          (total, topping) => total + topping.price * topping.quantity,
+          0
+        ),
       orderdetailtoppings: item.toppings.map((topping) => ({
         topping: {
           id: topping.id,
@@ -222,19 +225,18 @@ const CounterForm = () => {
         momentprice: topping.price,
       })),
     }));
-    
+
     const totalAmount = cartItems.reduce(
       (total, item) => total + item.totalPrice,
       0
     );
-  
+
     const order = {
       cashierid: JSON.parse(localStorage.getItem("user")).username,
       totalamount: totalAmount,
-      phone:
-        orders[index].customerPhone || phoneNumberInput, // Sử dụng customerPhone của đơn hàng hoặc phoneNumberInput
+      phone: orders[index].customerPhone || phoneNumberInput, // Sử dụng customerPhone của đơn hàng hoặc phoneNumberInput
       status: "PAID",
-      paymentmethod: paymentMethod, 
+      paymentmethod: paymentMethod,
       active: true,
       shippingfee: 0,
       ordertype: 0,
@@ -242,18 +244,21 @@ const CounterForm = () => {
       customerid: orders[index].customerId || "test1",
       orderdetails: cartItems,
     };
-  
+
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
       await orderService.insertOrder(order);
-      
-      message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
-      
+
+      message.success(
+        `Thanh toán thành công cho ${orders[index].customerName}!`
+      );
+
       // Có thể thêm logic khác sau khi thanh toán thành công như reset giỏ hàng, v.v.
-      
     } catch (error) {
       console.error("Lỗi khi thanh toán:", error);
-      message.error("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.");
+      message.error(
+        "Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại."
+      );
     }
   };
 
@@ -346,10 +351,11 @@ const CounterForm = () => {
       key: "toppings",
       render: (toppings) =>
         toppings
-          .filter((topping) => topping !== null) 
+          .filter((topping) => topping !== null)
           .map((topping) => (
             <p key={topping.id}>
-              {topping.name} ({topping.price.toLocaleString()}) x {topping.quantity} 
+              {topping.name} ({topping.price.toLocaleString()}) x{" "}
+              {topping.quantity}
             </p>
           )),
     },
@@ -367,7 +373,6 @@ const CounterForm = () => {
         <div>
           <Input
             placeholder="Ghi chú"
-           
             value={text}
             onChange={(e) => {
               const newOrders = [...orders];
@@ -375,8 +380,7 @@ const CounterForm = () => {
                 (item) => item.id === record.id
               );
               if (itemIndex > -1) {
-                newOrders[activeTab].cart[itemIndex].note =
-                  e.target.value; 
+                newOrders[activeTab].cart[itemIndex].note = e.target.value;
                 setOrders(newOrders);
                 localStorage.setItem("orders", JSON.stringify(newOrders)); // Cập nhật localStorage khi thay đổi ghi chú
               }
@@ -386,7 +390,7 @@ const CounterForm = () => {
       ),
     },
     {
-      title: "", 
+      title: "",
       key: "action",
       render: (_, record, index) => (
         <Button
@@ -513,9 +517,7 @@ const CounterForm = () => {
                                   }}
                                 >
                                   <Col span={18}>
-                                    <span>
-                                      {topping.name}
-                                    </span>
+                                    <span>{topping.name}</span>
                                   </Col>
                                   <Col span={6}>
                                     <InputNumber
@@ -601,10 +603,10 @@ const CounterForm = () => {
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={1}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}>
-  {orders[activeTab]?.cart
-    .reduce((total, item) => total + item.amount, 0) 
-    .toLocaleString()}
-</Table.Summary.Cell>
+                              {orders[activeTab]?.cart
+                                .reduce((total, item) => total + item.amount, 0)
+                                .toLocaleString()}
+                            </Table.Summary.Cell>
                           </Table.Summary.Row>
                         )}
                       />
@@ -629,19 +631,23 @@ const CounterForm = () => {
                           Tên khách hàng: {orders[index].customerName}
                         </p>
                         <p style={{ color: "green" }}>
-                          Số điện thoại: {orders[index].customerPhone} {/* Hiển thị số điện thoại */}
+                          Số điện thoại: {orders[index].customerPhone}{" "}
+                          {/* Hiển thị số điện thoại */}
                         </p>
                       </div>
                     )}
-                      <Form.Item name="paymentMethod" label="Hình thức thanh toán">
-                  <Select
-                    defaultValue="CASH" // Giá trị mặc định
-                    onChange={(value) => setPaymentMethod(value)}
-                  >
-                    <Option value="CASH">Tiền mặt</Option>
-                    <Option value="MOMO">Ví Momo</Option>
-                  </Select>
-                </Form.Item>
+                    <Form.Item
+                      name="paymentMethod"
+                      label="Hình thức thanh toán"
+                    >
+                      <Select
+                        defaultValue="CASH" // Giá trị mặc định
+                        onChange={(value) => setPaymentMethod(value)}
+                      >
+                        <Option value="CASH">Tiền mặt</Option>
+                        <Option value="MOMO">Ví Momo</Option>
+                      </Select>
+                    </Form.Item>
                     <Button
                       type="primary"
                       htmlType="submit"
