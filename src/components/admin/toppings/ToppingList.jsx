@@ -1,8 +1,9 @@
 // src/components/ToppingList.jsx
 
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Switch, Table, Tag, message } from 'antd';
+import { Button, Image, Space, Switch, Table, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
+import ToppingService from '../../../services/toppingService';
 
 const columns = (editTopping, updateToppingActive) => [
   {
@@ -13,10 +14,17 @@ const columns = (editTopping, updateToppingActive) => [
     align: "center",
   },
   {
-    title: "Topping Image",
+    title: "Image",
     dataIndex: "image",
     key: "image",
-    render: (text) => text ? <img src={text} alt="Topping Image" style={{ width: '50px', height: '50px' }} /> : 'No Image',
+    width: 80,
+    render: (_, record) => (
+      <Space size="middle">
+        <Image
+          src={ToppingService.getToppingLogoUrl(record.image)}
+        ></Image>
+      </Space>
+    )
   },
   {
     title: "Topping Name",
@@ -72,14 +80,12 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 10, // Đã sửa 'pageTopping' thành 'pageSize'
-      // total: 0,
+      pageSize: 10, 
     },
   });
 
   const fetchData = () => {
     setLoading(true);
-    // Giả lập việc fetch dữ liệu từ server
     setTimeout(() => {
       setData(toppings);
       setLoading(false);
@@ -96,7 +102,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
 
   useEffect(() => {
     fetchData();
-  }, [toppings]); // Thay đổi phụ thuộc để fetch dữ liệu khi toppings thay đổi
+  }, [toppings]); 
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -106,10 +112,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
       sortField: sorter.field,
     });
 
-    // Nếu pageSize thay đổi, có thể cần điều chỉnh dữ liệu hoặc fetch lại
     if (pagination.pageSize !== tableParams.pagination.pageSize) {
-      // Tùy thuộc vào cách bạn fetch dữ liệu, có thể cần fetch lại dữ liệu với pageSize mới
-      // Ở đây, tôi giả định bạn fetch lại toàn bộ dữ liệu
       setData(toppings);
     }
   };
@@ -124,7 +127,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
       }}
       loading={loading}
       onChange={handleTableChange}
-      size="small" // Đã sửa từ 'topping' thành 'size'
+      size="small"
       locale={{ emptyText: 'No toppings found' }}
     />
   );
