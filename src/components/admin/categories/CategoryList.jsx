@@ -76,10 +76,12 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       });
     }, 1000);
   };
+
   useEffect(fetchData, [
     tableParams.pagination?.current,
     tableParams.pagination?.pageSize,
   ]);
+
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
       pagination,
@@ -101,7 +103,7 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: "No categories found" }}
+      locale={{ emptyText: "Không có dữ liệu" }}
     />
   );
 };

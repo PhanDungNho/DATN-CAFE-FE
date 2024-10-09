@@ -1,130 +1,44 @@
-import ProductService from "../../services/productService";
+import accountService from "../../services/accountService";
 import {
+  ACCOUNTS_SET,
+  ACCOUNT_APPEND,
+  ACCOUNT_SET,
+  ACCOUNT_STATE_CLEAR,
+  ACCOUNT_UPDATE,
+  ACCOUNT_UPDATE_ACTIVE,
   COMMON_ERROR_SET,
   COMMON_LOADING_SET,
   COMMON_MESSAGE_SET,
-  PRODUCT_APPEND,
-  PRODUCT_SET,
-  PRODUCT_UPDATE_ACTIVE,
-  PRODUCTS_SET,
-  PRODUCT_STATE_CLEAR,
 } from "./actionType";
 
-export const insertProduct = (product, navigate) => async (dispatch) => {
-  const services = new ProductService();
+export const insertAccount = (account) => async (dispatch) => {
+  const service = new accountService();
 
   try {
-    console.log("Insert Product");
+    console.log("insert account");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await services.insertProduct(product);
-    console.log("API Response:", response);
+    const response = await service.insertAccount(account);
+    console.log(response);
 
     if (response.status === 201) {
       dispatch({
-        type: PRODUCT_SET,
+        type: ACCOUNT_SET,
         payload: response.data,
       });
 
       dispatch({
-        type: PRODUCT_APPEND,
+        type: ACCOUNT_APPEND,
         payload: response.data,
       });
 
       dispatch({
         type: COMMON_MESSAGE_SET,
         payload: "Thêm thành công",
-      });
-
-      navigate("/admin/products/list");
-    } else {
-      dispatch({
-        type: COMMON_ERROR_SET,
-        payload: response ? response.message : "Unknown error",
-      });
-    }
-  } catch (error) {
-    console.error("Error response:", error.response);
-    dispatch({
-      type: COMMON_ERROR_SET,
-      payload: error.response.data
-        ? error.response.data.message
-        : error.message,
-    });
-  } finally {
-    dispatch({ type: COMMON_LOADING_SET, payload: false });
-  }
-};
-
-export const updateProduct = (id, product, navigate) => async (dispatch) => {
-  const services = new ProductService();
-
-  try {
-    console.log("Update Product");
-
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
-    const response = await services.updateProduct(id, product);
-    console.log("API update Response:", response);
-
-    if (response.status === 200) { 
-      dispatch({
-        type: PRODUCT_SET,
-        payload: response.data,
-      });
-
-      dispatch({
-        type: PRODUCT_APPEND,
-        payload: response.data, 
-      });
-
-      dispatch({
-        type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật thành công",
-      });
-
-      navigate("/admin/products/list");
-    } else {
-      dispatch({
-        type: COMMON_ERROR_SET,
-        payload: response.data?.message || "Unknown error", 
-      });
-    }
-  } catch (error) {
-    console.error("Error response:", error.response);
-    dispatch({
-      type: COMMON_ERROR_SET,
-      payload: error.response?.data?.message || error.message, 
-    });
-  } finally {
-    dispatch({ type: COMMON_LOADING_SET, payload: false });
-  }
-};
-
-export const getProducts = () => async (dispatch) => {
-  const service = new ProductService();
-
-  try {
-    console.log("get all products");
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
-    const response = await service.getProducts();
-    console.log(response);
-
-    if (response.status === 200) {
-      dispatch({
-        type: PRODUCTS_SET,
-        payload: response.data,
       });
     } else {
       dispatch({
@@ -133,38 +47,92 @@ export const getProducts = () => async (dispatch) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error("Error response:", error.response);
     dispatch({
       type: COMMON_ERROR_SET,
       payload: error.response.data
         ? error.response.data.message
         : error.message,
     });
-  } finally {
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: false,
-    });
   }
+
+  dispatch({
+    type: COMMON_LOADING_SET,
+    payload: false,
+  });
 };
 
-export const getProduct = (id) => async (dispatch) => {
-  const service = new ProductService();
+export const updateAccount = (id, account) => async (dispatch) => {
+  const service = new accountService();
+
+  if (!account.id) {
+    console.error("No ID provided for updating account.");
+    return;
+  }
+  console.log("update account");
 
   try {
-    console.log("get product by id");
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.updateAccount(id, account);
+    console.log(response);
+
+    if (response.status === 201) {
+      dispatch({
+        type: ACCOUNT_SET,
+        payload: response.data,
+      });
+
+      dispatch({
+        type: ACCOUNT_UPDATE,
+        payload: response.data,
+      });
+
+      dispatch({
+        type: COMMON_MESSAGE_SET,
+        payload: "Cập nhật thành công",
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+
+  dispatch({
+    type: COMMON_LOADING_SET,
+    payload: false,
+  });
+};
+
+export const getAccounts = () => async (dispatch) => {
+  const service = new accountService();
+
+  try {
+    console.log("get all accounts");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await service.getProduct(id);
+    const response = await service.getAccounts();
     console.log(response);
 
     if (response.status === 200) {
       dispatch({
-        type: PRODUCT_SET,
+        type: ACCOUNTS_SET,
         payload: response.data,
       });
     } else {
@@ -187,24 +155,69 @@ export const getProduct = (id) => async (dispatch) => {
   });
 };
 
-export const updateProductActive =
+export const getAccount = (id) => async (dispatch) => {
+  const service = new accountService();
+
+  try {
+    console.log("get account by id");
+
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.getAccount(id);
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: ACCOUNT_SET,
+        payload: response.data,
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+  dispatch({
+    type: COMMON_LOADING_SET,
+    payload: false,
+  });
+};
+
+export const clearAccountState = () => (dispatch) => {
+  dispatch({
+    type: ACCOUNT_STATE_CLEAR,
+  });
+};
+
+export const updateAccountActive =
   (id, active) => async (dispatch, getState) => {
-    const service = new ProductService();
+    const service = new accountService();
 
     try {
-      console.log("Updating product active status on server");
+      console.log("Updating account active status on server");
 
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
       });
 
-      const response = await service.updateProductActive(id, active);
+      const response = await service.updateAccountActive(id, active);
       console.log(response);
 
       if (response.status === 200) {
         dispatch({
-          type: PRODUCT_UPDATE_ACTIVE,
+          type: ACCOUNT_UPDATE_ACTIVE,
           payload: { id, active },
         });
 
@@ -215,7 +228,7 @@ export const updateProductActive =
       } else {
         const previousActive = !active;
         dispatch({
-          type: PRODUCT_UPDATE_ACTIVE,
+          type: ACCOUNT_UPDATE_ACTIVE,
           payload: { id, active: previousActive },
         });
 
@@ -225,10 +238,11 @@ export const updateProductActive =
         });
       }
     } catch (error) {
+      // Nếu có lỗi, quay lại trạng thái trước đó
       const previousActive = !active;
       dispatch({
-        type: PRODUCT_UPDATE_ACTIVE,
-        payload: { id, active: previousActive },
+        type: ACCOUNT_UPDATE_ACTIVE,
+        payload: { id, active: previousActive }, // Quay lại trạng thái cũ
       });
 
       dispatch({
@@ -243,40 +257,41 @@ export const updateProductActive =
     });
   };
 
-export const findProductNameContainsIgnoreCase =
+export const findAccountByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
-    const service = new ProductService();
+    const service = new accountService();
 
-    console.log("Find");
+    console.log("Find")
     try {
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
       });
 
-      const response = await service.findProductByNameContainsIgnoreCase(query);
-      console.log(response);
+      const response = await service.findAccountByNameContainsIgnoreCase(
+        query
+      );
 
       if (response.status === 200) {
-        const products = Array.isArray(response.data) ? response.data : [];
+        const accounts = Array.isArray(response.data) ? response.data : [];
         dispatch({
-          type: PRODUCTS_SET,
-          payload: products,
+          type: ACCOUNTS_SET,
+          payload: accounts,
         });
       } else {
         dispatch({
-          type: PRODUCTS_SET,
+          type: ACCOUNTS_SET,
           payload: [],
         });
         dispatch({
           type: COMMON_ERROR_SET,
           payload:
-            response.message || "An error occurred while fetching product",
+            response.message || "An error occurred while fetching accounts",
         });
       }
     } catch (error) {
       dispatch({
-        type: PRODUCTS_SET,
+        type: ACCOUNTS_SET,
         payload: [],
       });
       dispatch({
@@ -290,49 +305,3 @@ export const findProductNameContainsIgnoreCase =
       });
     }
   };
-
-  export const clearProductState = () => (dispatch) => {
-    dispatch({
-      type: PRODUCT_STATE_CLEAR,
-    })
-  }
-
-  export const uploadImages = (formData) => async (dispatch) => {
-    const service = new ProductService();
-  
-    try {
-      dispatch({
-        type: COMMON_LOADING_SET,
-        payload: true,
-      });
-  
-      const response = await service.uploadImages(formData);
-      console.log(response);
-  
-      if (response.status === 200) {
-        dispatch({
-          type: PRODUCTS_SET,
-          payload: response.data,
-        });
-      } else {
-        dispatch({
-          type: COMMON_ERROR_SET,
-          payload: response.message,
-        });
-      }
-    } catch (error) {
-      dispatch({
-        type: COMMON_ERROR_SET,
-        payload: error.response.data
-          ? error.response.data.message
-          : error.message,
-      });
-    } finally {
-      dispatch({
-        type: COMMON_LOADING_SET,
-        payload: false,
-      });
-    }
-  };
-  
-  

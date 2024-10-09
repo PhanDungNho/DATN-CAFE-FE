@@ -1,19 +1,9 @@
 import axios from "axios";
-import { API_TOPPING } from "./constant";
+import { API_ACCOUNT } from "./constant";
 
-
-export default class ToppingService {
-
-  insertTopping = async (topping) => {
-    return await axios.post(API_TOPPING, topping, {
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
-    });
-  };
-
-  updateTopping = async (id, topping) => {
-    return await axios.patch(API_TOPPING + "/" + id, topping, {
+export default class AccountService {
+  insertAccount = async (account) => {
+    return await axios.post(API_ACCOUNT, account, {
       headers: {
         "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
       }
@@ -21,26 +11,34 @@ export default class ToppingService {
   };
   
 
-getToppings = async () => {
-  return await axios.get(API_TOPPING, {
+  updateAccount = async (id, account) => {
+    return await axios.patch(API_ACCOUNT + "/" + id, account, {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
+      }
+    });
+  };
+  
+
+getAccounts = async () => {
+  return await axios.get(API_ACCOUNT, {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
     }
   });
 };
 
-getTopping = async (id) => {
-  return await axios.get(API_TOPPING + "/" + id + "/get", {
+getAccount = async (id) => {
+  return await axios.get(API_ACCOUNT + "/" + id + "/get", {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
     }
   });
 };
 
-
-  updateToppingActive = async (id, active) => {
+  updateAccountActive = async (id, active) => {
     return await axios.patch(
-      API_TOPPING + "/" + id + "/toggle-active",
+      API_ACCOUNT + "/" + id + "/toggle-active",
       { active }, // Gửi `active` dưới dạng object
       {
         headers: {
@@ -50,9 +48,9 @@ getTopping = async (id) => {
     );
   };
   
-
-  findToppingByNameContainsIgnoreCase = async (query) => {
-    return await axios.get(API_TOPPING + "/find", {
+ 
+  findAccountByNameContainsIgnoreCase = async (query) => {
+    return await axios.get(API_ACCOUNT + "/find", {
       params: {
         query: query,
       },
@@ -64,4 +62,3 @@ getTopping = async (id) => {
     });
   };
 }
-
