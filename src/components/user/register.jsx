@@ -22,26 +22,25 @@ const Register = () => {
         backgroundImage: "url('assets/img/nennnn.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        padding: "50px", 
+        padding: "50px",
         minHeight: "100vh",
         display: "flex",
-        alignItems: "center", 
+        alignItems: "center",
         justifyContent: "center",
       }}
     >
-      <div className="card" style={{ maxWidth: "1000px", width: "100%" , height: "600px" , opacity: "0.95"}}>
-        <Row gutter={32} align="middle" justify="center">
+      <div className="card" style={{ maxWidth: "1000px", width: "100%", opacity: "0.95", marginTop: "20px" }}>
+        <Row gutter={32} align="middle" justify="center" style={{ height: "100%" }}>
           <Col xs={24} xl={14} className="register-image-col">
             <img
               src="/assets/img/nenregister2.png"
               alt="Sample"
               className="register-image img-fluid"
               style={{
-                width: "630px", 
-                height: "550px",
-                objectFit: "cover", 
-                borderRadius: "10px", 
-                opacity:"none",
+                width: "630px",
+                height: "550px", // Fixed height for the image
+                objectFit: "cover",
+                borderRadius: "10px",
               }}
             />
           </Col>
@@ -49,11 +48,13 @@ const Register = () => {
             <Card
               className="register-card"
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.1)", // Tăng độ trong suốt
+                backgroundColor: "rgba(255, 255, 255, 0.1)", // Transparent background
                 borderRadius: "10px",
-                padding: "10px", 
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", 
-                
+                padding: "10px",
+                height: "550px", // Match the height of the image
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center", // Center the form content vertically
               }}
             >
               <h3 className="register-title" style={{ textAlign: "center", marginBottom: "5px" }}>
@@ -105,16 +106,21 @@ const Register = () => {
                   <Button type="primary" htmlType="submit" className="submit-button">Submit</Button>
                 </div>
                 <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
+                <Form.Item>
+                  <Button
+                    type="default"
+                    className="btn-block btn-form btn-gg"
+                    icon={<GoogleOutlined />}
+                    style={{
+                      backgroundColor: "red", 
+                      color: "white",      
+                      borderColor: "red",     
+                    }}
+                  >
+                    Đăng ký với Google
+                  </Button>
+                </Form.Item>
 
-                  <Form.Item>
-                    <Button
-                      type="default"
-                      className="btn-block btn-form btn-gg"
-                      icon={<GoogleOutlined />}
-                    >
-                      Đăng ký với Google
-                    </Button>
-                  </Form.Item>
               </Form>
             </Card>
           </Col>

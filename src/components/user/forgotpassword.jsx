@@ -58,8 +58,8 @@ return (
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Không có tài khoản? <a href="/auth/register">Đăng ký tại đây</a></p>
-              <p>Trở về <a href="/home">trang chủ</a></p>
+              <p>Không có tài khoản? <a href="/register">Đăng ký tại đây</a></p>
+              <p>Trở về <a href="/">trang chủ</a></p>
             </div>
           </Col>
         </Row>
