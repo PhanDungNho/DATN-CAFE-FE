@@ -72,10 +72,10 @@ function DashboardPage() {
           }}
         >
           <img
-            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo.png"}
+            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
             alt="Logo"
             style={{
-              width: collapsed ? '80px' : '200px',
+              width: collapsed ? '90px' : '200px',
               height: '60px',
               transition: 'width 0.2s',
             }}
@@ -146,6 +146,12 @@ function DashboardPage() {
             },
             {
               key: "10",
+              icon: <MdSupervisorAccount />,
+              label: "Authorities",
+              onClick: () => navigate("/admin/authorities/list"),
+            },
+            {
+              key: "11",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,
