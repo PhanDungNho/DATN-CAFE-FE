@@ -2,20 +2,52 @@ import axios from "axios";
 import { API_ACCOUNT } from "./constant";
 
 export default class AccountService {
-  insertAccount = async (account) => {
-    return await axios.post(API_ACCOUNT, account, {
+  insertAccount = (account) => {
+    const formData = new FormData();
+  
+    // Append account fields to FormData
+    formData.append("username", account.username);
+    formData.append("fullname", account.fullname);
+    formData.append("password", account.password);
+    formData.append("phone", account.phone);
+    formData.append("email", account.email);
+    formData.append("amountpaid", account.amountpaid);
+    formData.append("active", account.active);
+  
+    if (account.imageFile[0].originFileObj) {
+      formData.append("imageFile", account.imageFile[0].originFileObj);
+    }
+  
+    console.log("Account insert data:", [...formData]);
+  
+    return axios.post(API_ACCOUNT, formData, {
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+        "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
     });
   };
-  
 
-  updateAccount = async (id, account) => {
-    return await axios.patch(API_ACCOUNT + "/" + id, account, {
+  updateAccount = async (username, account) => {
+    let formData = new FormData();
+
+    formData.append("username", account.username);
+    formData.append("fullname", account.fullname);
+    formData.append("password", account.password);
+    formData.append("phone", account.phone);
+    formData.append("email", account.email);
+    formData.append("amountpaid", account.amountpaid);
+    formData.append("active", account.active);
+
+    if (account.imageFile[0].originFileObj) {
+      formData.append("imageFile", account.imageFile[0].originFileObj);
+    }
+
+    return axios.patch(API_ACCOUNT + "/" + username, formData, {
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+        "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
     });
   };
   
@@ -28,17 +60,17 @@ getAccounts = async () => {
   });
 };
 
-getAccount = async (id) => {
-  return await axios.get(API_ACCOUNT + "/" + id + "/get", {
+getAccount = async (username) => {
+  return await axios.get(API_ACCOUNT + "/" + username + "/get", {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
     }
   });
 };
 
-  updateAccountActive = async (id, active) => {
+  updateAccountActive = async (username, active) => {
     return await axios.patch(
-      API_ACCOUNT + "/" + id + "/toggle-active",
+      API_ACCOUNT + "/" + username + "/toggle-active",
       { active }, // Gửi `active` dưới dạng object
       {
         headers: {
@@ -55,10 +87,23 @@ getAccount = async (id) => {
         query: query,
       },
       headers: {
-
         "Authorization": "Bearer " + localStorage.getItem("token"), 
       },
-
     });
+  };
+
+  findAccountByPhoneContainsIgnoreCase = async (query) => {
+    return await axios.get(API_ACCOUNT + "/find/phone", {
+      params: {
+        query: query,
+      },
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"), 
+      },
+    });
+  };
+
+  static getAccountLogoUrl = (filename) => {
+    return API_ACCOUNT + "/image/" + filename;
   };
 }

@@ -5,6 +5,7 @@ import commonReducer from "./reducers/commonReducer";
 import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
+import  accountReducer  from "./reducers/accountReducer";
 import  decentralizationReducer  from "./reducers/authorityReducer";
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     sizeReducer: sizeReducer,
     toppingReducer: toppingReducer,
+    accountReducer: accountReducer,
     decentralizationReducer: decentralizationReducer,
 });
 
