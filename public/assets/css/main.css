@@ -19,7 +19,7 @@ html {
 }
 
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Arimo", sans-serif;
   font-weight: 400;
   font-size: 1rem;
   letter-spacing: 0.1px;
@@ -1338,6 +1338,26 @@ ul.product-share li:hover a {
   -webkit-box-shadow: none;
   box-shadow: none;
   transform: scale(1.015);
+}
+/* Zoom effect for product item */
+.product-item {
+  position: relative;
+  overflow: hidden; /* Đảm bảo không vượt quá giới hạn của khung */
+  transition: transform 0.3s ease; /* Hiệu ứng phóng to nhẹ */
+}
+
+.product-item:hover {
+  transform: scale(1.05); /* Phóng to toàn bộ phần product-item */
+}
+
+.product-item img {
+  width: 100%; /* Đảm bảo hình ảnh full chiều rộng khung */
+  height: auto;
+  transition: transform 0.3s ease; /* Hiệu ứng cho hình ảnh */
+}
+
+.product-item:hover img {
+  transform: scale(1.1); /* Phóng to ảnh khi hover */
 }
 
 .search-bar-tablecell button[type=submit] {
@@ -3149,3 +3169,50 @@ table.order-details tbody td {
   border: 1px solid rgba(0, 0, 0, 0.2);
   /* Viền đậm hơn khi focus */
 }
+/*size */
+.product-size {
+  margin: 20px 0;
+}
+
+.size-label {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.size-options {
+  display: flex;
+  gap: 10px;
+}
+
+.size-option {
+  display: inline-block;
+  padding: 12px 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  width: 60px;
+  text-transform: uppercase;
+}
+/*dòng new*/
+.product-item {
+  position: relative; /* Giúp định vị nhãn "NEW" tương đối với card sản phẩm */
+}
+
+.new-label {
+  position: absolute;
+  top: 30px; /* Khoảng cách từ phía trên */
+  left: 50px; /* Khoảng cách từ bên trái */
+  background-color: red; /* Màu nền của nhãn */
+  color: white; /* Màu chữ */
+  padding: 5px 10px; /* Khoảng cách bên trong nhãn */
+  font-size: 14px; /* Kích thước chữ */
+  font-weight: bold; /* Đậm chữ */
+  border-radius: 3px; /* Bo góc cho nhãn */
+  z-index: 10; /* Đảm bảo nhãn hiển thị trên cùng */
+}
+
+

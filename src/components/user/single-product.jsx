@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 
-function product() {
+function Product() {
+  // Tạo state để lưu trữ size đã chọn
+  const [selectedSize, setSelectedSize] = useState("M");
+
+  // Mảng chứa giá cho từng size
+  const sizes = [
+    { size: "S", price: 40 },
+    { size: "M", price: 50 },
+    { size: "L", price: 60 },
+  ];
+
+  // Hàm để thay đổi kích thước
+  const handleSizeClick = (size) => {
+    setSelectedSize(size);
+  };
+
   return (
     <>
       <Header />
@@ -19,19 +34,23 @@ function product() {
         </div>
       </div>
 
-      <div className="classNameproduct mt-150 mb-150">
+      <div className="product mt-150 mb-150">
         <div className="container">
           <div className="row">
             <div className="col-md-5">
-              <div className="classNameproduct-img">
-                <img src="assets/img/products/product-img-5.jpg" alt="" />
+              <div className="product-img">
+                <img
+                  src="assets/img/products/product-img-5.jpg"
+                  alt=""
+                  className="zoom-img"
+                />
               </div>
             </div>
             <div className="col-md-7">
-              <div className="classNameproduct-content">
+              <div className="product-content">
                 <h3>Green apples have polyphenols</h3>
-                <p className="classNameproduct-pricing">
-                  <span>Per Kg</span> $50
+                <p className="product-pricing">
+                  <span>Per Kg: </span> $50
                 </p>
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipisicing elit.
@@ -39,7 +58,46 @@ function product() {
                   reprehenderit repudiandae ea tempora incidunt ipsa, quisquam
                   animi perferendis eos eum modi! Tempora, earum.
                 </p>
-                <div className="classNameproduct-form">
+
+                {/* Size selection */}
+                <div className="product-size">
+                  <p>
+                    <strong>Size:</strong>
+                  </p>
+                  <div className="size-options">
+                    {sizes.map((item) => (
+                      <div
+                        key={item.size}
+                        className={`size-option ${selectedSize === item.size ? "selected" : ""}`}
+                        onClick={() => handleSizeClick(item.size)}
+                        style={{
+                          display: "inline-block",
+                          padding: "10px",
+                          border: "1px solid #ccc",
+                          marginRight: "10px",
+                          cursor: "pointer",
+                          backgroundColor: selectedSize === item.size ? "orange" : "white",
+                          color: selectedSize === item.size ? "white" : "black",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div>{item.size}</div>
+                        {/* Đường kẻ ngang giữa kích thước và giá */}
+                        <div
+                          style={{
+                            borderTop: "1px solid #ccc", // Đường kẻ ngang
+                            marginTop: "5px", // Khoảng cách trên và dưới đường kẻ
+                            paddingTop: "5px",
+                          }}
+                        >
+                          {item.price} đ
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="product-form">
                   <form action="/">
                     <input type="number" placeholder="0" />
                   </form>
@@ -79,70 +137,40 @@ function product() {
         </div>
       </div>
 
+      {/* Featured Products Section */}
       <div className="more-products mb-150">
         <div className="container">
           <div className="row">
             <div className="col-lg-8 offset-lg-2 text-center">
               <div className="section-title">
                 <h3>
-                  <span className="orange-text">Related</span> Products
+                  <span className="orange-text">Featured</span> Products
                 </h3>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Aliquid, fuga quas itaque eveniet beatae optio.
+                  Check out our handpicked featured products that are popular among our customers.
                 </p>
               </div>
             </div>
           </div>
           <div className="row">
             <div className="col-lg-4 col-md-6 text-center">
-              <div className="classNameproduct-item">
+              <div className="product-item">
+                <div className="new-label">HOT</div>
                 <div className="product-image">
-                  <a href="classNameproduct.html">
-                    <img src="assets/img/products/product-img-1.jpg" alt="" />
+                  <a href="product.html">
+                    <img src="assets/img/products/product-img-6.jpg" alt="Banana" />
                   </a>
                 </div>
-                <h3>Strawberry</h3>
+                <h3>Banana</h3>
                 <p className="product-price">
-                  <span>Per Kg</span> 85${" "}
+                  <span>Per Kg</span> $40
                 </p>
                 <a href="cart.html" className="cart-btn">
                   <i className="fas fa-shopping-cart"></i> Add to Cart
                 </a>
               </div>
             </div>
-            <div className="col-lg-4 col-md-6 text-center">
-              <div className="classNameproduct-item">
-                <div className="product-image">
-                  <a href="classNameproduct.html">
-                    <img src="assets/img/products/product-img-2.jpg" alt="" />
-                  </a>
-                </div>
-                <h3>Berry</h3>
-                <p className="product-price">
-                  <span>Per Kg</span> 70${" "}
-                </p>
-                <a href="cart.html" className="cart-btn">
-                  <i className="fas fa-shopping-cart"></i> Add to Cart
-                </a>
-              </div>
-            </div>
-            <div className="col-lg-4 col-md-6 offset-lg-0 offset-md-3 text-center">
-              <div className="classNameproduct-item">
-                <div className="product-image">
-                  <a href="classNameproduct.html">
-                    <img src="assets/img/products/product-img-3.jpg" alt="" />
-                  </a>
-                </div>
-                <h3>Lemon</h3>
-                <p className="product-price">
-                  <span>Per Kg</span> 35${" "}
-                </p>
-                <a href="/cart" className="cart-btn">
-                  <i className="fas fa-shopping-cart"></i> Add to Cart
-                </a>
-              </div>
-            </div>
+            {/* More product items */}
           </div>
         </div>
       </div>
@@ -151,4 +179,4 @@ function product() {
   );
 }
 
-export default product;
+export default Product;
