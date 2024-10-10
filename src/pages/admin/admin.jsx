@@ -6,6 +6,7 @@ import ListCategory from "../../components/admin/categories/ListCategory";
 import ListSize from "../../components/admin/sizes/ListSize";
 import ListTopping from "../../components/admin/toppings/ListTopping";
 import ListAuthority from "../../components/admin/authorities/ListAuthority";
+import ListAccount from "../../components/admin/accounts/ListAccount";
 import CounterForm from "../../components/admin/sales-counter/CounterForm";
 
 import Counter from "../../components/admin/sales-counter/Counter";
@@ -25,6 +26,7 @@ function Admin() {
           <Route path="products/update/:id" element={<AddOrEditProduct  />} />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
+          <Route path="accounts/list" element={<ListAccount />} />
           <Route path="authorities/list" element={<ListAuthority />} />
         </Route>
       </Routes>

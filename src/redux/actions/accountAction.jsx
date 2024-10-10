@@ -62,11 +62,11 @@ export const insertAccount = (account) => async (dispatch) => {
   });
 };
 
-export const updateAccount = (id, account) => async (dispatch) => {
+export const updateAccount = (username, account) => async (dispatch) => {
   const service = new accountService();
 
-  if (!account.id) {
-    console.error("No ID provided for updating account.");
+  if (!account.username) {
+    console.error("No ID provusernameed for updating account.");
     return;
   }
   console.log("update account");
@@ -77,10 +77,10 @@ export const updateAccount = (id, account) => async (dispatch) => {
       payload: true,
     });
 
-    const response = await service.updateAccount(id, account);
+    const response = await service.updateAccount(username, account);
     console.log(response);
 
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
       dispatch({
         type: ACCOUNT_SET,
         payload: response.data,
@@ -90,7 +90,6 @@ export const updateAccount = (id, account) => async (dispatch) => {
         type: ACCOUNT_UPDATE,
         payload: response.data,
       });
-
       dispatch({
         type: COMMON_MESSAGE_SET,
         payload: "Cập nhật thành công",
@@ -104,9 +103,7 @@ export const updateAccount = (id, account) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: COMMON_ERROR_SET,
-      payload: error.response.data
-        ? error.response.data.message
-        : error.message,
+      payload: error.response?.data?.message || error.message
     });
   }
 
@@ -155,18 +152,18 @@ export const getAccounts = () => async (dispatch) => {
   });
 };
 
-export const getAccount = (id) => async (dispatch) => {
+export const getAccount = (username) => async (dispatch) => {
   const service = new accountService();
 
   try {
-    console.log("get account by id");
+    console.log("get account by username");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await service.getAccount(id);
+    const response = await service.getAccount(username);
     console.log(response);
 
     if (response.status === 200) {
@@ -201,7 +198,7 @@ export const clearAccountState = () => (dispatch) => {
 };
 
 export const updateAccountActive =
-  (id, active) => async (dispatch, getState) => {
+  (username, active) => async (dispatch, getState) => {
     const service = new accountService();
 
     try {
@@ -212,13 +209,13 @@ export const updateAccountActive =
         payload: true,
       });
 
-      const response = await service.updateAccountActive(id, active);
+      const response = await service.updateAccountActive(username, active);
       console.log(response);
 
       if (response.status === 200) {
         dispatch({
           type: ACCOUNT_UPDATE_ACTIVE,
-          payload: { id, active },
+          payload: { username, active },
         });
 
         dispatch({
@@ -229,7 +226,7 @@ export const updateAccountActive =
         const previousActive = !active;
         dispatch({
           type: ACCOUNT_UPDATE_ACTIVE,
-          payload: { id, active: previousActive },
+          payload: { username, active: previousActive },
         });
 
         dispatch({
@@ -238,11 +235,10 @@ export const updateAccountActive =
         });
       }
     } catch (error) {
-      // Nếu có lỗi, quay lại trạng thái trước đó
       const previousActive = !active;
       dispatch({
         type: ACCOUNT_UPDATE_ACTIVE,
-        payload: { id, active: previousActive }, // Quay lại trạng thái cũ
+        payload: { username, active: previousActive }, // Quay lại trạng thái cũ
       });
 
       dispatch({
@@ -269,6 +265,56 @@ export const findAccountByNameContainsIgnoreCase =
       });
 
       const response = await service.findAccountByNameContainsIgnoreCase(
+        query
+      );
+
+      if (response.status === 200) {
+        const accounts = Array.isArray(response.data) ? response.data : [];
+        dispatch({
+          type: ACCOUNTS_SET,
+          payload: accounts,
+        });
+      } else {
+        dispatch({
+          type: ACCOUNTS_SET,
+          payload: [],
+        });
+        dispatch({
+          type: COMMON_ERROR_SET,
+          payload:
+            response.message || "An error occurred while fetching accounts",
+        });
+      }
+    } catch (error) {
+      dispatch({
+        type: ACCOUNTS_SET,
+        payload: [],
+      });
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: error.response?.data?.message || error.message,
+      });
+    } finally {
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: false,
+      });
+    }
+  };
+
+
+  export const findAccountByPhoneContainsIgnoreCase =
+  (query) => async (dispatch) => {
+    const service = new accountService();
+
+    console.log("Find")
+    try {
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: true,
+      });
+
+      const response = await service.findAccountByPhoneContainsIgnoreCase(
         query
       );
 
