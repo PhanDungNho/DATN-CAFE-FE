@@ -28,9 +28,6 @@ body {
   overflow-x: hidden;
 }
 
-.site-logo img{
-  height: 100px;
-}
 body img {
   max-width: 100%;
 }
@@ -1504,8 +1501,8 @@ input[type="submit"] {
 }
 
 
-.homepage-bg-1 {
-  background-image: url(../img/hero-bg.jpg);
+.hero-bg-1 {
+  background-image: url(../img/cafe-bg-3.jpg);
 }
 
 .homepage-bg-2 {
@@ -3169,7 +3166,7 @@ table.order-details tbody td {
   border: 1px solid rgba(0, 0, 0, 0.2);
   /* Viền đậm hơn khi focus */
 }
-/*size */
+
 .product-size {
   margin: 20px 0;
 }
@@ -3214,5 +3211,4 @@ table.order-details tbody td {
   border-radius: 3px; /* Bo góc cho nhãn */
   z-index: 10; /* Đảm bảo nhãn hiển thị trên cùng */
 }
-
 

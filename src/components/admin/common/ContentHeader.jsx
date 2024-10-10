@@ -2,8 +2,7 @@ import React, { Component } from "react";
 import { PageHeader } from "@ant-design/pro-layout";
 import { Divider } from "antd";
 
-
-export default class ContentHeader extends Component {
+class ContentHeader extends Component {
   render() {
     const { navigate, title, className } = this.props;
 
@@ -22,3 +21,5 @@ export default class ContentHeader extends Component {
     );
   }
 }
+
+export default ContentHeader;

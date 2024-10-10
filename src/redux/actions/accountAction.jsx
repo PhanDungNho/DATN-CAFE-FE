@@ -1,38 +1,38 @@
-import categoryService from "../../services/categoryService";
+import accountService from "../../services/accountService";
 import {
-  CATEGORIES_SET,
-  CATEGORY_APPEND,
-  CATEGORY_SET,
-  CATEGORY_STATE_CLEAR,
-  CATEGORY_UPDATE,
-  CATEGORY_UPDATE_ACTIVE,
+  ACCOUNTS_SET,
+  ACCOUNT_APPEND,
+  ACCOUNT_SET,
+  ACCOUNT_STATE_CLEAR,
+  ACCOUNT_UPDATE,
+  ACCOUNT_UPDATE_ACTIVE,
   COMMON_ERROR_SET,
   COMMON_LOADING_SET,
   COMMON_MESSAGE_SET,
 } from "./actionType";
 
-export const insertCategory = (category) => async (dispatch) => {
-  const service = new categoryService();
+export const insertAccount = (account) => async (dispatch) => {
+  const service = new accountService();
 
   try {
-    console.log("insert category");
+    console.log("insert account");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await service.insertCategory(category);
+    const response = await service.insertAccount(account);
     console.log(response);
 
     if (response.status === 201) {
       dispatch({
-        type: CATEGORY_SET,
+        type: ACCOUNT_SET,
         payload: response.data,
       });
 
       dispatch({
-        type: CATEGORY_APPEND,
+        type: ACCOUNT_APPEND,
         payload: response.data,
       });
 
@@ -62,14 +62,14 @@ export const insertCategory = (category) => async (dispatch) => {
   });
 };
 
-export const updateCategory = (id, category) => async (dispatch) => {
-  const service = new categoryService();
+export const updateAccount = (id, account) => async (dispatch) => {
+  const service = new accountService();
 
-  if (!category.id) {
-    console.error("No ID provided for updating category.");
+  if (!account.id) {
+    console.error("No ID provided for updating account.");
     return;
   }
-  console.log("update category");
+  console.log("update account");
 
   try {
     dispatch({
@@ -77,17 +77,17 @@ export const updateCategory = (id, category) => async (dispatch) => {
       payload: true,
     });
 
-    const response = await service.updateCategory(id, category);
+    const response = await service.updateAccount(id, account);
     console.log(response);
 
     if (response.status === 201) {
       dispatch({
-        type: CATEGORY_SET,
+        type: ACCOUNT_SET,
         payload: response.data,
       });
 
       dispatch({
-        type: CATEGORY_UPDATE,
+        type: ACCOUNT_UPDATE,
         payload: response.data,
       });
 
@@ -116,23 +116,23 @@ export const updateCategory = (id, category) => async (dispatch) => {
   });
 };
 
-export const getCategories = () => async (dispatch) => {
-  const service = new categoryService();
+export const getAccounts = () => async (dispatch) => {
+  const service = new accountService();
 
   try {
-    console.log("get all categories");
+    console.log("get all accounts");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await service.getCategories();
+    const response = await service.getAccounts();
     console.log(response);
 
     if (response.status === 200) {
       dispatch({
-        type: CATEGORIES_SET,
+        type: ACCOUNTS_SET,
         payload: response.data,
       });
     } else {
@@ -155,23 +155,23 @@ export const getCategories = () => async (dispatch) => {
   });
 };
 
-export const getCategory = (id) => async (dispatch) => {
-  const service = new categoryService();
+export const getAccount = (id) => async (dispatch) => {
+  const service = new accountService();
 
   try {
-    console.log("get category by id");
+    console.log("get account by id");
 
     dispatch({
       type: COMMON_LOADING_SET,
       payload: true,
     });
 
-    const response = await service.getCategory(id);
+    const response = await service.getAccount(id);
     console.log(response);
 
     if (response.status === 200) {
       dispatch({
-        type: CATEGORY_SET,
+        type: ACCOUNT_SET,
         payload: response.data,
       });
     } else {
@@ -194,30 +194,30 @@ export const getCategory = (id) => async (dispatch) => {
   });
 };
 
-export const clearCategoryState = () => (dispatch) => {
+export const clearAccountState = () => (dispatch) => {
   dispatch({
-    type: CATEGORY_STATE_CLEAR,
+    type: ACCOUNT_STATE_CLEAR,
   });
 };
 
-export const updateCategoryActive =
+export const updateAccountActive =
   (id, active) => async (dispatch, getState) => {
-    const service = new categoryService();
+    const service = new accountService();
 
     try {
-      console.log("Updating category active status on server");
+      console.log("Updating account active status on server");
 
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
       });
 
-      const response = await service.updateCategoryActive(id, active);
+      const response = await service.updateAccountActive(id, active);
       console.log(response);
 
       if (response.status === 200) {
         dispatch({
-          type: CATEGORY_UPDATE_ACTIVE,
+          type: ACCOUNT_UPDATE_ACTIVE,
           payload: { id, active },
         });
 
@@ -228,7 +228,7 @@ export const updateCategoryActive =
       } else {
         const previousActive = !active;
         dispatch({
-          type: CATEGORY_UPDATE_ACTIVE,
+          type: ACCOUNT_UPDATE_ACTIVE,
           payload: { id, active: previousActive },
         });
 
@@ -241,7 +241,7 @@ export const updateCategoryActive =
       // Nếu có lỗi, quay lại trạng thái trước đó
       const previousActive = !active;
       dispatch({
-        type: CATEGORY_UPDATE_ACTIVE,
+        type: ACCOUNT_UPDATE_ACTIVE,
         payload: { id, active: previousActive }, // Quay lại trạng thái cũ
       });
 
@@ -257,41 +257,41 @@ export const updateCategoryActive =
     });
   };
 
-export const findCategoryByNameContainsIgnoreCase =
+export const findAccountByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
-    const service = new categoryService();
+    const service = new accountService();
 
-    console.log("Find");
+    console.log("Find")
     try {
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
       });
 
-      const response = await service.findCategoryByNameContainsIgnoreCase(
+      const response = await service.findAccountByNameContainsIgnoreCase(
         query
       );
 
       if (response.status === 200) {
-        const categories = Array.isArray(response.data) ? response.data : [];
+        const accounts = Array.isArray(response.data) ? response.data : [];
         dispatch({
-          type: CATEGORIES_SET,
-          payload: categories,
+          type: ACCOUNTS_SET,
+          payload: accounts,
         });
       } else {
         dispatch({
-          type: CATEGORIES_SET,
+          type: ACCOUNTS_SET,
           payload: [],
         });
         dispatch({
           type: COMMON_ERROR_SET,
           payload:
-            response.message || "An error occurred while fetching categories",
+            response.message || "An error occurred while fetching accounts",
         });
       }
     } catch (error) {
       dispatch({
-        type: CATEGORIES_SET,
+        type: ACCOUNTS_SET,
         payload: [],
       });
       dispatch({

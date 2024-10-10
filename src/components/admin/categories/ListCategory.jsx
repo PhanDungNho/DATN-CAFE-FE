@@ -19,7 +19,7 @@ export class ListCategory extends Component {
     super(props);
 
     this.state = {
-      category: {id: "", name: "", active: true},
+      category: { id: "", name: "", active: true },
       open: false,
       query: "",
     };
@@ -51,18 +51,17 @@ export class ListCategory extends Component {
   handleSearch = (value) => {
     const query = value.target.value;
     this.setState({ query });
-  
+
     clearTimeout(this.timeout);
-  
+
     this.timeout = setTimeout(() => {
       if (query) {
-        this.props.findCategoryByNameContainsIgnoreCase(query)
+        this.props.findCategoryByNameContainsIgnoreCase(query);
       } else {
         this.props.getCategories();
       }
     }, 1500);
   };
-  
 
   render() {
     const { categories, getCategories, router, isLoading } = this.props;
@@ -98,6 +97,7 @@ export class ListCategory extends Component {
                   placeholder="Search"
                   value={query}
                   onChange={this.handleSearch}
+                  allowClear
                 />
               </Form.Item>
             </Form>
@@ -105,7 +105,12 @@ export class ListCategory extends Component {
           <Col md={6} style={{ textAlign: "right", paddingRight: 5 }}>
             <Button
               type="primary"
-              onClick={() => this.setState({ category: {id: "", name: "", active: true}, open: true })}
+              onClick={() =>
+                this.setState({
+                  category: { id: "", name: "", active: true },
+                  open: true,
+                })
+              }
             >
               New Category
             </Button>
