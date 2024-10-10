@@ -6,6 +6,7 @@ import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
 import  invoiceReducer  from "./reducers/invoiceReducer";
+import  accountReducer  from "./reducers/accountReducer";
 import  decentralizationReducer  from "./reducers/authorityReducer";
 
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
     sizeReducer: sizeReducer,
     invoiceReducer: invoiceReducer,
     toppingReducer: toppingReducer,
+    accountReducer: accountReducer,
     decentralizationReducer: decentralizationReducer,
 });
 

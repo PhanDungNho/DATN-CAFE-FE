@@ -153,11 +153,17 @@ function DashboardPage() {
             {
               key: "10",
               icon: <MdSupervisorAccount />,
+              label: "Accounts",
+              onClick: () => navigate("/admin/accounts/list"),
+            },
+            {
+              key: "11",
+              icon: <MdSupervisorAccount />,
               label: "Authorities",
               onClick: () => navigate("/admin/authorities/list"),
             },
             {
-              key: "11",
+              key: "12",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,
