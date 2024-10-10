@@ -34,6 +34,8 @@ export const login = (username, password) => async (dispatch) => {
 
     // Lưu token vào localStorage (nếu cần)
     localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(data));
+  
   } catch (error) {
     // Xử lý khi đăng nhập thất bại
     dispatch({

@@ -1,17 +1,19 @@
+import "./DashboardPage.css";
 import { Avatar, Button, Col, Layout, Menu, Row, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
+import {
+  ProductOutlined,
+  ReconciliationOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import Sider from "antd/es/layout/Sider";
 import {
-  MdAddCircleOutline,
   MdCategory,
   MdFormatListBulleted,
-  MdInsertChartOutlined,
   MdLogout,
   MdManageAccounts,
   MdOutlineHome,
-  MdOutlineShoppingBag,
   MdPrecisionManufacturing,
-  MdRequestPage,
   MdSupervisorAccount,
 } from "react-icons/md";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
@@ -70,10 +72,10 @@ function DashboardPage() {
           }}
         >
           <img
-            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo.png"}
+            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
             alt="Logo"
             style={{
-              width: collapsed ? '80px' : '200px',
+              width: collapsed ? '90px' : '200px',
               height: '60px',
               transition: 'width 0.2s',
             }}
@@ -102,29 +104,23 @@ function DashboardPage() {
             },
             {
               key: "3",
-              icon: <MdPrecisionManufacturing />,
-              label: "Others",
+              icon: <ReconciliationOutlined />,
+              label: "Orders",
               onClick: () => navigate("/admin/orders"),
             },
             {
               key: "4",
-              icon: <MdPrecisionManufacturing />,
+              icon: <ProductOutlined />,
               label: "Products",
               children: [
                 {
                   key: "4a",
-                  icon: <MdFormatListBulleted />,
-                  label: "Upload images",
-                  onClick: () => navigate("/products/upload"),
+                  icon: <PlusOutlined />,
+                  label: "Add Product",
+                  onClick: () => navigate("/admin/products/add"),
                 },
                 {
                   key: "4b",
-                  icon: <MdFormatListBulleted />,
-                  label: "Add Product",
-                  onClick: () => navigate("/products/add"),
-                },
-                {
-                  key: "4c",
                   icon: <MdFormatListBulleted />,
                   label: "List Products",
                   onClick: () => navigate("/admin/products/list"),
@@ -150,6 +146,12 @@ function DashboardPage() {
             },
             {
               key: "10",
+              icon: <MdSupervisorAccount />,
+              label: "Authorities",
+              onClick: () => navigate("/admin/authorities/list"),
+            },
+            {
+              key: "11",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,

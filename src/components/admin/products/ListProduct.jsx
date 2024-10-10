@@ -1,26 +1,115 @@
 import React, { Component } from "react";
-import ProductList from "./ProductList";
 import { connect } from "react-redux";
-import { getProducts, getProduct } from "../../../redux/actions/productAction";
+import ProductList from "./ProductList";
+import {
+  findProductNameContainsIgnoreCase,
+  getProduct,
+  getProducts,
+  updateProductActive,
+} from "../../../redux/actions/productAction";
 import withRouter from "../../../helpers/withRouter";
+import ContentHeader from "../common/ContentHeader";
+import { Col, Form, Input, Row, Skeleton } from "antd";
 
-class ListProduct extends Component {
+export class ListProduct extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      product: { id: "", name: "", active: true, description: "", images: []},
+      open: false,
+      query: "",
+    };
+
+    this.timeout = null;
+  }
+
   componentDidMount = () => {
     this.props.getProducts();
     console.log("did mount products");
   };
 
+  editProduct = (product) => {
+   console.log(product)
+
+   const { navigate } = this.props.router;
+
+   navigate("/admin/products/update/" + product.id);
+  };
+  
+
+  // onSubmitForm = (values) => {
+  //   const { product } = this.state;
+
+  //   if (product.id) {
+  //     this.props.updateProduct(product.id, values);
+  //   } else {
+  //     this.props.insertProduct(values);
+  //   }
+  // };
+
+  handleSearch = (value) => {
+    const query = value.target.value;
+    this.setState({ query });
+
+    clearTimeout(this.timeout);
+
+    this.timeout = setTimeout(() => {
+      if (query) {
+        this.props.findProductNameContainsIgnoreCase(query);
+      } else {
+        this.props.getProducts();
+      }
+    }, 1500);
+  };
+
   render() {
-    const { products, getProducts, getProduct, router } = this.props; // Include router here
+    const { products, getProducts, router, isLoading } = this.props;
+    const { query } = this.state;
+    const { navigate } = this.props.router;
+
+    if (isLoading) {
+      return (
+        <>
+          <ContentHeader
+            navigate={navigate}
+            title="List Products"
+            className="site-page-header"
+          ></ContentHeader>
+          <Skeleton active />
+        </>
+      );
+    }
+
     return (
       <>
+        <ContentHeader
+          navigate={navigate}
+          title="List Products"
+          className="site-page-header"
+        ></ContentHeader>
+
+        <Row style={{ marginBottom: 10 }}>
+          <Col md={24}>
+            <Form layout="inline" name="searchForm" initialValues={{ query }}>
+              <Form.Item name="query">
+                <Input
+                  placeholder="Search"
+                  value={query}
+                  onChange={this.handleSearch}
+                  allowClear
+                />
+              </Form.Item>
+            </Form>
+          </Col>
+        </Row>
+
         <ProductList
+          editProduct={this.editProduct}
           products={products}
           getProducts={getProducts}
-          getProduct={getProduct}
-          onDeleteConfirm={this.onDeleteConfirm}
-          onEdit={this.onEdit}
-          router={router} 
+          router={router}
+          updateProductActive={this.props.updateProductActive}
         />
       </>
     );
@@ -28,12 +117,16 @@ class ListProduct extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  product: state.productReducer.product,
   products: state.productReducer.products,
+  isLoading: state.commonReducer.isLoading,
 });
 
 const mapDispatchToProps = {
   getProducts,
   getProduct,
+  updateProductActive,
+  findProductNameContainsIgnoreCase,
 };
 
 export default connect(

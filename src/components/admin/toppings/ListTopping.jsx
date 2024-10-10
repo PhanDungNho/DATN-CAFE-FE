@@ -18,7 +18,6 @@ import {
   Input,
   Row,
   Skeleton,
-  Modal,
 } from 'antd';
 import ContentHeader from '../common/ContentHeader';
 import withRouter from '../../../helpers/withRouter';
@@ -28,7 +27,7 @@ export class ListTopping extends Component {
     super(props);
 
     this.state = {
-      topping: { id: "", name: "", active: true },
+      topping: { id: "", name: "", image: "", price: "", active: true },
       open: false,
       query: "",
     };
@@ -43,12 +42,14 @@ export class ListTopping extends Component {
 
   editTopping = (value) => {
     this.setState({ topping: value, open: true });
+    console.log(value);
   };
 
   onSubmitForm = (values) => {
     const { topping } = this.state;
 
     if (topping.id) {
+      console.log(topping.id)
       this.props.updateTopping(topping.id, values);
     } else {
       this.props.insertTopping(values);
@@ -65,7 +66,6 @@ export class ListTopping extends Component {
 
     this.timeout = setTimeout(() => {
       if (query) {
-        console.log("llllllllllllllll")
         this.props.findToppingByNameContainsIgnoreCase(query);
       } else {
         this.props.getToppings();
