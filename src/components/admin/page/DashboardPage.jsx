@@ -145,6 +145,12 @@ function DashboardPage() {
               onClick: () => navigate("/admin/toppings/list"),
             },
             {
+              key: "11",
+              icon: <ReconciliationOutlined />,
+              label: "Orders",
+              onClick: () => navigate("/admin/invoices"),
+            },
+            {
               key: "10",
               icon: <MdSupervisorAccount />,
               label: "Accounts",

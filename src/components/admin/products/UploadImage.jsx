@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, message, Modal, Upload, Popconfirm } from "antd";
 import PropTypes from "prop-types";
+import axios from "axios";
+import { API_PRODUCT } from "../../../services/constant";
 
 const UploadImage = (props) => {
   const [preViewOpen, setPreviewOpen] = useState(false);
@@ -52,13 +54,22 @@ const UploadImage = (props) => {
     return new Promise((resolve) => {
       Modal.confirm({
         title: "Are you sure to delete this file?",
-        onOk: () => {
-          // message.success(`${file.name} file removed successfully`);
-          props.onDeleteProductImage(file.name);
-          props.onUpdateFileList(
-            props.fileList.filter((item) => item.uid !== file.uid)
-          ); 
-          resolve(true);
+        onOk: async () => {
+          try {
+            props.onUpdateFileList(
+              props.fileList.filter((item) => item.uid !== file.uid)
+            );
+  
+            resolve(true);
+            await axios.delete(API_PRODUCT + "/images/" + file.name, {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+              },
+            });
+          } catch (error) {
+            // message.error(`Failed to remove ${file.name} from database`);
+            resolve(false);
+          }
         },
         onCancel: () => {
           message.error("File removal canceled");
@@ -67,6 +78,7 @@ const UploadImage = (props) => {
       });
     });
   };
+  
   const uploadButton = (
     <div>
       <PlusOutlined />

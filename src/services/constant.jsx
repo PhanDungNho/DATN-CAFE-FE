@@ -5,4 +5,4 @@ export const API_SIZE = "http://localhost:8081/api/v1/sizes";
 export const API_ACCOUNT = "http://localhost:8081/api/v1/account";
 export const API_TOPPING = "http://localhost:8081/api/v1/toppings";
 export const API_ORDER = "http://localhost:8081/api/v1/orders";
-
+export const API_INVOICE = "http://localhost:8081/api/v1/orders";

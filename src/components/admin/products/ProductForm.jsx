@@ -120,7 +120,7 @@ export class ProductForm extends Component {
             </Form.Item>
 
             <Form.Item label="Description" name="description">
-              <TextArea rows={4} placeholder="Enter description" />
+              <TextArea rows={4} style={{minHeight: "120px"}} placeholder="Enter description" />
             </Form.Item>
           </Col>
         </Row>
