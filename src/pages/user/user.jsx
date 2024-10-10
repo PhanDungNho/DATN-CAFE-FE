@@ -20,6 +20,7 @@ import CancelOrder from "../../components/user/cancelorder";
 import NewPassword from "../../components/user/newpassword";
 import ForgotPassword from "../../components/user/forgotpassword";
 import OtpPassword from "../../components/user/otp";
+import About from "../../components/user/about";
 
 function User() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ function User() {
         <Route path="/forgotpassword/otp/newpassword" element={<NewPassword />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/forgotpassword/otp" element={<OtpPassword />} />
+        <Route path="/About" element={<About />} />
 
         {/* Route cho ManagerUser với đường dẫn /manager */}
        <Route path="/manager/*" element={<ManagerUser />} >
