@@ -6,6 +6,8 @@ import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
 import  invoiceReducer  from "./reducers/invoiceReducer";
+import  decentralizationReducer  from "./reducers/authorityReducer";
+
 
 const rootReducer = combineReducers({
     productReducer: productReducer,
@@ -14,7 +16,8 @@ const rootReducer = combineReducers({
     auth: authReducer,
     sizeReducer: sizeReducer,
     invoiceReducer: invoiceReducer,
-    toppingReducer: toppingReducer
+    toppingReducer: toppingReducer,
+    decentralizationReducer: decentralizationReducer,
 });
 
 export default rootReducer;
