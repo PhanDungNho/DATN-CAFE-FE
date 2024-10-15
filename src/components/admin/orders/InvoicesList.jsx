@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Space, Switch, Table, Tag, Tooltip } from "antd";
-import { EditOutlined } from "@ant-design/icons";
-import { MdOutlinePreview } from "react-icons/md";
+import {Select, Space, Switch, Table, Tag } from "antd";
+import moment from "moment";
 
-const columns = (editInvoice, updateInvoiceActive) => [
+const columns = (updateOrderActive, updateOrder) => [
   {
     title: "Order ID",
     dataIndex: "id",
@@ -26,17 +25,7 @@ const columns = (editInvoice, updateInvoiceActive) => [
     key: "createdtime",
     align: "center",
     render: (text) => {
-      const date = new Date(text);
-      // Format date to HH:mm:ss dd-MM-yyyy
-      const formattedDate = ` ${String(date.getHours()).padStart(
-        2,
-        "0"
-      )}:${String(date.getMinutes()).padStart(2, "0")}:${String(
-        date.getSeconds()
-      ).padStart(2, "0")} ${String(date.getDate()).padStart(2, "0")}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}-${date.getFullYear()}`;
-      return formattedDate;
+      return moment(text).format("HH:mm:ss DD-MM-YYYY");
     },
   },
   {
@@ -80,35 +69,93 @@ const columns = (editInvoice, updateInvoiceActive) => [
     key: "action",
     width: 150,
     align: "center",
-    render: (_, record) => (
-      <Space size="middle">
-        <Tooltip placement="top" title="View detail" color="black">
-          <Button
-            key={record.key}
-            size="small"
-            shape="round"
-            style={{
-              color: "black",
-              transition: "all 0.3s ease",
+    render: (_, record) => {
+      const statusOptions = {
+        PENDING_PAYMENT: [
+          { value: "PENDING_PAYMENT", label: "Chờ thanh toán" },
+          { value: "ORDERED", label: "Đã đặt hàng" },
+          { value: "CANCELED", label: "Hủy" },
+        ],
+        ORDERED: [
+          { value: "ORDERED", label: "Đã đặt hàng" },
+          { value: "IN_DELIVERY", label: "Đang giao" },
+          { value: "CANCELED", label: "Hủy" },
+        ],
+        IN_DELIVERY: [
+          { value: "IN_DELIVERY", label: "Đang giao" },
+          { value: "COMPLETED", label: "Hoàn thành" },
+        ],
+        COMPLETED: [{ value: "COMPLETED", label: "Hoàn thành" }],
+        CANCELED: [{ value: "CANCELED", label: "Hủy" }],
+      };
+
+      return (
+        <Space size="middle">
+          <Select
+            defaultValue={record.status}
+            style={{ width: 150 }}
+            options={statusOptions[record.status]}
+            onChange={(value) => {
+              updateOrder(record.id, { status: value });
             }}
-           
-            onClick={() => editInvoice(record)}
-          >
-            <MdOutlinePreview size={24} />
-          </Button>
-        </Tooltip>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateInvoiceActive(record.id, checked);
-          }}
-        />
-      </Space>
-    ),
+          />
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateOrderActive(record.id, checked);
+            }}
+          />
+        </Space>
+      );
+    },
   },
 ];
 
-const InvoicesList = ({ invoices, editInvoice, updateInvoiceActive }) => {
+const expandColumns = [
+  {
+    title: "STT",
+    dataIndex: "id",
+    key: "id",
+  },
+  {
+    title: "Product Name",
+    dataIndex: "productName",
+    key: "productName",
+  },
+  {
+    title: "Quantity",
+    dataIndex: "quantity",
+    key: "quantity",
+  },
+  {
+    title: "Price",
+    dataIndex: "price",
+    key: "price",
+    render: (text) => text.toLocaleString(),
+  },
+  {
+    title: "Size",
+    dataIndex: "size",
+    key: "size",
+  },
+  {
+    title: "Toppings",
+    dataIndex: "toppings",
+    key: "toppings",
+  },
+  {
+    title: "Note",
+    dataIndex: "note",
+    key: "note",
+  },
+];
+
+const InvoicesList = ({
+  invoices,
+  editInvoice,
+  updateOrderActive,
+  updateOrder,
+}) => {
   const [data, setData] = useState(invoices);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
@@ -119,26 +166,53 @@ const InvoicesList = ({ invoices, editInvoice, updateInvoiceActive }) => {
     },
   });
 
+  const expandedRowRender = (record) => {
+    const expandDataSource = (record.orderdetails || []).map(
+      (detail, index) => ({
+        key: detail.id.toString(),
+        id: index + 1,
+        productName: detail.productVariant.product.name,
+        quantity: detail.quantity,
+        price: detail.momentprice,
+        size: detail.productVariant.size.name,
+        toppings: detail.orderdetailtoppings
+          .map((topping) => topping.topping.name)
+          .join(", "),
+        note: detail.note,
+      })
+    );
+    return (
+      <>
+        <Table
+          columns={expandColumns}
+          dataSource={expandDataSource}
+          pagination={false}
+          style={{ paddingBottom: 20, paddingRight: 20 }}
+        />
+      </>
+    );
+  };
+
   const fetchData = () => {
     setLoading(true);
     setTimeout(() => {
       setData(invoices);
       setLoading(false);
       setHasData(invoices.length > 0);
-      setTableParams({
-        ...tableParams,
+      setTableParams((prev) => ({
+        ...prev,
         pagination: {
-          ...tableParams.pagination,
+          ...prev.pagination,
           total: invoices.length,
         },
-      });
+      }));
     }, 1000);
   };
 
-  useEffect(fetchData, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-  ]);
+  useEffect(() => {
+    fetchData();
+    setData(invoices);
+  }, [invoices]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -148,20 +222,24 @@ const InvoicesList = ({ invoices, editInvoice, updateInvoiceActive }) => {
       sortField: sorter.field,
     });
     if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
+      setData(invoices);
     }
   };
 
   return (
     <Table
-      columns={columns(editInvoice, updateInvoiceActive)}
+      columns={columns(updateOrderActive, updateOrder)}
       rowKey="id"
       dataSource={hasData ? data : []}
-      pagination={tableParams.pagination}
+      pagination={{ ...tableParams.pagination }}
       loading={loading}
       onChange={handleTableChange}
       size="small"
       locale={{ emptyText: "Không có dữ liệu" }}
+      expandable={{
+        expandedRowRender,
+        defaultExpandedRowKeys: ["0"],
+      }}
     />
   );
 };
