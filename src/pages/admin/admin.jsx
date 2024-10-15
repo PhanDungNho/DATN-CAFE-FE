@@ -5,12 +5,18 @@ import DashboardPage from "../../components/admin/page/DashboardPage";
 import ListCategory from "../../components/admin/categories/ListCategory";
 import ListSize from "../../components/admin/sizes/ListSize";
 import ListTopping from "../../components/admin/toppings/ListTopping";
+import ListAuthority from "../../components/admin/authorities/ListAuthority";
+import ListAccount from "../../components/admin/accounts/ListAccount";
 import CounterForm from "../../components/admin/sales-counter/CounterForm";
 
 import Counter from "../../components/admin/sales-counter/Counter";
 
 import AddOrEditProduct from "../../components/admin/products/AddOrEditProduct";
+
 import PaymentService from "../../services/PaymentService";
+
+import ListInvoices from "../../components/admin/orders/ListInvoices";
+
 
 
 function Admin() {
@@ -20,12 +26,16 @@ function Admin() {
         <Route path="*" element={<DashboardPage />}>
           <Route path="categories/list" element={<ListCategory />} />
           <Route path="orders" element={<Counter />} />
+          <Route path="invoices" element={<ListInvoices />} />
           <Route path="products/list" element={<ListProduct />} />
           <Route path="products/add" element={<AddOrEditProduct />} />
           <Route path="products/update/:id" element={<AddOrEditProduct  />} />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
-         
+
+          <Route path="accounts/list" element={<ListAccount />} />
+          <Route path="authorities/list" element={<ListAuthority />} />
+
         </Route>
       </Routes>
     </>

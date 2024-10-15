@@ -1,16 +1,17 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import ToppingList from './ToppingList';
-import ToppingForm from './ToppingForm';
+import AccountList from './AccountList';
+import AccountForm from './AccountForm';
 import {
-  getToppings,
-  updateToppingActive,
-  insertTopping,
-  findToppingByNameContainsIgnoreCase,
-  updateTopping,
-  getTopping,
-} from '../../../redux/actions/toppingAction';
+  getAccounts,
+  updateAccountActive,
+  insertAccount,
+  findAccountByNameContainsIgnoreCase,
+  updateAccount,
+  getAccount,
+  findAccountByPhoneContainsIgnoreCase,
+} from '../../../redux/actions/accountAction';
 import {
   Button,
   Col,
@@ -22,12 +23,12 @@ import {
 import ContentHeader from '../common/ContentHeader';
 import withRouter from '../../../helpers/withRouter';
 
-export class ListTopping extends Component {
+export class ListAccount extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      topping: { id: "", name: "", image: "", price: "", active: true },
+      account: { username: "", fullname: "", amountpaid: "", phone: "", active: true, image: "" },
       open: false,
       query: "",
     };
@@ -36,23 +37,23 @@ export class ListTopping extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getToppings();
-    console.log('Component Mounted: Fetching toppings');
+    this.props.getAccounts();
+    console.log('Component Mounted: Fetching accounts');
   };
 
-  editTopping = (value) => {
-    this.setState({ topping: value, open: true });
+  editAccount = (value) => {
+    this.setState({ account: value, open: true });
     console.log(value);
   };
 
   onSubmitForm = (values) => {
-    const { topping } = this.state;
+    const { account } = this.state;
 
-    if (topping.id) {
-      console.log(topping.id)
-      this.props.updateTopping(topping.id, values);
+    if (account.username) {
+      console.log(account.username)
+      this.props.updateAccount(account.username, values);
     } else {
-      this.props.insertTopping(values);
+      this.props.insertAccount(values);
     }
 
     this.setState({ open: false });
@@ -66,15 +67,16 @@ export class ListTopping extends Component {
 
     this.timeout = setTimeout(() => {
       if (query) {
-        this.props.findToppingByNameContainsIgnoreCase(query);
+        this.props.findAccountByNameContainsIgnoreCase(query);
+        this.props.findAccountByPhoneContainsIgnoreCase(query);
       } else {
-        this.props.getToppings();
+        this.props.getAccounts();
       }
     }, 1500);
   };
 
   openModal = () => {
-    this.setState({ topping: {}, open: true });
+    this.setState({ account: {}, open: true });
   };
 
   closeModal = () => {
@@ -82,7 +84,7 @@ export class ListTopping extends Component {
   };
 
   render() {
-    const { toppings, getToppings, isLoading, router } = this.props;
+    const { accounts, getAccounts, isLoading, router } = this.props;
     const { open, query } = this.state;
     const { navigate } = this.props.router;
     if (isLoading) {
@@ -90,7 +92,7 @@ export class ListTopping extends Component {
         <>
           <ContentHeader
             navigate={navigate}
-            title="List Topping"
+            title="Danh sách tài khoản"
             className="site-page-header"
           ></ContentHeader>
           <Skeleton active />
@@ -101,7 +103,7 @@ export class ListTopping extends Component {
       <>
         <ContentHeader
           navigate={navigate}
-          title="List Toppings"
+          title="Danh sách tài khoản"
           className="site-page-header"
         />
 
@@ -110,7 +112,7 @@ export class ListTopping extends Component {
             <Form layout="inline" name="searchForm" initialValues={{ query }}>
               <Form.Item name="query">
                 <Input
-                  placeholder="Search toppings"
+                  placeholder="Tìm tài khoản "
                   value={query}
                   onChange={this.handleSearch}
                 />
@@ -118,25 +120,26 @@ export class ListTopping extends Component {
             </Form>
           </Col>
           <Col md={6} style={{ textAlign: 'right', paddingRight: 5 }}>
-            <Button type="primary" onClick={() => this.setState({ topping: {}, open: true })}>
-              New Topping
+            <Button type="primary" onClick={() => this.setState({ account: {}, open: true })}>
+              Thêm mới tài khoản
             </Button>
           </Col>
         </Row>
 
-        <ToppingList
-          editTopping={this.editTopping}
-          toppings={toppings}
-          getToppings={getToppings}
+        <AccountList
+          editAccount={this.editAccount}
+          accounts={accounts}
+          getAccounts={getAccounts}
           router={router}
-          updateToppingActive={this.props.updateToppingActive}
+          updateAccountActive={this.props.updateAccountActive}
         />
 
-        <ToppingForm
+        <AccountForm
           router={router}
           isLoading={isLoading}
           open={open}
-          topping={this.state.topping}
+          accounts={accounts}
+          account={this.state.account}
           onSubmitForm={this.onSubmitForm}
           onCancel={() => {
             this.setState({ ...this.state, open: false })
@@ -148,21 +151,22 @@ export class ListTopping extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  toppings: state.toppingReducer.toppings,
-  topping: state.toppingReducer.topping,
-  isLoading: state.toppingReducer.isLoading,
+  accounts: state.accountReducer.accounts,
+  account: state.accountReducer.account,
+  isLoading: state.accountReducer.isLoading,
 });
 
 const mapDispatchToProps = {
-  getToppings,
-  getTopping,
-  updateTopping,
-  updateToppingActive,
-  findToppingByNameContainsIgnoreCase,
-  insertTopping,
+  getAccounts,
+  getAccount,
+  updateAccount,
+  updateAccountActive,
+  findAccountByNameContainsIgnoreCase,
+  insertAccount,
+  findAccountByPhoneContainsIgnoreCase,
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(ListTopping));
+)(withRouter(ListAccount));

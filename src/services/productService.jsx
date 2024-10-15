@@ -2,7 +2,6 @@ import axios from "axios";
 import { API_PRODUCT } from "./constant";
 
 export default class ProductService {
-
   insertProduct(product) {
     const formData = new FormData();
 
@@ -36,10 +35,15 @@ export default class ProductService {
     formData.append("description", product.description);
     formData.append("categoryid", product.categoryid);
 
-    // Append image files
-    product.imageFiles.forEach((file) => {
-      formData.append("imageFiles", file);
-    });
+    // Kiểm tra nếu imageFiles tồn tại và không rỗng trước khi append
+
+    if (product.imageFiles && product.imageFiles.length > 0) {
+      product.imageFiles.forEach((file) => {
+        if (file) {
+          formData.append("imageFiles", file);
+        }
+      });
+    }
 
     console.log([...formData]);
 
@@ -76,7 +80,7 @@ export default class ProductService {
     });
   };
 
-  static deleteProductImage = async (fileName) => {
+  deleteProductImage = async (fileName) => {
     await axios.delete(API_PRODUCT + "/images/" + fileName, {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("token"),

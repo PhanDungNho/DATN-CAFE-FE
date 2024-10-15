@@ -1,71 +1,81 @@
-// src/components/ToppingList.jsx
+// src/components/AccountList.jsx
 
 import React, { useEffect, useState } from 'react';
 import { Button, Image, Space, Switch, Table, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import ToppingService from '../../../services/toppingService';
+import AccountService from '../../../services/accountService';
 
-const columns = (editTopping, updateToppingActive) => [
+const columns = (editAccount, updateAccountActive) => [
   {
-    title: "Topping ID",
-    dataIndex: "id",
-    key: "id",
+    title: "Username",
+    dataIndex: "username",
+    key: "username",
     width: 120,
     align: "center",
   },
   {
-    title: "Image",
+    title: "Hình ảnh",
     dataIndex: "image",
     key: "image",
     width: 80,
     render: (_, record) => (
       <Space size="middle">
         <Image
-          src={ToppingService.getToppingLogoUrl(record.image)}
+          src={AccountService.getAccountLogoUrl(record.image)}
         ></Image>
       </Space>
     )
   },
   {
-    title: "Topping Name",
-    dataIndex: "name",
-    key: "name",
+    title: "Họ và tên",
+    dataIndex: "fullname",
+    key: "fullname",
   },
   {
-    title: "Topping Price",
-    dataIndex: "price",
-    key: "price",
-    render: (text) => `${text} VNĐ`,
+    title: "Số tiền đã trả",
+    dataIndex: "amountpaid",
+    key: "amountpaid",
+    // width: 40,
   },
   {
-    title: "Active",
+    title: "Số điện thoại",
+    dataIndex: "phone",
+    key: "phone",
+  },
+  {
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
+  },
+  {
+    title: "Trạng thái",
     dataIndex: "active",
     key: "active",
-    width: 100,
+    // width: 100,
     render: (_, { active }) => {
       let color = active ? "green" : "volcano";
-      let statusText = active ? "Active" : "Inactive";
+      let statusText = active ? "Hoạt động" : "Không hoạt động";
       return <Tag color={color}>{statusText}</Tag>;
     },
   },
   {
-    title: "Action",
+    title: "Hành động",
     key: "action",
-    width: 150,
+    // width: 150,
     align: "center",
     render: (_, record) => (
       <Space size="middle">
         <Button
           type="primary"
           size="small"
-          onClick={() => editTopping(record)}
+          onClick={() => editAccount(record)}
         >
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
         <Switch
           checked={record.active}
           onChange={(checked) => {
-            updateToppingActive(record.id, checked);
+            updateAccountActive(record.username, checked);
           }}
         />
       </Space>
@@ -73,8 +83,8 @@ const columns = (editTopping, updateToppingActive) => [
   },
 ];
 
-const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
-  const [data, setData] = useState(toppings);
+const AccountList = ({ accounts, editAccount, updateAccountActive }) => {
+  const [data, setData] = useState(accounts);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
   const [tableParams, setTableParams] = useState({
@@ -87,14 +97,14 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
   const fetchData = () => {
     setLoading(true);
     setTimeout(() => {
-      setData(toppings);
+      setData(accounts);
       setLoading(false);
-      setHasData(toppings.length > 0);
+      setHasData(accounts.length > 0);
       setTableParams((prev) => ({
         ...prev,
         pagination: {
           ...prev.pagination,
-          total: toppings.length,
+          total: accounts.length,
         },
       }));
     }, 1000);
@@ -102,7 +112,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
 
   useEffect(() => {
     fetchData();
-  }, [toppings]); 
+  }, [accounts]); 
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -113,14 +123,14 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
     });
 
     if (pagination.pageSize !== tableParams.pagination.pageSize) {
-      setData(toppings);
+      setData(accounts);
     }
   };
 
   return (
     <Table
-      columns={columns(editTopping, updateToppingActive)}
-      rowKey="id"
+      columns={columns(editAccount, updateAccountActive)}
+      rowKey="username"
       dataSource={hasData ? data : []}
       pagination={{
         ...tableParams.pagination,
@@ -128,9 +138,9 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: 'No toppings found' }}
+      locale={{ emptyText: 'Không tìm thấy tài khoản nào' }}
     />
   );
 };
 
-export default ToppingList;
+export default AccountList;

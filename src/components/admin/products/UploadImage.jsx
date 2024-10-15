@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { Image, message, Modal, Upload } from "antd";
+import { Image, message, Modal, Upload, Popconfirm } from "antd";
+import PropTypes from "prop-types";
+import axios from "axios";
+import { API_PRODUCT } from "../../../services/constant";
 
 const UploadImage = (props) => {
   const [preViewOpen, setPreviewOpen] = useState(false);
@@ -10,7 +13,6 @@ const UploadImage = (props) => {
   const getBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
@@ -48,14 +50,35 @@ const UploadImage = (props) => {
     );
   };
 
-  const handleRemove = (info) => {
-    if (info.name) {
-      console.log("delete" + info.name);
-    } else if (info.response && info.response.name) {
-      console.log("delete" + info.response.name);
-    }
+  const handleRemove = (file) => {
+    return new Promise((resolve) => {
+      Modal.confirm({
+        title: "Are you sure to delete this file?",
+        onOk: async () => {
+          try {
+            props.onUpdateFileList(
+              props.fileList.filter((item) => item.uid !== file.uid)
+            );
+  
+            resolve(true);
+            await axios.delete(API_PRODUCT + "/images/" + file.name, {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+              },
+            });
+          } catch (error) {
+            // message.error(`Failed to remove ${file.name} from database`);
+            resolve(false);
+          }
+        },
+        onCancel: () => {
+          message.error("File removal canceled");
+          resolve(false);
+        },
+      });
+    });
   };
-
+  
   const uploadButton = (
     <div>
       <PlusOutlined />
@@ -66,7 +89,14 @@ const UploadImage = (props) => {
   const { fileList } = props;
 
   const headers = {
-    Authorization: "Bearer " + localStorage.getItem("token"), 
+    Authorization: "Bearer " + localStorage.getItem("token"),
+  };
+
+  const handleUploadClick = (e) => {
+    if (fileList.length >= 8) {
+      e.preventDefault();
+      message.warning("You can only upload up to 8 files.");
+    }
   };
 
   return (
@@ -79,10 +109,12 @@ const UploadImage = (props) => {
         headers={headers}
         onPreview={handlePreview}
         onChange={handleChange}
-        onRemove={handleRemove}
-        beforeUpload={() => false} 
+        onRemove={handleRemove} // Gọi hàm handleRemove khi xóa
+        beforeUpload={() => false} // Ngăn chặn upload tự động
       >
-        {fileList.length >= 8 ? null : uploadButton}
+        <div onClick={handleUploadClick}>
+          {fileList.length >= 8 ? null : uploadButton}
+        </div>
       </Upload>
 
       <Modal
@@ -91,10 +123,20 @@ const UploadImage = (props) => {
         footer={null}
         onCancel={handleCancel}
       >
-        <Image src={previewImage} alt="Preview image" style={{ width: "100%" }} />
+        <Image
+          src={previewImage}
+          alt="Preview image"
+          style={{ width: "100%" }}
+        />
       </Modal>
     </>
   );
+};
+
+UploadImage.propTypes = {
+  onDeleteProductImage: PropTypes.func.isRequired,
+  onUpdateFileList: PropTypes.func.isRequired,
+  fileList: PropTypes.array.isRequired,
 };
 
 export default UploadImage;

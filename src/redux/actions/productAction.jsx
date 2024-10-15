@@ -74,7 +74,7 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
     const response = await services.updateProduct(id, product);
     console.log("API update Response:", response);
 
-    if (response.status === 200) { 
+    if (response.status === 200) {
       dispatch({
         type: PRODUCT_SET,
         payload: response.data,
@@ -82,7 +82,7 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
 
       dispatch({
         type: PRODUCT_APPEND,
-        payload: response.data, 
+        payload: response.data,
       });
 
       dispatch({
@@ -94,14 +94,14 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
     } else {
       dispatch({
         type: COMMON_ERROR_SET,
-        payload: response.data?.message || "Unknown error", 
+        payload: response.data?.message || "Unknown error",
       });
     }
   } catch (error) {
     console.error("Error response:", error.response);
     dispatch({
       type: COMMON_ERROR_SET,
-      payload: error.response?.data?.message || error.message, 
+      payload: error.response?.data?.message || error.message,
     });
   } finally {
     dispatch({ type: COMMON_LOADING_SET, payload: false });
@@ -291,48 +291,85 @@ export const findProductNameContainsIgnoreCase =
     }
   };
 
-  export const clearProductState = () => (dispatch) => {
-    dispatch({
-      type: PRODUCT_STATE_CLEAR,
-    })
-  }
+export const clearProductState = () => (dispatch) => {
+  dispatch({
+    type: PRODUCT_STATE_CLEAR,
+  });
+};
 
-  export const uploadImages = (formData) => async (dispatch) => {
-    const service = new ProductService();
-  
-    try {
+export const uploadImages = (formData) => async (dispatch) => {
+  const service = new ProductService();
+
+  try {
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.uploadImages(formData);
+    console.log(response);
+
+    if (response.status === 200) {
       dispatch({
-        type: COMMON_LOADING_SET,
-        payload: true,
+        type: PRODUCTS_SET,
+        payload: response.data,
       });
-  
-      const response = await service.uploadImages(formData);
-      console.log(response);
-  
-      if (response.status === 200) {
-        dispatch({
-          type: PRODUCTS_SET,
-          payload: response.data,
-        });
-      } else {
-        dispatch({
-          type: COMMON_ERROR_SET,
-          payload: response.message,
-        });
-      }
-    } catch (error) {
+    } else {
       dispatch({
         type: COMMON_ERROR_SET,
-        payload: error.response.data
-          ? error.response.data.message
-          : error.message,
-      });
-    } finally {
-      dispatch({
-        type: COMMON_LOADING_SET,
-        payload: false,
+        payload: response.message,
       });
     }
-  };
-  
-  
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  } finally {
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: false,
+    });
+  }
+};
+
+export const deleteProductImage = (fileName) => async (dispatch) => {
+  const services = new ProductService();
+
+  try {
+    console.log("Delete Product Image");
+
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await services.deleteProductImage(fileName);
+
+    if (response && (response.status === 200 || response.status === 204)) {
+      dispatch({
+        type: COMMON_MESSAGE_SET,
+        payload: "removed",
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response?.data?.message || "Lỗi không xác định",
+      });
+    }
+    
+  } catch (error) {
+    console.error(error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response?.data?.message || error.message,
+    });
+  } finally {
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: false,
+    });
+  }
+};

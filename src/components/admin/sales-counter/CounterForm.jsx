@@ -23,10 +23,12 @@ import ProductService from "../../../services/productService";
 import AccountService from "../../../services/accountService";
 import ToppingService from "../../../services/toppingService";
 import OrderService from "../../../services/orderService";
+
 import ProductItem from "./ProductItem";
 import OrderTab from "./OrderTab";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import PaymentService from "../../../services/PaymentService";
+
 
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
@@ -129,6 +131,7 @@ const CounterForm = () => {
       )
         .filter(([toppingId, quantity]) => quantity > 0)
         .map(([toppingId, quantity]) => {
+
           const foundTopping = toppings.find(
             (t) => t.id === parseInt(toppingId)
           );
@@ -142,6 +145,7 @@ const CounterForm = () => {
             : null;
         })
         .filter((topping) => topping !== null);
+
 
       // Tạo sản phẩm mới với topping đã chọn
       const toppingPrice = toppingsWithQuantity.reduce(
@@ -305,28 +309,30 @@ const CounterForm = () => {
         momentprice: topping.price,
       })),
     }));
-  
     const totalAmount = cartItems.reduce(
       (total, item) => total + item.totalPrice,
       0
     );
-  
+
     const order = {
       cashierid: JSON.parse(localStorage.getItem("user")).username,
       totalamount: totalAmount,
+
       phone: orders[index].customerPhone || phoneNumberInput,
       status: paymentMethod === "ONLINE" ? "PENDING_PAYMENT" : "ORDERED",
       paymentmethod: paymentMethod,
       active: false,
+
       shippingfee: 0,
       ordertype: 0,
       fulladdresstext: null,
       customerid: orders[index].customerId || "test1",
       orderdetails: cartItems,
     };
-  
+
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
+
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
@@ -382,6 +388,7 @@ const CounterForm = () => {
     // Xóa giỏ hàng của đơn hàng đã thanh toán
     newOrders[index].cart = [];
   
+
     // Reset thông tin khách hàng
     newOrders[index].customerName = "";
     newOrders[index].customerPhone = "";
@@ -400,6 +407,7 @@ const CounterForm = () => {
     removeCustomer(index.toString()); // Gọi hàm xóa tab
   };
   
+
 
   const addNewOrder = () => {
     let newCustomerIndex = 1;
@@ -493,6 +501,7 @@ const CounterForm = () => {
       render: (toppings) =>
         toppings
           .filter((topping) => topping !== null)
+
           .map((topping) => {
             // Hàm tạo màu ngẫu nhiên
             const getRandomColor = () => {
@@ -527,7 +536,9 @@ const CounterForm = () => {
             //   </p>
             // );
           }),
+
     },
+
     // {
     //   title: "Thành tiền",
     //   dataIndex: "amount",
@@ -588,6 +599,7 @@ const CounterForm = () => {
   };
 
   return (
+
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
         <Tabs defaultActiveKey="1">
@@ -632,6 +644,7 @@ const CounterForm = () => {
         />
       </Col>
     </Row>
+
   );
 };
 

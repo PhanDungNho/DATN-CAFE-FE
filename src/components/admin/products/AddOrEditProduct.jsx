@@ -7,6 +7,7 @@ import ProductForm from "./ProductForm";
 import CategoryService from "../../../services/categoryService";
 import {
   clearProductState,
+  deleteProductImage,
   getProduct,
   insertProduct,
   updateProduct,
@@ -87,6 +88,11 @@ class AddOrEditProduct extends Component {
     return null;
   }
 
+  onDeleteProductImage = (info) => {
+    this.props.deleteProductImage(info);
+    console.log("Delete product: ", info);
+  };
+
   componentWillUnmount = () => {
     this.props.clearProductState();
     console.log("Component will unmount");
@@ -125,6 +131,7 @@ class AddOrEditProduct extends Component {
           router={router}
           onUpdateFileList={this.onUpdateFileList}
           onSubmitForm={this.onSubmitForm}
+          onDeleteProductImage={this.onDeleteProductImage}
         />
       </>
     );
@@ -141,6 +148,7 @@ const mapDispatchToProps = {
   updateProduct,
   getProduct,
   clearProductState,
+  deleteProductImage,
 };
 
 export default connect(
