@@ -3149,3 +3149,25 @@ table.order-details tbody td {
   border: 1px solid rgba(0, 0, 0, 0.2);
   /* Viền đậm hơn khi focus */
 }
+/* Thêm CSS cho hiệu ứng nhảy to nhỏ */
+@keyframes scaleAnimation {
+  0% {
+    transform: scale(1); /* Kích thước bình thường */
+  }
+  50% {
+    transform: scale(1.2); /* Phóng to chữ */
+  }
+  100% {
+    transform: scale(1); /* Quay lại kích thước ban đầu */
+  }
+}
+
+/* Áp dụng hiệu ứng cho phần tử chữ SALE */
+.sale-text {
+  font-size: 80px;
+  font-weight: bold;
+  color: red;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  animation: scaleAnimation 1s infinite; /* Lặp lại hiệu ứng */
+}
