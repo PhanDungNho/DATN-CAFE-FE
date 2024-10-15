@@ -261,7 +261,7 @@ export const findCategoryByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
     const service = new categoryService();
 
-    console.log("Find")
+    console.log("Find");
     try {
       dispatch({
         type: COMMON_LOADING_SET,

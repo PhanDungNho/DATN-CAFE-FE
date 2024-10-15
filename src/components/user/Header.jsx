@@ -49,7 +49,7 @@ function Header() {
           {/* logo */}
           <div className="site-logo">
             <a href="/">
-              <img src="assets/img/logo.png" alt="" />
+              <img src="/assets/img/logo2.png" alt="" />
             </a>
           </div>
           {/* logo */}

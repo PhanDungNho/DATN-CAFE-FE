@@ -1,17 +1,18 @@
-import { Avatar, Button, Col, Layout, Menu, Row, theme } from "antd";
+import "./DashboardPage.css";
+import { Avatar, Button, Layout, Menu, message, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
+import {
+  ProductOutlined,
+  ReconciliationOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import Sider from "antd/es/layout/Sider";
 import {
-  MdAddCircleOutline,
   MdCategory,
   MdFormatListBulleted,
-  MdInsertChartOutlined,
   MdLogout,
   MdManageAccounts,
   MdOutlineHome,
-  MdOutlineShoppingBag,
-  MdPrecisionManufacturing,
-  MdRequestPage,
   MdSupervisorAccount,
 } from "react-icons/md";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
@@ -21,14 +22,15 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { setError, setMessage } from "../../../redux/actions/commonAction";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/actions/authActions";
 
 function DashboardPage() {
   const [collapsed, setCollapsed] = useState(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
   const [marginLeft, setMarginLeft] = useState(200);
   const siteLayoutStyle = { marginLeft: marginLeft };
@@ -37,6 +39,9 @@ function DashboardPage() {
 
   const dispatch = useDispatch();
 
+  const msg = useSelector((state) => state.commonReducer.message);
+  const err = useSelector((state) => state.commonReducer.error);
+
   const handleLogout = () => {
     // Gọi action logout
     dispatch(logout());
@@ -44,6 +49,18 @@ function DashboardPage() {
     // Điều hướng về trang đăng nhập bằng window.location.href
     window.location.href = "/login";
   };
+
+  useEffect(() => {
+    if (msg) {
+      dispatch(setMessage(""));
+      message.success(msg);
+    }
+
+    if (err) {
+      dispatch(setError(""));
+      message.error(err);
+    }
+  }, [msg, err]);
 
   return (
     <Layout>
@@ -70,10 +87,10 @@ function DashboardPage() {
           }}
         >
           <img
-            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo.png"}
+            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
             alt="Logo"
             style={{
-              width: collapsed ? '80px' : '200px',
+              width: collapsed ? '90px' : '200px',
               height: '60px',
               transition: 'width 0.2s',
             }}
@@ -102,29 +119,23 @@ function DashboardPage() {
             },
             {
               key: "3",
-              icon: <MdPrecisionManufacturing />,
-              label: "Others",
+              icon: <ReconciliationOutlined />,
+              label: "Orders",
               onClick: () => navigate("/admin/orders"),
             },
             {
               key: "4",
-              icon: <MdPrecisionManufacturing />,
+              icon: <ProductOutlined />,
               label: "Products",
               children: [
                 {
                   key: "4a",
-                  icon: <MdFormatListBulleted />,
-                  label: "Upload images",
-                  onClick: () => navigate("/products/upload"),
+                  icon: <PlusOutlined />,
+                  label: "Add Product",
+                  onClick: () => navigate("/admin/products/add"),
                 },
                 {
                   key: "4b",
-                  icon: <MdFormatListBulleted />,
-                  label: "Add Product",
-                  onClick: () => navigate("/products/add"),
-                },
-                {
-                  key: "4c",
                   icon: <MdFormatListBulleted />,
                   label: "List Products",
                   onClick: () => navigate("/admin/products/list"),
@@ -150,6 +161,24 @@ function DashboardPage() {
             },
             {
               key: "10",
+              icon: <MdSupervisorAccount />,
+              label: "Accounts",
+              onClick: () => navigate("/admin/accounts/list"),
+            },
+            {
+              key: "11",
+              icon: <MdSupervisorAccount />,
+              label: "Authorities",
+              onClick: () => navigate("/admin/authorities/list"),
+            },
+            {
+              key: "12",
+              icon: <ReconciliationOutlined />,
+              label: "Orders",
+              onClick: () => navigate("/admin/invoices"),
+            },
+            {
+              key: "13",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,
@@ -162,13 +191,13 @@ function DashboardPage() {
           className="site-layout-background"
           style={{
             padding: 0,
-            background: "#ffffff", // Nền header light
+            background: "#ffffff", 
             right: 0,
             left: marginLeft ,
             top: 0,
             position: "fixed",
             height: 70,
-            borderBottom: "1px solid #f0f0f0", // Viền dưới nhẹ
+            borderBottom: "1px solid #f0f0f0",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -184,11 +213,11 @@ function DashboardPage() {
               setCollapsed(sts);
               setMarginLeft(sts ? 80 : 200);
             }}
-            className="no-outline" // Áp dụng lớp CSS tùy chỉnh
+            className="no-outline"
             style={{
               fontSize: "16px",
-              width: 30, // Đã chỉnh lại width từ 64px thành 30px
-              height: 30, // Đã chỉnh lại height từ 64px thành 30px
+              width: 30,
+              height: 30, 
             }}
           />
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -199,9 +228,8 @@ function DashboardPage() {
         <Content
           style={{
             margin: "80px 24px 16px 24px",
-            padding: 24,
             minHeight: 280,
-            background: "#FFFFFF", // Nền content màu xám nhẹ
+            background: "#FFFFFF", 
             borderRadius: borderRadiusLG,
           }}
         >
