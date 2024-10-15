@@ -12,7 +12,11 @@ import CounterForm from "../../components/admin/sales-counter/CounterForm";
 import Counter from "../../components/admin/sales-counter/Counter";
 
 import AddOrEditProduct from "../../components/admin/products/AddOrEditProduct";
+
+import PaymentService from "../../services/PaymentService";
+
 import ListInvoices from "../../components/admin/orders/ListInvoices";
+
 
 
 function Admin() {
@@ -28,8 +32,10 @@ function Admin() {
           <Route path="products/update/:id" element={<AddOrEditProduct  />} />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
+
           <Route path="accounts/list" element={<ListAccount />} />
           <Route path="authorities/list" element={<ListAuthority />} />
+
         </Route>
       </Routes>
     </>
