@@ -60,7 +60,7 @@ function Header() {
                 <a href="/">Trang chủ</a>
               </li>
               <li>
-                <a href="about.html">Về chúng tôi</a>
+                <a href="/about">Về chúng tôi</a>
               </li>
               <li>
                 <a href="#">Pages</a>
