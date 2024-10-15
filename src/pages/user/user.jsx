@@ -20,6 +20,11 @@ import CancelOrder from "../../components/user/cancelorder";
 import NewPassword from "../../components/user/newpassword";
 import ForgotPassword from "../../components/user/forgotpassword";
 import OtpPassword from "../../components/user/otp";
+import PaymentService from "../../services/PaymentService";
+import PaymentResult from "../../components/user/PaymentResult";
+import GoogleCallback from "../../services/GoogleAuthService";
+import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
+ 
 
 function User() {
   const navigate = useNavigate();
@@ -42,9 +47,12 @@ function User() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword/otp/newpassword" element={<NewPassword />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />   
         <Route path="/forgotpassword/otp" element={<OtpPassword />} />
-
+        <Route path="/drap" element={<PaymentService />} />
+        <Route path="/drap1" element={<Loginwithgoogledrap />} />
+        <Route path="/paymentresult" element={<PaymentResult />} />
+        <Route path="/google-callback" element={<GoogleCallback />} />
         {/* Route cho ManagerUser với đường dẫn /manager */}
        <Route path="/manager/*" element={<ManagerUser />} >
           <Route path="" element={<UpdateAddress />} />

@@ -10,6 +10,7 @@ import CounterForm from "../../components/admin/sales-counter/CounterForm";
 import Counter from "../../components/admin/sales-counter/Counter";
 
 import AddOrEditProduct from "../../components/admin/products/AddOrEditProduct";
+import PaymentService from "../../services/PaymentService";
 
 
 function Admin() {
@@ -24,6 +25,7 @@ function Admin() {
           <Route path="products/update/:id" element={<AddOrEditProduct  />} />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
+         
         </Route>
       </Routes>
     </>

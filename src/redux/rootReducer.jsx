@@ -5,6 +5,7 @@ import commonReducer from "./reducers/commonReducer";
 import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
+import accountReducer from "./reducers/accountReducer";
 
 const rootReducer = combineReducers({
     productReducer: productReducer,
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
     commonReducer: commonReducer,
     auth: authReducer,
     sizeReducer: sizeReducer,
-    toppingReducer: toppingReducer
+    toppingReducer: toppingReducer,
+    accountReducer: accountReducer
 });
 
 export default rootReducer;
