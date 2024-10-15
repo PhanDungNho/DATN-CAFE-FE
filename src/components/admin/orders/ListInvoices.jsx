@@ -3,7 +3,12 @@ import { connect } from "react-redux";
 import ContentHeader from "../common/ContentHeader";
 import { DatePicker, Col, Form, Input, Row, Skeleton, Space } from "antd";
 import withRouter from "../../../helpers/withRouter";
-import { getInvoices } from "../../../redux/actions/invoiceAction";
+import {
+  getInvoices,
+  getInvoicesByDate,
+  updateOrder,
+  updateOrderActive,
+} from "../../../redux/actions/invoiceAction";
 import InvoicesList from "./InvoicesList";
 
 class ListInvoices extends Component {
@@ -20,9 +25,10 @@ class ListInvoices extends Component {
         ordertype: "",
         paymentmethod: "",
       },
-      open: false,
       query: "",
+      dateRange: [],
     };
+    this.timeout = null;
   }
 
   componentDidMount = () => {
@@ -30,10 +36,21 @@ class ListInvoices extends Component {
     console.log("did mount invoices");
   };
 
+  handleDateRangeChange = (dates, dateStrings) => {
+    if (dates) {
+      const [startDate, endDate] = dateStrings;
+      this.setState({ dateRange: dates });
+      this.props.getInvoicesByDate(startDate, endDate);
+    } else {
+      this.setState({ dateRange: [] });
+      this.props.getInvoices();
+    }
+  };
+
   render() {
-    const { invoices, isLoading } = this.props;
+    const { invoices, invoice, isLoading } = this.props;
     const { navigate } = this.props.router;
-    const { open, query } = this.state;
+    const { query, dateRange } = this.state;
     const { RangePicker } = DatePicker;
 
     if (isLoading) {
@@ -41,13 +58,14 @@ class ListInvoices extends Component {
         <>
           <ContentHeader
             navigate={navigate}
-            title="List Categories"
+            title="List Orders"
             className="site-page-header"
           ></ContentHeader>
           <Skeleton active />
         </>
       );
     }
+
     return (
       <>
         <ContentHeader
@@ -71,12 +89,20 @@ class ListInvoices extends Component {
           </Col>
           <Col md={15} style={{ display: "flex", justifyContent: "end" }}>
             <Space direction="vertical" size={12}>
-              <RangePicker />
+              <RangePicker
+                value={dateRange}
+                onChange={this.handleDateRangeChange}
+              />
             </Space>
           </Col>
         </Row>
 
-        <InvoicesList invoices={invoices} isLoading={isLoading} />
+        <InvoicesList
+          updateOrderActive={this.props.updateOrderActive}
+          invoices={invoices}
+          isLoading={isLoading}
+          updateOrder={this.props.updateOrder}
+        />
       </>
     );
   }
@@ -84,11 +110,15 @@ class ListInvoices extends Component {
 
 const mapStateToProps = (state) => ({
   invoices: state.invoiceReducer.invoices,
+  invoice: state.invoiceReducer.invoice,
   isLoading: state.commonReducer.isLoading,
 });
 
 const mapDispatchToProps = {
   getInvoices,
+  getInvoicesByDate,
+  updateOrderActive,
+  updateOrder,
 };
 
 export default connect(

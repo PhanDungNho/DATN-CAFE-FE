@@ -99,11 +99,11 @@ export const updateAccount = (username, account) => async (dispatch) => {
         type: COMMON_ERROR_SET,
         payload: response.message,
       });
-    }
+    }    
   } catch (error) {
     dispatch({
       type: COMMON_ERROR_SET,
-      payload: error.response?.data?.message || error.message
+      payload: error.response?.data?.message || error.message,
     });
   }
 
@@ -257,16 +257,14 @@ export const findAccountByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
     const service = new accountService();
 
-    console.log("Find")
+    console.log("Find");
     try {
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
       });
 
-      const response = await service.findAccountByNameContainsIgnoreCase(
-        query
-      );
+      const response = await service.findAccountByNameContainsIgnoreCase(query);
 
       if (response.status === 200) {
         const accounts = Array.isArray(response.data) ? response.data : [];
@@ -302,12 +300,11 @@ export const findAccountByNameContainsIgnoreCase =
     }
   };
 
-
-  export const findAccountByPhoneContainsIgnoreCase =
+export const findAccountByPhoneContainsIgnoreCase =
   (query) => async (dispatch) => {
     const service = new accountService();
 
-    console.log("Find")
+    console.log("Find");
     try {
       dispatch({
         type: COMMON_LOADING_SET,
