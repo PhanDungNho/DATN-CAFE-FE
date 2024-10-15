@@ -4,7 +4,7 @@ import { API_ACCOUNT } from "./constant";
 export default class AccountService {
   insertAccount = (account) => {
     const formData = new FormData();
-  
+
     // Append account fields to FormData
     formData.append("username", account.username);
     formData.append("fullname", account.fullname);
@@ -13,13 +13,13 @@ export default class AccountService {
     formData.append("email", account.email);
     formData.append("amountpaid", account.amountpaid);
     formData.append("active", account.active);
-  
+
     if (account.imageFile[0].originFileObj) {
       formData.append("imageFile", account.imageFile[0].originFileObj);
     }
-  
+
     console.log("Account insert data:", [...formData]);
-  
+
     return axios.post(API_ACCOUNT, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -50,23 +50,22 @@ export default class AccountService {
       },
     });
   };
-  
 
-getAccounts = async () => {
-  return await axios.get(API_ACCOUNT, {
-    headers: {
-      "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-    }
-  });
-};
+  getAccounts = async () => {
+    return await axios.get(API_ACCOUNT, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 
-getAccount = async (username) => {
-  return await axios.get(API_ACCOUNT + "/" + username + "/get", {
-    headers: {
-      "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-    }
-  });
-};
+  getAccount = async (username) => {
+    return await axios.get(API_ACCOUNT + "/" + username + "/get", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 
   updateAccountActive = async (username, active) => {
     return await axios.patch(
@@ -74,20 +73,19 @@ getAccount = async (username) => {
       { active }, // Gửi `active` dưới dạng object
       {
         headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-        }
+          Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+        },
       }
     );
   };
-  
- 
+
   findAccountByNameContainsIgnoreCase = async (query) => {
     return await axios.get(API_ACCOUNT + "/find", {
       params: {
         query: query,
       },
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"), 
+        Authorization: "Bearer " + localStorage.getItem("token"),
       },
     });
   };
@@ -98,7 +96,7 @@ getAccount = async (username) => {
         query: query,
       },
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"), 
+        Authorization: "Bearer " + localStorage.getItem("token"),
       },
     });
   };
