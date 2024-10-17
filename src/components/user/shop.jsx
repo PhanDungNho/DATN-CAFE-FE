@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import { Row, Col, Card, Button, Pagination, Breadcrumb, Layout, Menu, Select, Slider } from "antd";
+import React, { useState, useEffect } from "react";
+import { Row, Col, Card, Button, Pagination, Breadcrumb, Layout, Menu, Select, Slider, Spin } from "antd";
 import { ShoppingCartOutlined, ShopOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom"; // Import Link để sử dụng điều hướng
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getProducts, getProductsUser } from "../../redux/actions/productAction";
+import ProductService from "../../services/productService";  // Import toàn bộ class ProductService
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -9,29 +12,60 @@ const { Content } = Layout;
 const { Option } = Select;
 
 function Shop() {
-  const products = [
-    { id: 1, category: "Strawberry", name: "Strawberry", price: 85, img: "assets/img/products/product-img-1.jpg" },
-    { id: 2, category: "Berry", name: "Berry", price: 70, img: "assets/img/products/product-img-2.jpg" },
-    { id: 3, category: "Lemon", name: "Lemon", price: 35, img: "assets/img/products/product-img-3.jpg" },
-    { id: 4, category: "Avocado", name: "Avocado", price: 50, img: "assets/img/products/product-img-4.jpg" },
-    { id: 5, category: "Green Apple", name: "Green Apple", price: 45, img: "assets/img/products/product-img-5.jpg" },
-    { id: 6, category: "Cafe đen đá không đường", name: "Cafe", price: 80, img: "assets/img/products/product-img-6.jpg" },
-  ];
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.productReducer.products);
+  const isLoading = useSelector((state) => state.commonReducer.isLoading);
+  const error = useSelector((state) => state.commonReducer.error);
 
-  const categories = ["All", "Cafe đen đá không đường", "Berry", "Lemon", "Avocado", "Green Apple"];
+
+  // Lấy danh sách danh mục từ sản phẩm
+  const uniqueCategories = Array.from(new Set(products.map(product => product.category.name)));
+  const categories = ["All", ...uniqueCategories];
+  const menuItems = categories.map((category) => ({ key: category, label: category }));
 
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
-  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [priceRange, setPriceRange] = useState([0, 0]); // Khởi tạo với [0, 0]
   const [sortOrder, setSortOrder] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(100); // Giá trị mặc định nếu không có sản phẩm
 
+  useEffect(() => {
+    dispatch(getProductsUser());
+  }, [dispatch]);
+
+  // Tính toán giá trị tối đa khi sản phẩm được tải
+  useEffect(() => {
+    if (products.length > 0) {
+      const allPrices = products.flatMap(p => p.productVariants.map(v => v.price));
+      if (allPrices.length > 0) {
+        const calculatedMaxPrice = Math.max(...allPrices);
+        setMaxPrice(calculatedMaxPrice);
+        setPriceRange([0, calculatedMaxPrice]); // Thiết lập giá trị mặc định cho priceRange
+      }
+    }
+  }, [products]);
+
+  // Điều chỉnh filter danh mục dựa trên product.category.name
   const filteredProducts = products
-    .filter((product) => (selectedCategory === "All" ? true : product.category === selectedCategory))
-    .filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+    .filter((product) => {
+      if (!product.productVariants || product.productVariants.length === 0) return false; // Loại bỏ sản phẩm không có biến thể
+      return selectedCategory === "All" || product.category.name === selectedCategory;
+    })
+    .filter((product) => {
+      // Lấy giá thấp nhất và cao nhất từ các biến thể để áp dụng filter giá
+      const prices = product.productVariants.map(variant => variant.price);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      return minPrice >= priceRange[0] && maxPrice <= priceRange[1];
+    });
 
   const sortedProducts = sortOrder
-    ? [...filteredProducts].sort((a, b) => (sortOrder === "asc" ? a.price - b.price : b.price - a.price))
+    ? [...filteredProducts].sort((a, b) => {
+      const priceA = Math.min(...a.productVariants.map(v => v.price)) || 0;
+      const priceB = Math.min(...b.productVariants.map(v => v.price)) || 0;
+      return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
+    })
     : filteredProducts;
 
   const paginatedProducts = sortedProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -54,14 +88,61 @@ function Shop() {
     setCurrentPage(page);
   };
 
-  const handlePageSizeChange = (current, size) => {
+  const handlePageSizeChange = (size) => {
     setPageSize(size);
     setCurrentPage(1);
   };
 
+  const getProductImage = (product) => {
+    if (product.images && product.images.length > 0) {
+      return ProductService.getProductImageUrl(product.images[0].url);
+    }
+    return "default-image-url";
+  };
+
+
   return (
+
     <Layout>
       <Header />
+      <style>
+        {`
+    :where(.css-dev-only-do-not-override-11lehqq).ant-pagination .ant-pagination-item-active a {
+    color: #ff8616;
+}
+    :where(.css-dev-only-do-not-override-11lehqq).ant-slider .ant-slider-handle::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px #696969	;
+    outline: 0px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: inset-inline-start 0.2s, inset-block-start 0.2s, width 0.2s, height 0.2s, box-shadow 0.2s, outline 0.2s;
+}
+    :where(.css-dev-only-do-not-override-11lehqq).ant-pagination .ant-pagination-item-active {
+    font-weight: 600;
+    background-color: #ffffff;
+    border-color: #696969	 !important;
+}
+    :where(.css-dev-only-do-not-override-11lehqq).ant-pagination .ant-pagination-item-active a:hover {
+    color: black;
+}
+    :where(.css-dev-only-do-not-override-11lehqq).ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector {
+    border: 1px solid #d9d9d9;
+    background: #ffffff;
+    border-color: #696969	 !important;
+}
+    :where(.css-dev-only-do-not-override-11lehqq).ant-slider:hover .ant-slider-handle::after {
+     box-shadow: 0 0 0 2px #696969	;
+}
+    
+  `}
+      </style>
       <Content>
         <div className="hero-area hero-bg">
           <div className="container">
@@ -78,128 +159,187 @@ function Shop() {
           </div>
         </div>
 
-        <Breadcrumb style={{ marginBottom: "0px", textAlign: "left", fontSize: "18px", marginLeft: "200px" }}>
-          <Breadcrumb.Item href="/">
-            <ShopOutlined /> Trang chủ
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <ShoppingCartOutlined /> Sản Phẩm
-          </Breadcrumb.Item>
-        </Breadcrumb>
+        
 
         <div className="product-section" style={{ padding: "50px 0" }}>
           <div className="container">
             <Row gutter={[16, 16]}>
-              {/* Danh mục sản phẩm (bên trái) */}
               <Col xs={24} md={4}>
-                <div style={{ padding: "20px", marginTop: "0px", border: "1px solid #e8e8e8", borderRadius: "4px", background: "#fff" }}>
-                  <h4>Categories</h4>
+                <div
+                  style={{
+                    padding: "20px",
+                    marginTop: "0px",
+                    border: "1px solid #e8e8e8",
+                    borderRadius: "8px",
+                    background: "#fff",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    transition: "transform 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                >
+                  <h5 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "15px", color: "#333" }}>
+                    Loại sản phẩm
+                  </h5>
                   <Menu
                     mode="inline"
                     selectedKeys={[selectedCategory]}
                     onClick={(e) => handleCategoryChange(e.key)}
-                  >
-                    {categories.map((category) => (
-                      <Menu.Item key={category}>{category}</Menu.Item>
-                    ))}
-                  </Menu>
+                    items={menuItems.map((item) => ({
+                      ...item,
+                      style: {
+                        backgroundColor: selectedCategory === item.key ? "#F28123" : "transparent", // Set to orange if selected
+                        color: selectedCategory === item.key ? "#fff" : "#333", // Change text color based on selection
+                      },
+                    }))}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                    }}
+                  />
                 </div>
               </Col>
 
-              {/* Hiển thị sản phẩm (giữa) */}
+
+
               <Col xs={24} md={14}>
-                <Row gutter={[16, 16]}>
-                  {paginatedProducts.map((product) => (
-                    <Col key={product.id} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
-                      <Link to={`/single-product`}>
-                        <Card
-                          hoverable
-                          style={{
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                            transition: 'transform 0.2s',
-                          }}
-                          cover={<img alt={product.name} src={product.img} style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }} />}
-                          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                        >
-                          <Card.Meta
-                            title={<span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{product.name}</span>}
-                            description={
-                              <div>
-                                <span style={{ fontSize: '1.2rem', color: '#888' }}>Per Kg - </span>
-                                <span style={{ fontSize: '1.5rem', color: '#ff4d4f' }}>${product.price}</span>
-                              </div>
-                            }
-                          />
-                          <Button 
-                            type="primary" 
-                            icon={<ShoppingCartOutlined />} 
-                            style={{
-                              width: '100%',
-                              marginTop: '10px',
-                              backgroundColor: '#F28123', 
-                              borderColor: '#ff4d4f'
-                            }}
-                          >
-                            Add to Cart
-                          </Button>
-                        </Card>
-                      </Link>
-                    </Col>
-                  ))}
-                </Row>
+                {isLoading ? (
+                  <div style={{ textAlign: "center", padding: "50px 0" }}>
+                    <Spin size="large" />
+                  </div>
+                ) : error ? (
+                  <div style={{ textAlign: "center", padding: "50px 0", color: "red" }}>
+                    {error}
+                  </div>
+                ) : (
+                  <>
+                    {paginatedProducts.length > 0 ? (
+                      <Row gutter={[16, 16]}>
+                        {paginatedProducts.map((product) => (
+                          <Col key={product.id} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
+                            <Link to={`/single-product/${product.id}`}>
+                              <Card
+                                hoverable
+                                style={{
+                                  border: '1px solid #ddd',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                  transition: 'transform 0.2s',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  height: '350px', // Adjust height of the card
+                                }}
+                                cover={
+                                  <img
+                                    src={getProductImage(product)} // Ensure this function returns a valid image URL
+                                    alt={product.name}
+                                    style={{
+                                      borderTopLeftRadius: '8px',
+                                      borderTopRightRadius: '8px',
+                                      height: '200px',
+                                      width: '100%',
+                                      objectFit: 'contain',
+                                      maxHeight: '200px',
+                                    }}
+                                  />
+                                }
+                                onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                              >
+                                <Card.Meta
+                                  title={
+                                    <span
+                                      title={product.name}
+                                      style={{
+                                        fontSize: '1.25rem', // Adjusted font size
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
+                                        display: 'block',
+                                        height: '40px',
+                                        color: '#f28123',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      {product.name}
+                                    </span>
+                                  }
+                                  description={
+                                    <div style={{ flexGrow: 1, height: '40px' }}>
+                                      <span style={{ fontSize: '1rem', color: '#898' }}> {/* Adjusted font size */}
+                                        {Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(
+                                          Math.min(...product.productVariants.map(v => v.price))
+                                        )} VNĐ
+                                      </span>
+                                    </div>
+                                  }
+                                />
+                              </Card>
+                            </Link>
+                          </Col>
+                        ))}
+                      </Row>
+                    ) : (
+                      <div style={{ textAlign: "center", padding: "50px 0", color: "#888" }}>
+                        Không tìm thấy sản phẩm nào thỏa mãn.
+                      </div>
+                    )}
 
-                <Row justify="end" style={{ marginTop: 20 }}>
-                  <Select
-                    defaultValue={pageSize}
-                    style={{ width: 120 }}
-                    onChange={(value) => handlePageSizeChange(currentPage, value)}
-                  >
-                    <Option value={6}>6 / page</Option>
-                    <Option value={12}>12 / page</Option>
-                  </Select>
-                </Row>
 
-                <Row justify="center" style={{ marginTop: 50 }}>
-                  <Pagination
-                    current={currentPage}
-                    total={filteredProducts.length}
-                    pageSize={pageSize}
-                    onChange={handlePageChange}
-                  />
-                </Row>
+                    <Row justify="end" style={{ marginTop: 20 }}>
+                      <Select
+                        defaultValue={pageSize}
+                        style={{ width: 120 }}
+                        onChange={(value) => handlePageSizeChange(value)}
+                      >
+                        <Option value={6}>6 / page</Option>
+                        <Option value={12}>12 / page</Option>
+                      </Select>
+                    </Row>
+
+                    <Row justify="center" style={{ marginTop: 50 }}>
+                      <Pagination
+                        current={currentPage}
+                        total={filteredProducts.length}
+                        pageSize={pageSize}
+                        onChange={handlePageChange}
+                        showSizeChanger={false}
+                      />
+                    </Row>
+                  </>
+                )}
               </Col>
 
-              {/* Bộ lọc và sắp xếp (bên phải) */}
               <Col xs={24} md={6}>
-                {/* Lọc theo giá */}
                 <div style={{ padding: "20px", marginTop: "0px", border: "1px solid #e8e8e8", borderRadius: "4px", background: "#fff" }}>
-                  <h4>Filter by Price</h4>
+                  <h4>Lọc theo giá</h4>
                   <Slider
                     range
                     min={0}
-                    max={100}
+                    max={maxPrice}
                     value={priceRange}
                     onChange={handlePriceChange}
-                    tipFormatter={(value) => `$${value}`} // Hiển thị giá trên tooltip
-                    handleStyle={[{ borderColor: "#f28123" }, { borderColor: "#f28123" }]} // Đổi màu tay cầm
-                    trackStyle={[{ backgroundColor: "#f28123" }]} // Đổi màu track
-                    railStyle={{ backgroundColor: "#ddd" }} // Đổi màu đường ray
-                    style={{ width: "100%" }}  
+                    tooltip={{
+                      formatter: (value) => `${value} VNĐ`,
+                    }}
+                    handleStyle={[
+                      { borderColor: "#f28123" },
+                      { borderColor: "#f28123" },
+                    ]}
+                    trackStyle={[{ backgroundColor: "#f28123" }]}
+                    railStyle={{ backgroundColor: "#ddd" }}
+                    style={{ width: "100%" }}
                   />
                   <p>
-                    Price: ${priceRange[0]} - ${priceRange[1]}
+                    Giá: {priceRange[0]} VNĐ - {priceRange[1]} VNĐ
                   </p>
                 </div>
 
-                {/* Sắp xếp theo giá */}
                 <div style={{ padding: "20px", marginTop: "20px", border: "1px solid #e8e8e8", borderRadius: "4px", background: "#fff" }}>
-                  <h4>Sort by Price</h4>
-                  <Select style={{ width: "100%" }} onChange={handleSortChange}>
-                    <Option value="asc">Price: Low to High</Option>
-                    <Option value="desc">Price: High to Low</Option>
+                  <h4>Sắp xếp theo giá</h4>
+                  <Select style={{ width: "100%" }} onChange={handleSortChange} allowClear placeholder="Hiển thị">
+                    <Option value="asc">Giá: Từ thấp đến cao</Option>
+                    <Option value="desc">Giá: Từ cao đến thấp </Option>
                   </Select>
                 </div>
               </Col>
