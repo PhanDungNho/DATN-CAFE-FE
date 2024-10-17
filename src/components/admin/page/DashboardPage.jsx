@@ -227,10 +227,10 @@ function DashboardPage() {
         </Header>
         <Content
           style={{
-            margin: "80px 24px 16px 24px",
+            margin: "70px 0 0 0",
             minHeight: 280,
             background: "#FFFFFF", 
-            borderRadius: borderRadiusLG,
+           
           }}
         >
           <div className="content-panel">

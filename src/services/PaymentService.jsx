@@ -18,7 +18,7 @@ export default class PaymentService extends Component {
   createPayment = (amount, orderInfo,orderId) => {
     const partnerCode = "MOMO";
     const redirectUrl = "http://localhost:3000/paymentresult";
-    const ipnUrl = "https://e951-113-161-210-31.ngrok-free.app/api/v1/transactions/ipn";
+    const ipnUrl = "https://ace0-14-241-183-136.ngrok-free.app/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
     const requestId = newOrderId;
@@ -55,16 +55,6 @@ export default class PaymentService extends Component {
     });
   };
   
-
-
-
-
-
-
-
-
-
-
   // Hàm kiểm tra trạng thái của giao dịch đã tạo
   checkStatus = () => {
     const { orderId } = this.state;

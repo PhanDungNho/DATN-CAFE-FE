@@ -5,6 +5,7 @@ import { Layout, Row, Col, Skeleton, Tabs } from "antd";
 import ContentHeader from "../common/ContentHeader";
 import CounterForm from "./CounterForm";
 import { getAccounts } from "../../../redux/actions/accountAction";
+import TabPane from "antd/es/tabs/TabPane";
 
 const { Content, Footer } = Layout;
 
@@ -54,7 +55,18 @@ class Counter extends Component {
           className="site-page-header"
         />
         <Content style={{ padding: "20px" }}>
-          <CounterForm /> {/* Hiển thị CounterForm */}
+
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Sản phẩm" key="1">
+          <CounterForm />  
+          </TabPane>
+          <TabPane tab="Tab 2" key="2">
+           
+          </TabPane>
+         
+        </Tabs>
+
+        
         </Content>
         <Footer style={{ textAlign: "center" }}>
           Phần mềm quản lý quán cà phê ©2024
