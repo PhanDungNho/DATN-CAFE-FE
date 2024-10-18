@@ -140,6 +140,7 @@ export const getCategories = () => async (dispatch) => {
         type: COMMON_ERROR_SET,
         payload: response.message,
       });
+  
     }
   } catch (error) {
     dispatch({
@@ -148,6 +149,7 @@ export const getCategories = () => async (dispatch) => {
         ? error.response.data.message
         : error.message,
     });
+        window.location.href="/login"
   }
   dispatch({
     type: COMMON_LOADING_SET,

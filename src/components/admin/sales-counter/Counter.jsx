@@ -5,7 +5,10 @@ import { Layout, Row, Col, Skeleton, Tabs } from "antd";
 import ContentHeader from "../common/ContentHeader";
 import CounterForm from "./CounterForm";
 import { getAccounts } from "../../../redux/actions/accountAction";
+import TabPane from "antd/es/tabs/TabPane";
 
+import ListInvoices from "../orders/ListInvoices";
+import { getInvoices } from "../../../redux/actions/invoiceAction";
 const { Content, Footer } = Layout;
 
 class Counter extends Component {
@@ -28,11 +31,17 @@ class Counter extends Component {
         // Xử lý lỗi, ví dụ: Hiển thị thông báo lỗi cho người dùng
       });
   }
+  handleTabChange = (key) => {
+    this.setState({ activeTab: key });
+    if (key === "2") { // Là tab "Đơn hàng"
+      this.props.getInvoices(); // Gọi lại hàm getInvoices
+    }
+  };
 
   render() {
     const { navigate } = this.props.router;
-    const { isLoading } = this.state;
-
+   
+    const { isLoading, activeTab } = this.state;
     if (isLoading) {
       return (
         <>
@@ -54,7 +63,18 @@ class Counter extends Component {
           className="site-page-header"
         />
         <Content style={{ padding: "20px" }}>
-          <CounterForm /> {/* Hiển thị CounterForm */}
+
+        <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={this.handleTabChange}>
+          <TabPane tab="Quầy bán hàng" key="1">
+          <CounterForm />  
+          </TabPane>
+          <TabPane tab="Đơn hàng" key="2">
+        <ListInvoices />
+          </TabPane>
+         
+        </Tabs>
+
+        
         </Content>
         <Footer style={{ textAlign: "center" }}>
           Phần mềm quản lý quán cà phê ©2024
@@ -70,6 +90,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getAccounts,
+  getInvoices
 };
 
 export default connect(

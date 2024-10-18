@@ -154,7 +154,7 @@ export const handleGoogleLoginSuccess = async (credentialResponse) => {
       window.location.href = "/admin";
     
     } else {
-      alert("Bạn không có quyền truy cập");
+      window.location.href = "/";
     }
 
     console.log('Response from backend:', data);

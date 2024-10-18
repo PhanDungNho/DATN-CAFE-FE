@@ -4,7 +4,7 @@ import { Col, Card, Row, Select, InputNumber, Button } from "antd";
 const { Option } = Select;
 
 const ProductItem = ({
-  data,
+  products,
   toppings,
   selectedVariants,
   handleSelectVariant,
@@ -46,7 +46,7 @@ const ProductItem = ({
   `}
 </style>
 
-      {data
+      {products
         .filter((product) => product.productVariants.length > 0)
         .map((product) => (
           <Col xs={24} sm={12} md={12} lg={8} key={product.id}>

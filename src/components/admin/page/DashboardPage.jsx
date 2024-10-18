@@ -308,7 +308,7 @@ function DashboardPage() {
         </Header>
         <Content
           style={{
-            margin: "70px 0px 0px 0px",
+            margin: "70px 0 0 0",
             minHeight: 280,
             background: "#FFFFFF",
           }}
