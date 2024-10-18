@@ -20,7 +20,7 @@ export default class PaymentService extends Component {
   createPayment = (amount, orderInfo,orderId) => {
     const partnerCode = "MOMO";
     const redirectUrl = "http://localhost:3000/paymentresult";
-    const ipnUrl = ngrol + "/api/v1/transactions/ipn";
+    const ipnUrl = ngrok + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
     const requestId = newOrderId;
