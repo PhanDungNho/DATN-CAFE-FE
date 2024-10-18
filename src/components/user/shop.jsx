@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Button, Pagination, Breadcrumb, Layout, Menu, Select, Slider, Spin } from "antd";
-import { ShoppingCartOutlined, ShopOutlined } from "@ant-design/icons";
+import { Row, Col, Card, Pagination, Layout, Menu, Select, Slider, Spin } from "antd";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getProducts, getProductsUser } from "../../redux/actions/productAction";
+import { UnorderedListOutlined, StarFilled, HeartFilled } from '@ant-design/icons';
 import ProductService from "../../services/productService";  // Import toàn bộ class ProductService
 import Header from "./Header";
 import Footer from "./Footer";
@@ -31,7 +31,7 @@ function Shop() {
   const [maxPrice, setMaxPrice] = useState(100); // Giá trị mặc định nếu không có sản phẩm
 
   useEffect(() => {
-    dispatch(getProductsUser());
+    dispatch(getProducts());
   }, [dispatch]);
 
   // Tính toán giá trị tối đa khi sản phẩm được tải
@@ -159,7 +159,7 @@ function Shop() {
           </div>
         </div>
 
-        
+
 
         <div className="product-section" style={{ padding: "50px 0" }}>
           <div className="container">
@@ -178,8 +178,8 @@ function Shop() {
                   onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                 >
-                  <h5 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "15px", color: "#333" }}>
-                    Loại sản phẩm
+                  <h5 style={{ fontSize: "15px", color: "#333", fontWeight: "560" }}>
+                    <UnorderedListOutlined /> Loại sản phẩm
                   </h5>
                   <Menu
                     mode="inline"
@@ -227,7 +227,7 @@ function Shop() {
                                   transition: 'transform 0.2s',
                                   display: 'flex',
                                   flexDirection: 'column',
-                                  height: '350px', // Adjust height of the card
+                                  height: '350px',
                                 }}
                                 cover={
                                   <img
@@ -251,7 +251,7 @@ function Shop() {
                                     <span
                                       title={product.name}
                                       style={{
-                                        fontSize: '1.25rem', // Adjusted font size
+                                        fontSize: '1.25rem',
                                         overflow: 'hidden',
                                         whiteSpace: 'nowrap',
                                         textOverflow: 'ellipsis',
@@ -265,17 +265,31 @@ function Shop() {
                                     </span>
                                   }
                                   description={
-                                    <div style={{ flexGrow: 1, height: '40px' }}>
-                                      <span style={{ fontSize: '1rem', color: '#898' }}> {/* Adjusted font size */}
-                                        {Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(
-                                          Math.min(...product.productVariants.map(v => v.price))
-                                        )} VNĐ
-                                      </span>
-                                    </div>
+                                    <>
+                                      <div style={{ height: '40px' }}>
+                                        <span style={{ fontSize: '1rem', color: '#898' }}>
+                                          {Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(
+                                            Math.min(...product.productVariants.map(v => v.price))
+                                          )} VNĐ
+                                        </span>
+                                      </div>
+                                      {/* Icon ngôi sao và trái tim bên dưới giá */}
+                                      <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
+                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
+                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
+                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
+                                          <StarFilled style={{ color: '#fadb14' }} />
+                                        </div>
+                                        <HeartFilled style={{ color: '#ff4d4f' }} />
+                                      </div>
+                                    </>
                                   }
                                 />
                               </Card>
                             </Link>
+
                           </Col>
                         ))}
                       </Row>
@@ -312,7 +326,7 @@ function Shop() {
 
               <Col xs={24} md={6}>
                 <div style={{ padding: "20px", marginTop: "0px", border: "1px solid #e8e8e8", borderRadius: "4px", background: "#fff" }}>
-                  <h4>Lọc theo giá</h4>
+                  <h4 style={{ fontSize: "15px", color: "#333", fontWeight: "560" }}>Lọc theo giá</h4>
                   <Slider
                     range
                     min={0}
@@ -320,7 +334,7 @@ function Shop() {
                     value={priceRange}
                     onChange={handlePriceChange}
                     tooltip={{
-                      formatter: (value) => `${value} VNĐ`,
+                      formatter: (value) => `${value.toLocaleString('vi-VN')} VNĐ`,
                     }}
                     handleStyle={[
                       { borderColor: "#f28123" },
@@ -331,12 +345,12 @@ function Shop() {
                     style={{ width: "100%" }}
                   />
                   <p>
-                    Giá: {priceRange[0]} VNĐ - {priceRange[1]} VNĐ
+                    Giá: {priceRange[0].toLocaleString('vi-VN')} VNĐ - {priceRange[1].toLocaleString('vi-VN')} VNĐ
                   </p>
                 </div>
 
                 <div style={{ padding: "20px", marginTop: "20px", border: "1px solid #e8e8e8", borderRadius: "4px", background: "#fff" }}>
-                  <h4>Sắp xếp theo giá</h4>
+                  <h4 style={{ fontSize: "15px", color: "#333", fontWeight: "560" }}>Sắp xếp theo giá</h4>
                   <Select style={{ width: "100%" }} onChange={handleSortChange} allowClear placeholder="Hiển thị">
                     <Option value="asc">Giá: Từ thấp đến cao</Option>
                     <Option value="desc">Giá: Từ cao đến thấp </Option>
