@@ -1,179 +1,307 @@
 import React, { useState } from "react";
+import { Row, Col, Image, Button, Card } from "antd";
+import { ShoppingCartOutlined, LeftOutlined, RightOutlined, LineHeightOutlined } from "@ant-design/icons";
 import Header from "./Header";
 import Footer from "./Footer";
 
-function Product() {
-  // Tạo state để lưu trữ size đã chọn
-  const [selectedSize, setSelectedSize] = useState("M");
+const { Meta } = Card;
 
-  // Mảng chứa giá cho từng size
+function Product() {
+  const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("M");
+  const [price, setPrice] = useState(50000); // Giá khởi điểm cho size M
+  const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0); // Để điều khiển nhóm thumbnail hiện tại
+
   const sizes = [
-    { size: "S", price: 40 },
-    { size: "M", price: 50 },
-    { size: "L", price: 60 },
+    { size: "S", price: 40000 },
+    { size: "M", price: 50000 },
+    { size: "L", price: 60000 },
   ];
 
-  // Hàm để thay đổi kích thước
-  const handleSizeClick = (size) => {
+  const thumbnails = [
+    "assets/img/index/cafeden.png",
+    "assets/img/index/cafesua.png",
+    "assets/img/index/imgbacxiu.png",
+    "assets/img/index/imgbacxiu.png",
+    "assets/img/index/imgbacxiu.png",
+    "assets/img/index/imgbacxiu.png",
+    "assets/img/index/imgbacxiu.png",
+    "assets/img/index/imgbacxiu.png",
+  ];
+
+  const featuredProducts = [
+    {
+      name: "Banana",
+      price: 40,
+      img: "assets/img/products/product-img-6.jpg",
+    },
+  ];
+
+  const handleSizeClick = (size, price) => {
     setSelectedSize(size);
+    setPrice(price); // Cập nhật giá khi size được chọn
+  };
+
+  const handleThumbnailClick = (index) => {
+    setMainImageIndex(index);
+  };
+
+  const handleNextImage = () => {
+    setMainImageIndex((prevIndex) => (prevIndex + 1) % thumbnails.length);
+  };
+
+  const handlePreviousImage = () => {
+    setMainImageIndex((prevIndex) =>
+      prevIndex === 0 ? thumbnails.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Điều khiển ảnh thumbnail
+  const thumbnailsPerPage = 4; // Số ảnh hiển thị mỗi lần
+  const maxThumbnailIndex = Math.max(0, thumbnails.length - thumbnailsPerPage);
+
+  const handleNextThumbnails = () => {
+    setCurrentThumbnailIndex((prevIndex) =>
+      prevIndex < maxThumbnailIndex ? prevIndex + 1 : prevIndex
+    );
+  };
+
+  const handlePreviousThumbnails = () => {
+    setCurrentThumbnailIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : prevIndex
+    );
   };
 
   return (
     <>
       <Header />
-      <div className="breadcrumb-section breadcrumb-bg">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="breadcrumb-text">
-                <p>See more Details</p>
-                <h1>Single Product</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <style>{`
+        :where(.css-dev-only-do-not-override-11lehqq).ant-btn-primary {
+      color: #fff;
+      background: #ff8416;
+      box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
+      }
+      :where(.css-dev-only-do-not-override-11lehqq).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+          color: #fff;
+          background: #ff8416;
+      }
+          :where(.css-dev-only-do-not-override-11lehqq).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+          color: #fff;
+          border-color: black;
+          background: #ff8416;
+}
+      `}
+      </style>
       <div className="product mt-150 mb-150">
         <div className="container">
-          <div className="row">
-            <div className="col-md-5">
-              <div className="product-img">
-                <img
-                  src="assets/img/products/product-img-5.jpg"
-                  alt=""
-                  className="zoom-img"
+          <Row gutter={[16, 16]}>
+            <Col md={12}>
+              <div style={{ position: "relative", backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px" }}>
+                <Image
+                  src={thumbnails[mainImageIndex]}
+                  alt="Product"
+                  style={{
+                    borderRadius: "8px",
+                    width: "100%",
+                    maxHeight: "450px",
+                    objectFit: "cover",
+                    marginBottom: "10px",
+                    marginLeft: "50px",
+                  }}
+                />
+                {/* Nút Previous (icon) */}
+                <Button
+                  icon={<LeftOutlined />}
+                  shape="circle"
+                  onClick={handlePreviousImage}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "10px",
+                    transform: "translateY(-50%)",
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    border: "none",
+                    color: "white",
+                  }}
+                />
+                {/* Nút Next (icon) */}
+                <Button
+                  icon={<RightOutlined />}
+                  shape="circle"
+                  onClick={handleNextImage}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: "10px",
+                    transform: "translateY(-50%)",
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    border: "none",
+                    color: "white",
+                  }}
                 />
               </div>
-            </div>
-            <div className="col-md-7">
-              <div className="product-content">
-                <h3>Green apples have polyphenols</h3>
-                <p className="product-pricing">
-                  <span>Per Kg: </span> $50
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Dicta sint dignissimos, rem commodi cum voluptatem quae
-                  reprehenderit repudiandae ea tempora incidunt ipsa, quisquam
-                  animi perferendis eos eum modi! Tempora, earum.
-                </p>
 
-                {/* Size selection */}
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Button
+                  icon={<LeftOutlined />}
+                  shape="circle"
+                  onClick={handlePreviousThumbnails}
+                  disabled={currentThumbnailIndex === 0}
+                />
+                <div style={{ display: "flex", margin: "10px 10px" }}>
+                  {thumbnails
+                    .slice(currentThumbnailIndex, currentThumbnailIndex + thumbnailsPerPage)
+                    .map((imgSrc, index) => (
+                      <div key={index} style={{ flex: "0 0 auto", marginRight: "8px" }}>
+                        <Image
+                          src={imgSrc}
+                          alt={`Product thumbnail ${index + 1}`}
+                          style={{
+                            borderRadius: "8px",
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                            cursor: "pointer",
+                            transition: "transform 0.3s ease",
+                            border: "1px solid rgba(0, 0, 0, 0.1)", // Viền mờ nhẹ
+                            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)", // Tạo thêm hiệu ứng bóng đổ nhẹ
+                          }}
+                          onClick={() => handleThumbnailClick(currentThumbnailIndex + index)}
+                          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                          preview={false}
+                        />
+                      </div>
+                    ))}
+                </div>
+                <Button
+                  icon={<RightOutlined />}
+                  shape="circle"
+                  onClick={handleNextThumbnails}
+                  disabled={currentThumbnailIndex === maxThumbnailIndex}
+                />
+              </div>
+            </Col>
+
+            <Col md={12}>
+              <div className="product-content" style={{ marginLeft: "80px" }}>
+                <h3 style={{
+                  color: "#f28123", letterSpacing: "0.15px",
+                  fontSize: "22px",
+                  lineHeight: "32px", // Corrected property name
+                  fontWeight: "500"
+                }}>Trà sữa chân trâu</h3>
+                <p className="product-pricing"
+                  style={{
+                    letterSpacing: "0.15px",
+                    fontSize: "20px",
+                    lineHeight: "32px", // Corrected property name
+                    fontWeight: "500"
+                  }}
+                >
+                  <strong>{price.toLocaleString()} VNĐ</strong>
+                </p>
                 <div className="product-size">
-                  <p>
-                    <strong>Size:</strong>
+                  <p style={{
+                    color: "#f28123", letterSpacing: "0.15px",
+                    fontSize: "20px",
+                    lineHeight: "32px", // Corrected property name
+                    fontWeight: "500"
+                  }}>
+                    <span>Chọn kích cỡ:</span>
                   </p>
                   <div className="size-options">
                     {sizes.map((item) => (
-                      <div
+                      <Button
                         key={item.size}
-                        className={`size-option ${selectedSize === item.size ? "selected" : ""}`}
-                        onClick={() => handleSizeClick(item.size)}
-                        style={{
-                          display: "inline-block",
-                          padding: "10px",
-                          border: "1px solid #ccc",
-                          marginRight: "10px",
-                          cursor: "pointer",
-                          backgroundColor: selectedSize === item.size ? "orange" : "white",
-                          color: selectedSize === item.size ? "white" : "black",
-                          textAlign: "center",
-                        }}
+                        type={selectedSize === item.size ? "primary" : "default"}
+                        onClick={() => handleSizeClick(item.size, item.price)} // Truyền size và giá
+                        style={{ marginRight: "10px" }}
                       >
-                        <div>{item.size}</div>
-                        {/* Đường kẻ ngang giữa kích thước và giá */}
-                        <div
-                          style={{
-                            borderTop: "1px solid #ccc", // Đường kẻ ngang
-                            marginTop: "5px", // Khoảng cách trên và dưới đường kẻ
-                            paddingTop: "5px",
-                          }}
-                        >
-                          {item.price} đ
-                        </div>
-                      </div>
+                        {item.size}
+                      </Button>
                     ))}
                   </div>
                 </div>
-
-                <div className="product-form">
-                  <form action="/">
-                    <input type="number" placeholder="0" />
-                  </form>
-                  <a href="/cart" className="cart-btn">
-                    <i className="fas fa-shopping-cart"></i> Add to Cart
-                  </a>
-                  <p>
-                    <strong>Categories: </strong>Fruits, Organic
-                  </p>
+                <div className="product-toppings" style={{ marginTop: "20px" }}>
+                  <div style={{ marginTop: "10px", overflow: "hidden" }}>
+                    <table style={{ width: "50%", borderCollapse: "collapse" }}>
+                      <tbody>
+                        {['Cù năng', 'Trân châu', 'Flan', 'Khoai dẻo', 'Khoai cứng', 'Thạch trân châu', 'Rau Cau'].map((topping, index) => (
+                          <tr key={index}>
+                            <td style={{ padding: "4px", fontSize: "14px" }}>{topping}</td>
+                            <td style={{ padding: "2px", textAlign: "center" }}>
+                              <input
+                                type="number"
+                                defaultValue={0}
+                                style={{
+                                  width: "60px", // Increased width to accommodate larger numbers
+                                  height: "25px", // Set a height to ensure it's visible
+                                  textAlign: "center",
+                                  margin: "0",
+                                  padding: "2px",
+                                  fontSize: "14px" // Adjust font size for better readability
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <h4>Share:</h4>
-                <ul className="product-share">
-                  <li>
-                    <a href="">
-                      <i className="fab fa-facebook-f"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="">
-                      <i className="fab fa-twitter"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="">
-                      <i className="fab fa-google-plus-g"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="">
-                      <i className="fab fa-linkedin"></i>
-                    </a>
-                  </li>
-                </ul>
+                <div className="product-form" style={{ marginTop: "20px" }}>
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    style={{
+                      backgroundColor: "#f28123",
+                      border: "none",
+                      width: "200px", // Set a specific width for the button
+                      padding: "10px 20px", // Optional: Adjust padding for a better look
+                      textAlign: "center" // Ensure text is centered
+                    }}
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </Col>
+          </Row>
 
-      {/* Featured Products Section */}
+        </div>
+      </div >
+
       <div className="more-products mb-150">
         <div className="container">
-          <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="section-title">
-                <h3>
-                  <span className="orange-text">Featured</span> Products
-                </h3>
-                <p>
-                  Check out our handpicked featured products that are popular among our customers.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-lg-4 col-md-6 text-center">
-              <div className="product-item">
-                <div className="new-label">HOT</div>
-                <div className="product-image">
-                  <a href="product.html">
-                    <img src="assets/img/products/product-img-6.jpg" alt="Banana" />
-                  </a>
-                </div>
-                <h3>Banana</h3>
-                <p className="product-price">
-                  <span>Per Kg</span> $40
-                </p>
-                <a href="cart.html" className="cart-btn">
-                  <i className="fas fa-shopping-cart"></i> Add to Cart
-                </a>
-              </div>
-            </div>
-            {/* More product items */}
-          </div>
+          <Row gutter={[16, 16]}>
+            <Col span={24} style={{ textAlign: "center", marginBottom: "20px" }}>
+              <h3>
+                <span className="orange-text">Đề xuất</span> sản phẩm
+              </h3>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            {featuredProducts.map((product, index) => (
+              <Col key={index} lg={8} md={12} sm={24}>
+                <Card
+                  hoverable
+                  cover={<img alt={product.name} src={product.img} />}
+                  actions={[
+                    <Button type="primary" icon={<ShoppingCartOutlined />}>
+                      Add to Cart
+                    </Button>,
+                  ]}
+                >
+                  <Meta title={product.name} description={`Per Kg: $${product.price}`} />
+                </Card>
+              </Col>
+            ))}
+          </Row>
         </div>
       </div>
+
       <Footer />
     </>
   );
