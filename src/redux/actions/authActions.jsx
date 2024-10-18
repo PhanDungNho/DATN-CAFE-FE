@@ -82,7 +82,7 @@ export const login = (username, password) => async (dispatch) => {
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
       window.location.href = "/admin";
     } else {
-      alert("Bạn không có quyền truy cập");
+      window.location.href = "/";
     }
 
     dispatch({
