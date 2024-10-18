@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Index from "../../components/user/index";
 import Login from "../../components/user/login";
 import Register from "../../components/user/register";
+import OtpRegister from "../../components/user/VerifyOtp.jsx";
 import Cart from "../../components/user/cart";
 import Checkout from "../../components/user/checkout";
 import Shop from "../../components/user/shop";
@@ -50,6 +51,7 @@ function User() {
         <Route path="/single-product" element={<Product />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register/VerifyOtp" element={<OtpRegister />} />
         <Route path="/forgotpassword/otp/newpassword" element={<NewPassword />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />   
         <Route path="/forgotpassword/otp" element={<OtpPassword />} />
@@ -61,6 +63,7 @@ function User() {
 
         <Route path="/About" element={<About />} />
 
+        
 
         {/* Route cho ManagerUser với đường dẫn /manager */}
        <Route path="/manager/*" element={<ManagerUser />} >
