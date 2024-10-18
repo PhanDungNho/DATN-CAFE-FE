@@ -1,6 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { 
+  UserOutlined, 
+  ShoppingCartOutlined, 
+  SearchOutlined,
+  LoginOutlined, 
+  UserAddOutlined, 
+  KeyOutlined, 
+  IdcardOutlined, 
+  ShoppingOutlined, 
+  LogoutOutlined,
+  TeamOutlined
+} from "@ant-design/icons"; 
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
@@ -89,31 +100,56 @@ function Header() {
                 <a href="/shop">Sản phẩm</a>
               </li>
               <li>
-                <div className="header-icons">
+              <li>
                   <input
                     type="text"
                     placeholder="Tìm kiếm..."
                     className="search-input"
                     style={{ display: "inline-block", marginRight: 10 }}
                   />
-                  <a className="mobile-hide search-bar-icon" href="#">
-                    <i className="fas fa-search" />
-                  </a>
-                  <a className="shopping-cart" href="/cart">
-                    <i className="fas fa-shopping-cart" />
-                  </a>
-                  <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
-                    <i className="far fa-user" />
-                  </a>
-                  <div className="sub-menu user-dropdown">
-                    <a href="/login">Đăng nhập</a>
-                    <a href="/register">Đăng ký</a>
-                    <a href="/forgotpassword">Quên mật khẩu</a>
-                    <a href="/manager/*">Tài khoản</a>
-                    <a href="/manager/*">Đơn hàng</a>
-                    <a href="/logout">Đăng xuất</a>
-                  </div>
-                </div>
+                  </li>
+                  <li>
+                    <a className="mobile-hide search-bar-icon" href="#">
+                      <i className="fas fa-search" />
+                    </a>
+                  </li>
+                  <li>
+                    <a className="shopping-cart" href="/cart">
+                      <i className="fas fa-shopping-cart" />
+                    </a>
+                  </li>
+                  <div className="header-icons">
+      {/* Icon user */}
+      <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
+        <UserOutlined style={{ fontSize: "20px" }} />
+      </a>
+
+      {/* Dropdown menu cho user */}
+      <div className="sub-menu user-dropdown">
+        <a href="/login">
+          <LoginOutlined style={{ marginRight: "8px" }} /> Đăng nhập
+        </a>
+        <a href="/register">
+          <UserAddOutlined style={{ marginRight: "8px" }} /> Đăng ký
+        </a>
+        <a href="/forgotpassword">
+          <KeyOutlined style={{ marginRight: "8px" }} /> Quên mật khẩu
+        </a>
+        <a href="/manager/*">
+          <IdcardOutlined style={{ marginRight: "8px" }} /> Tài khoản
+        </a>
+        <a href="/manager/*">
+          <ShoppingOutlined style={{ marginRight: "8px" }} /> Đơn hàng
+        </a>
+        <a href="/admin">
+          <TeamOutlined style={{ marginRight: "8px" }} /> Admin
+        </a>
+        <a href="/logout">
+        
+          <LogoutOutlined style={{ marginRight: "8px" }} /> Đăng xuất
+        </a>
+      </div>
+    </div>
               </li>
             </ul>
           </nav>

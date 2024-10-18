@@ -110,7 +110,6 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
 
 export const getProducts = () => async (dispatch) => {
   const service = new ProductService();
-
   try {
     console.log("get all products");
     dispatch({
@@ -365,6 +364,47 @@ export const deleteProductImage = (fileName) => async (dispatch) => {
     dispatch({
       type: COMMON_ERROR_SET,
       payload: error.response?.data?.message || error.message,
+    });
+  } finally {
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: false,
+    });
+  }
+};
+
+
+
+export const getProductsUser = () => async (dispatch) => {
+  const service = new ProductService();
+  try {
+    console.log("get all products");
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.getProductsUser();
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: PRODUCTS_SET,
+        payload: response.data,
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
     });
   } finally {
     dispatch({
