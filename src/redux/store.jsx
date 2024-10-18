@@ -14,7 +14,6 @@ function configureAppStore(preLoadedState) {
 
     store.replaceReducer(rootReducer);
   }
-
   return store;
 }
 

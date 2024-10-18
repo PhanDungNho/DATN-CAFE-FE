@@ -63,6 +63,12 @@ export default class ProductService {
     });
   };
 
+  getProductsUser = async () => {
+    return await axios.get(API_PRODUCT, {
+    });
+  };
+
+
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {
       params,
