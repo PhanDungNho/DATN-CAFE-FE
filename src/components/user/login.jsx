@@ -92,7 +92,7 @@ const Login = () => {
           
                 <GoogleOAuthProvider  clientId="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com">
             
-                    <GoogleLogin useOneTap width={"250"}   type="standard" size="large" shape="square" locale="km_KH"  theme="filled_black" type="standard" text="continue_with" className="w-100" style={{color:"red"}} 
+                    <GoogleLogin useOneTap width={"360"}     type="standard" size="medium" shape="square"   theme="filled_black" type="standard" text="continue_with" className="w-100" style={{color:"red"}} 
                     
                     
                       onSuccess={handleGoogleLoginSuccess}

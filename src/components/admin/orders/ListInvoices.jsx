@@ -34,6 +34,7 @@ class ListInvoices extends Component {
   componentDidMount = () => {
     this.props.getInvoices();
     console.log("did mount invoices");
+    
   };
 
   handleDateRangeChange = (dates, dateStrings) => {

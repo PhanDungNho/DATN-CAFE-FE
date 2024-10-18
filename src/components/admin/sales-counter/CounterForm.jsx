@@ -28,7 +28,7 @@ import ProductItem from "./ProductItem";
 import OrderTab from "./OrderTab";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import PaymentService from "../../../services/PaymentService";
-
+import Queue from "./Queue";
 
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
@@ -36,8 +36,8 @@ const { Option } = Select;
 
 const CounterForm = () => {
   const [activeTab, setActiveTab] = useState("0");
-
-  const [data, setData] = useState([]);
+  // const [ords, setOrds] = useState([]);
+  const [products, setProducts] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [accounts, setAccounts] = useState([]);
   const [toppings, setToppings] = useState([]);
@@ -58,7 +58,7 @@ const CounterForm = () => {
     const fetchProducts = async () => {
       try {
         const response = await productService.getProducts();
-        setData(response.data);
+        setProducts(response.data);
 
         // Thiết lập giá trị mặc định cho selectedVariants
         const initialSelectedVariants = {};
@@ -73,6 +73,8 @@ const CounterForm = () => {
         message.error("Không thể lấy sản phẩm.");
       }
     };
+
+  
 
     const fetchAccounts = async () => {
       try {
@@ -99,6 +101,8 @@ const CounterForm = () => {
     fetchProducts();
     fetchToppings();
     fetchAccounts();
+ 
+   
   }, []);
 
   const handleToppingChange = (productId, toppingId, value) => {
@@ -112,7 +116,7 @@ const CounterForm = () => {
   };
 
   const handleAddToCart = (variantId, productId) => {
-    const selectedVariant = data
+    const selectedVariant = products
       .flatMap((product) =>
         product.productVariants.map((variant) => ({
           ...variant,
@@ -131,7 +135,6 @@ const CounterForm = () => {
       )
         .filter(([toppingId, quantity]) => quantity > 0)
         .map(([toppingId, quantity]) => {
-
           const foundTopping = toppings.find(
             (t) => t.id === parseInt(toppingId)
           );
@@ -145,7 +148,6 @@ const CounterForm = () => {
             : null;
         })
         .filter((topping) => topping !== null);
-
 
       // Tạo sản phẩm mới với topping đã chọn
       const toppingPrice = toppingsWithQuantity.reduce(
@@ -210,83 +212,6 @@ const CounterForm = () => {
     });
   };
 
-  //   const handleFinish = async (values, index) => {
-  //     const cartItems = orders[index].cart.map((item) => ({
-  //       productvariant: { id: item.id },
-  //       quantity: item.quantity,
-  //       momentprice: item.price,
-  //       note: item.note,
-  //       totalPrice: (item.price * item.quantity) + item.toppings.reduce(
-  //         (total, topping) => total + (topping.price * topping.quantity),
-  //         0
-  //       ),
-  //       orderdetailtoppings: item.toppings.map((topping) => ({
-  //         topping: {
-  //           id: topping.id,
-  //           name: topping.name,
-  //           price: topping.price,
-  //         },
-  //         quantity: topping.quantity,
-  //         momentprice: topping.price,
-  //       })),
-  //     }));
-
-  //     const totalAmount = cartItems.reduce(
-  //       (total, item) => total + item.totalPrice,
-  //       0
-  //     );
-
-  //     const order = {
-  //       cashierid: JSON.parse(localStorage.getItem("user")).username,
-  //       totalamount: totalAmount,
-  //       phone:
-  //         orders[index].customerPhone || phoneNumberInput, // Sử dụng customerPhone của đơn hàng hoặc phoneNumberInput
-  //       status: "ORDERED",
-  //       paymentmethod: paymentMethod,
-  //       active: false, // Đánh dấu đơn hàng là không còn hoạt động
-  //       shippingfee: 0,
-  //       ordertype: 0,
-  //       fulladdresstext: null,
-  //       customerid: orders[index].customerId || "test1",
-  //       orderdetails: cartItems,
-  //     };
-
-  //     try {
-  //       // Gọi insertOrder từ OrderService để gửi đơn hàng
-  //       console.log(order)
-  //       await orderService.insertOrder(order);
-
-  //       message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
-
-  //       // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
-  //       const newOrders = [...orders];
-
-  //       // Xóa giỏ hàng của đơn hàng đã thanh toán
-  //           // Xóa giỏ hàng của đơn hàng đã thanh toán
-  //     newOrders[index].cart = [];
-
-  //     // Reset thông tin khách hàng
-  //     newOrders[index].customerName = "";
-  //     newOrders[index].customerPhone = "";
-  //     newOrders[index].customerId = "";
-
-  //     // Reset input số điện thoại
-  //     setPhoneNumberInput("");
-
-  //     // Cập nhật trạng thái đơn hàng và đóng tab hiện tại
-  //     setOrders(newOrders);
-
-  //     // Cập nhật Local Storage
-  //     localStorage.setItem("orders", JSON.stringify(newOrders));
-
-  //     // Đóng tab hiện tại
-  //     removeCustomer(index.toString()); // Gọi hàm xóa tab
-
-  //   } catch (error) {
-  //     console.error("Lỗi khi thanh toán:", error);
-  //     message.error("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.");
-  //   }
-  // };
   const handleFinish = async (values, index) => {
     const cartItems = orders[index].cart.map((item) => ({
       productvariant: { id: item.id },
@@ -319,7 +244,7 @@ const CounterForm = () => {
       totalamount: totalAmount,
 
       phone: orders[index].customerPhone || phoneNumberInput,
-      status: paymentMethod === "ONLINE" ? "PENDING_PAYMENT" : "ORDERED",
+      status: paymentMethod === "ONLINE" ? 0 : 1,
       paymentmethod: paymentMethod,
       active: false,
 
@@ -336,7 +261,7 @@ const CounterForm = () => {
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-  
+
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (paymentMethod === "ONLINE") {
         await handleOnlinePayment(order, totalAmount, index);
@@ -348,7 +273,7 @@ const CounterForm = () => {
       message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
     }
   };
-  
+
   // Hàm xử lý thanh toán online
   const handleOnlinePayment = async (order, totalAmount, index) => {
     try {
@@ -357,18 +282,18 @@ const CounterForm = () => {
         `Thanh toán cho đơn hàng ID: ${order.id}`,
         "d" // Thông tin đơn hàng
       );
-  
+
       if (response && response.data && response.data.payUrl) {
         // Lưu thông tin giao dịch
         await paymentService.insertTransaction({
           order: { id: order.id },
           payUrl: response.data.payUrl,
         });
-  
+
         console.log("Payment URL created:", response);
         window.open(response.data.payUrl, "_blank", "width=800,height=600");
-  
-        handleSuccess(order, index);
+
+        // handleSuccess(order, index);
       } else {
         throw new Error("Không thể tạo URL thanh toán.");
       }
@@ -377,9 +302,9 @@ const CounterForm = () => {
       message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
     }
   };
-  
+
   // Hàm xử lý thành công
-  const handleSuccess = (order, index) => {
+  const handleSuccess = async (order, index) => {
     message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
   
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
@@ -388,7 +313,6 @@ const CounterForm = () => {
     // Xóa giỏ hàng của đơn hàng đã thanh toán
     newOrders[index].cart = [];
   
-
     // Reset thông tin khách hàng
     newOrders[index].customerName = "";
     newOrders[index].customerPhone = "";
@@ -405,10 +329,12 @@ const CounterForm = () => {
   
     // Đóng tab hiện tại
     removeCustomer(index.toString()); // Gọi hàm xóa tab
-  };
   
 
+  };
 
+
+  
   const addNewOrder = () => {
     let newCustomerIndex = 1;
     let newCustomerName = `Đơn ${newCustomerIndex}`;
@@ -536,7 +462,6 @@ const CounterForm = () => {
             //   </p>
             // );
           }),
-
     },
 
     // {
@@ -599,13 +524,11 @@ const CounterForm = () => {
   };
 
   return (
-
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Sản phẩm" key="1">
+    
             <ProductItem
-              data={data}
+              products={products}
               toppings={toppings}
               selectedVariants={selectedVariants}
               handleSelectVariant={handleSelectVariant}
@@ -614,16 +537,8 @@ const CounterForm = () => {
               selectedToppings={selectedToppings}
               setSelectedToppings={setSelectedToppings}
             />
-          </TabPane>
-          <TabPane tab="Tab 2" key="2">
-            {/* Nội dung cho Tab 2 */}
-            <div>Đây là nội dung cho Tab 2</div>
-          </TabPane>
-          <TabPane tab="Tab 3" key="3">
-            {/* Nội dung cho Tab 3 */}
-            <div>Đây là nội dung cho Tab 3</div>
-          </TabPane>
-        </Tabs>
+    
+        
       </Col>
 
       <Col xs={24} md={12}>
@@ -644,7 +559,6 @@ const CounterForm = () => {
         />
       </Col>
     </Row>
-
   );
 };
 
