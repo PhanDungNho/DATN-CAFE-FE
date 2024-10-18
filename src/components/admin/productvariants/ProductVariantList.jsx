@@ -4,7 +4,7 @@ import { Button, Space, Switch, Table, Tag } from "antd";
 
 const columns = (editProduct, updateProductActive) => [
   {
-    title: "Product ID",
+    title: "ID",
     dataIndex: "id",
     width: "20%",
     key: "id",
@@ -12,22 +12,39 @@ const columns = (editProduct, updateProductActive) => [
     showSorterTooltip: false,
   },
   {
-    title: "Product Name",
-    dataIndex: "name",
-    width: "20%",
-    key: "name",
-  },
-  {
-    title: "Category",
-    key: "category",
+    title: "Product",
+    key: "product",
+    dataIndex: "size",
     render: (_, record) => {
-      return record.category ? record.category.name : "No category";
+      return record.product ? record.product.name : "No product";
     },
   },
   {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
+    title: "Price",
+    width: "20%",
+    dataIndex: "price",
+    key: "price",
+    render: (text) => text.toLocaleString(),
+    filters: [
+      { text: "< 20000", value: "lessThan100" },
+      { text: "20000 - 40000", value: "100to200" },
+      { text: "> 40000", value: "greaterThan200" },
+    ],
+    onFilter: (value, record) => {
+      const price = record.price;
+      if (value === "lessThan100") return price < 20000;
+      if (value === "100to200") return price >= 20000 && price <= 40000;
+      if (value === "greaterThan200") return price > 40000;
+      return false;
+    },
+  },
+  {
+    title: "Size",
+    key: "size",
+    dataIndex: "size",
+    render: (_, record) => {
+      return record.size ? record.size.name : "No size";
+    },
   },
   {
     title: "Active",
@@ -66,8 +83,12 @@ const columns = (editProduct, updateProductActive) => [
   },
 ];
 
-const ProductList = ({ products, editProduct, updateProductActive }) => {
-  const [data, setData] = useState(products);
+const ProductVariantList = ({
+  productVariants,
+  editProduct,
+  updateProductActive,
+}) => {
+  const [data, setData] = useState(productVariants);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
   const [tableParams, setTableParams] = useState({
@@ -79,14 +100,14 @@ const ProductList = ({ products, editProduct, updateProductActive }) => {
   const fetchData = () => {
     setLoading(true);
     setTimeout(() => {
-      setData(products);
+      setData(productVariants);
       setLoading(false);
-      setHasData(products.length > 0);
+      setHasData(productVariants.length > 0);
       setTableParams({
         ...tableParams,
         pagination: {
           ...tableParams.pagination,
-          total: products.length,
+          total: productVariants.length,
         },
       });
     }, 1000);
@@ -105,7 +126,7 @@ const ProductList = ({ products, editProduct, updateProductActive }) => {
       sortField: sorter.field,
     });
     if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
+      setData([productVariants]);
     }
   };
 
@@ -123,4 +144,4 @@ const ProductList = ({ products, editProduct, updateProductActive }) => {
   );
 };
 
-export default ProductList;
+export default ProductVariantList;

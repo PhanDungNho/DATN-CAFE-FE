@@ -102,13 +102,18 @@ class AddOrEditProduct extends Component {
     const { isLoading, router } = this.props;
     const { navigate } = this.props.router;
     const { categories, product } = this.state;
+    let title = "Add Product";
+
+    if(product.id){
+      title = "Update Product";
+    }
 
     if (isLoading) {
       return (
         <>
           <ContentHeader
             navigate={navigate}
-            title="Add Product"
+            title={title}
             className="site-page-header"
           />
           <Skeleton active />
@@ -120,11 +125,11 @@ class AddOrEditProduct extends Component {
       <>
         <ContentHeader
           navigate={navigate}
-          title="Add Product"
+          title={title}
           className="site-page-header"
         />
-
         <ProductForm
+          key={product.id + product.name}
           ref={this.formRef}
           product={product}
           categories={categories}
@@ -132,6 +137,7 @@ class AddOrEditProduct extends Component {
           onUpdateFileList={this.onUpdateFileList}
           onSubmitForm={this.onSubmitForm}
           onDeleteProductImage={this.onDeleteProductImage}
+          clearProductState={this.props.clearProductState}
         />
       </>
     );

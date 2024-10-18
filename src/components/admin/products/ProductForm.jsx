@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Col, Divider, Form, Input, Row, Select, Button } from "antd";
+import { Col, Form, Input, Row, Select, Button } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import UploadImage from "./UploadImage";
 import { MdOutlineCategory } from "react-icons/md";
@@ -17,10 +17,22 @@ export class ProductForm extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.product !== this.props.product && this.props.product) {
-      this.formRef.current?.setFieldsValue(this.props.product);
+    const { id } = this.props.router.params;
+    const { id: prevId } = prevProps.router.params;
+
+    if (prevId && !id) {
+      this.formRef.current.resetFields();
       this.setState({
-        images: this.props.product.images || [],
+        product: {
+          id: "",
+          name: "",
+          active: true,
+          category: {},
+          description: "",
+          images: [],
+          url: "",
+        },
+        updatedProductImages: {},
       });
     }
   }
@@ -35,6 +47,22 @@ export class ProductForm extends Component {
         {item.name}
       </Select.Option>
     ));
+  };
+
+  resetForm = () => {
+    this.formRef.current.resetFields();
+    this.setState({
+      images: [],
+    });
+    this.props.clearProductState();
+
+    const { navigate } = this.props.router;
+    navigate("/admin/products/add");
+  };
+
+  componentWillUnmount = () => {
+    this.props.clearProductState();
+    console.log("Component will unmount");
   };
 
   render() {
@@ -53,6 +81,7 @@ export class ProductForm extends Component {
           categoryid: product.category ? product.category.id : undefined,
           active: product.active !== undefined ? product.active : true,
           description: product.description || "",
+          images: this.props.product.images || [],
         }}
       >
         <Row gutter={24}>
@@ -115,7 +144,7 @@ export class ProductForm extends Component {
           </Col>
         </Row>
 
-        <Row style={{paddingLeft: 20, paddingRight: 20}}>
+        <Row style={{ paddingLeft: 20, paddingRight: 20 }}>
           <Col>
             <UploadImage
               onUpdateFileList={this.props.onUpdateFileList}
@@ -127,17 +156,32 @@ export class ProductForm extends Component {
                 url: ProductService.getProductImageUrl(image.url),
                 originFileObj: null,
               }))}
-            />
+            ></UploadImage>
           </Col>
         </Row>
 
         <Row>
           <Col span={24}>
-            <Row justify="end" style={{paddingTop: 70}}>
+            <Row justify="end" style={{ paddingTop: 135 }}>
               <Col>
-                <Button type="primary" htmlType="submit">
-                  Thêm sản phẩm
-                </Button>
+                {!product.id ? (
+                  <Button type="primary" htmlType="submit">
+                    Thêm sản phẩm
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ marginRight: 10 }}
+                    >
+                      Cập nhật
+                    </Button>
+                    <Button type="default" onClick={this.resetForm}>
+                      Reset
+                    </Button>
+                  </>
+                )}
               </Col>
             </Row>
           </Col>
