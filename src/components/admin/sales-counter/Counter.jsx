@@ -7,6 +7,8 @@ import CounterForm from "./CounterForm";
 import { getAccounts } from "../../../redux/actions/accountAction";
 import TabPane from "antd/es/tabs/TabPane";
 
+import ListInvoices from "../orders/ListInvoices";
+import { getInvoices } from "../../../redux/actions/invoiceAction";
 const { Content, Footer } = Layout;
 
 class Counter extends Component {
@@ -29,11 +31,17 @@ class Counter extends Component {
         // Xử lý lỗi, ví dụ: Hiển thị thông báo lỗi cho người dùng
       });
   }
+  handleTabChange = (key) => {
+    this.setState({ activeTab: key });
+    if (key === "2") { // Là tab "Đơn hàng"
+      this.props.getInvoices(); // Gọi lại hàm getInvoices
+    }
+  };
 
   render() {
     const { navigate } = this.props.router;
-    const { isLoading } = this.state;
-
+   
+    const { isLoading, activeTab } = this.state;
     if (isLoading) {
       return (
         <>
@@ -56,12 +64,12 @@ class Counter extends Component {
         />
         <Content style={{ padding: "20px" }}>
 
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Sản phẩm" key="1">
+        <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={this.handleTabChange}>
+          <TabPane tab="Quầy bán hàng" key="1">
           <CounterForm />  
           </TabPane>
-          <TabPane tab="Tab 2" key="2">
-           
+          <TabPane tab="Đơn hàng" key="2">
+        <ListInvoices />
           </TabPane>
          
         </Tabs>
@@ -82,6 +90,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getAccounts,
+  getInvoices
 };
 
 export default connect(

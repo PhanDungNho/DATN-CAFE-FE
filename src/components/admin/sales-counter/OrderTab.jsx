@@ -38,6 +38,7 @@ const OrderTab = ({
         }
       }}
     >
+ 
       {orders.map((customer, index) => (
         <Tabs.TabPane
           tab={customer.customerName}
@@ -45,6 +46,18 @@ const OrderTab = ({
           closable={orders.length > 1}
         >
           <Card title={`Giỏ hàng của ${customer.customerName}`}>
+          <style>
+  {`
+  .ant-table-tbody {
+    vertical-align: top;
+  }
+
+  .ant-table-tbody input {
+    width: 9rem !important
+  }
+
+  `}
+</style>
             {customer.cart.length === 0 ? (
               <p>Giỏ hàng đang trống</p>
             ) : (

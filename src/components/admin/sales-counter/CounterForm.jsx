@@ -47,7 +47,7 @@ const CounterForm = () => {
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
-  const [filteredOrders, setFilteredOrders] = useState([]);
+
   const productService = new ProductService();
   const accountService = new AccountService();
   const toppingService = new ToppingService();
@@ -74,31 +74,7 @@ const CounterForm = () => {
       }
     };
 
-    const fetchOrders = async () => {
-      try {
-        const response = await orderService.getOrders();
-        // setOrds(response.data);
-        console.log(response.data);
-
-        const today = new Date(); // Lấy ngày hiện tại
-        const filteredTodayOrders = response.data.filter((order) => {
-          const orderDate = new Date(order.createtime); // Giả sử createdAt là trường ngày tạo của order
-          console.log(orderDate)
-          return (
-            orderDate.getDate() === today.getDate() &&
-            orderDate.getMonth() === today.getMonth() &&
-            orderDate.getFullYear() === today.getFullYear()
-          );
-        });
-        console.log(filteredTodayOrders)
-   
-        setFilteredOrders(filteredTodayOrders);
-        console.log(filteredTodayOrders)
-      } catch (error) {
-        console.error("Lỗi khi lấy ords:", error);
-        message.error("Không thể lấy ords.");
-      }
-    };
+  
 
     const fetchAccounts = async () => {
       try {
@@ -125,7 +101,7 @@ const CounterForm = () => {
     fetchProducts();
     fetchToppings();
     fetchAccounts();
-    fetchOrders();
+ 
    
   }, []);
 
@@ -317,7 +293,7 @@ const CounterForm = () => {
         console.log("Payment URL created:", response);
         window.open(response.data.payUrl, "_blank", "width=800,height=600");
 
-        handleSuccess(order, index);
+        // handleSuccess(order, index);
       } else {
         throw new Error("Không thể tạo URL thanh toán.");
       }
@@ -354,23 +330,7 @@ const CounterForm = () => {
     // Đóng tab hiện tại
     removeCustomer(index.toString()); // Gọi hàm xóa tab
   
-    // Cập nhật filteredOrders sau khi tạo đơn hàng thành công
-    try {
-      const response = await orderService.getOrders(); // Lấy lại danh sách đơn hàng
-      const today = new Date();
-      const filteredTodayOrders = response.data.filter((order) => {
-        const orderDate = new Date(order.createtime); // Giả sử createdAt là trường ngày tạo của order
-        return (
-          orderDate.getDate() === today.getDate() &&
-          orderDate.getMonth() === today.getMonth() &&
-          orderDate.getFullYear() === today.getFullYear()
-        );
-      });
-      setFilteredOrders(filteredTodayOrders); // Cập nhật filteredOrders
-    } catch (error) {
-      console.error("Lỗi khi lấy ords:", error);
-      message.error("Không thể cập nhật danh sách đơn hàng.");
-    }
+
   };
 
 
@@ -566,8 +526,7 @@ const CounterForm = () => {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Sản phẩm" key="1">
+    
             <ProductItem
               products={products}
               toppings={toppings}
@@ -578,15 +537,8 @@ const CounterForm = () => {
               selectedToppings={selectedToppings}
               setSelectedToppings={setSelectedToppings}
             />
-          </TabPane>
-          <TabPane tab="Tab 2" key="2">
-            <Queue ords={ filteredOrders } />
-          </TabPane>
-          <TabPane tab="Tab 3" key="3">
-            {/* Nội dung cho Tab 3 */}
-            <div>Đây là nội dung cho Tab 3</div>
-          </TabPane>
-        </Tabs>
+    
+        
       </Col>
 
       <Col xs={24} md={12}>
