@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {Select, Space, Switch, Table, Tag } from "antd";
 import moment from "moment";
-
+ 
+import { EyeOutlined,EyeInvisibleOutlined } from '@ant-design/icons';
 const columns = (updateOrderActive, updateOrder) => [
   {
     title: "Order ID",
@@ -187,7 +188,8 @@ const InvoicesList = ({
           columns={expandColumns}
           dataSource={expandDataSource}
           pagination={false}
-          style={{ paddingBottom: 20, paddingRight: 20 }}
+          style={{ paddingBottom: 20, paddingRight: 40, paddingTop: 20, }}
+          bordered
         />
       </>
     );
@@ -235,10 +237,20 @@ const InvoicesList = ({
       loading={loading}
       onChange={handleTableChange}
       size="small"
+      bordered
       locale={{ emptyText: "Không có dữ liệu" }}
       expandable={{
         expandedRowRender,
-        defaultExpandedRowKeys: ["0"],
+        defaultExpandedRowKeys: ["0"]
+        ,
+        // Customizing expand/collapse icons to use eye and eyeline icons
+        expandIcon: ({ expanded, onExpand, record }) =>
+          expanded ? (
+            <EyeInvisibleOutlined onClick={(e) => onExpand(record, e)} />
+          ) : (
+            <EyeOutlined onClick={(e) => onExpand(record, e)} />
+          )
+
       }}
     />
   );
