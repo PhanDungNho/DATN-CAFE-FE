@@ -1,21 +1,29 @@
 import axios from "axios";
-import { API_PRODUCT } from "./constant";
+import { API_PRODUCTVARIANT } from "./constant";
+import { getProductVariant } from "../redux/actions/productVariantAction";
 
-export default class ProductService {
-  getProducts = async () => {
-    return await axios.get(API_PRODUCT, {
+export default class ProductVariantService {
+  insertProductVariant = async (prodcutVariant) => {
+    return await axios.post(API_PRODUCTVARIANT, prodcutVariant, {
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
     });
-  }
+  };
 
-  getProduct = async (id) => {
-    return await axios.get(API_PRODUCT + "/" + id + "/get", {
+  getProductVariants = async () => {
+    return await axios.get(API_PRODUCTVARIANT, {
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
     });
-  }
+  };
+
+  getProductVariant = async (id) => {
+    return await axios.get(API_PRODUCTVARIANT + "/" + id + "/get", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 }
-

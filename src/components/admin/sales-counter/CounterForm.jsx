@@ -319,7 +319,7 @@ const CounterForm = () => {
       totalamount: totalAmount,
 
       phone: orders[index].customerPhone || phoneNumberInput,
-      status: paymentMethod === "ONLINE" ? "PENDING_PAYMENT" : "ORDERED",
+      status: paymentMethod === "ONLINE" ? 0 : 1,
       paymentmethod: paymentMethod,
       active: false,
 

@@ -109,8 +109,8 @@ const UploadImage = (props) => {
         headers={headers}
         onPreview={handlePreview}
         onChange={handleChange}
-        onRemove={handleRemove} // Gọi hàm handleRemove khi xóa
-        beforeUpload={() => false} // Ngăn chặn upload tự động
+        onRemove={handleRemove} 
+        beforeUpload={() => false} 
       >
         <div onClick={handleUploadClick}>
           {fileList.length >= 8 ? null : uploadButton}

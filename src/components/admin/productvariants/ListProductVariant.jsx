@@ -1,65 +1,33 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import ProductList from "./ProductList";
-import {
-  clearProductState,
-  findProductNameContainsIgnoreCase,
-  getProduct,
-  getProducts,
-  updateProductActive,
-} from "../../../redux/actions/productAction";
 import withRouter from "../../../helpers/withRouter";
+import { getProductVariants } from "../../../redux/actions/productVariantAction";
 import ContentHeader from "../common/ContentHeader";
 import { Col, Form, Input, Row, Skeleton } from "antd";
+import ProductVariantList from "./ProductVariantList";
 
-export class ListProduct extends Component {
+export class ListProductVariant extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      product: { id: "", name: "", active: true, description: "", images: []},
-      open: false,
-      query: "",
+      productVariants: {
+        id: "",
+        price: "",
+        active: true,
+      },
     };
 
     this.timeout = null;
   }
 
   componentDidMount = () => {
-    this.props.getProducts();
+    this.props.getProductVariants();
     console.log("did mount products");
   };
 
-  componentWillUnmount = () => {
-    this.props.clearProductState();
-    console.log("Component will unmount");
-  };
-
-  editProduct = (product) => {
-   console.log(product)
-
-   const { navigate } = this.props.router;
-
-   navigate("/admin/products/update/" + product.id);
-  };
-
-  handleSearch = (value) => {
-    const query = value.target.value;
-    this.setState({ query });
-
-    clearTimeout(this.timeout);
-
-    this.timeout = setTimeout(() => {
-      if (query) {
-        this.props.findProductNameContainsIgnoreCase(query);
-      } else {
-        this.props.getProducts();
-      }
-    }, 1500);
-  };
-
   render() {
-    const { products, getProducts, router, isLoading } = this.props;
+    const { productVariants, router, isLoading } = this.props;
     const { query } = this.state;
     const { navigate } = this.props.router;
 
@@ -68,7 +36,7 @@ export class ListProduct extends Component {
         <>
           <ContentHeader
             navigate={navigate}
-            title="List Products"
+            title="List Product Variants"
             className="site-page-header"
           ></ContentHeader>
           <Skeleton active />
@@ -80,7 +48,7 @@ export class ListProduct extends Component {
       <>
         <ContentHeader
           navigate={navigate}
-          title="List Products"
+          title="List Product Variants"
           className="site-page-header"
         ></ContentHeader>
 
@@ -91,18 +59,17 @@ export class ListProduct extends Component {
                 <Input
                   placeholder="Search"
                   value={query}
-                  onChange={this.handleSearch}
                   allowClear
+                  onChange={(e) => this.setState({ query: e.target.value })}
                 />
               </Form.Item>
             </Form>
           </Col>
         </Row>
 
-        <ProductList
-          editProduct={this.editProduct}
-          products={products}
-          getProducts={getProducts}
+        <ProductVariantList
+          //   editProduct={this.editProduct}
+          productVariants={productVariants}
           router={router}
           updateProductActive={this.props.updateProductActive}
         />
@@ -112,20 +79,15 @@ export class ListProduct extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  product: state.productReducer.product,
-  products: state.productReducer.products,
+  productVariants: state.productVariantReducer.productVariants,
   isLoading: state.commonReducer.isLoading,
 });
 
 const mapDispatchToProps = {
-  getProducts,
-  getProduct,
-  updateProductActive,
-  clearProductState,
-  findProductNameContainsIgnoreCase,
+  getProductVariants,
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(ListProduct));
+)(withRouter(ListProductVariant));
