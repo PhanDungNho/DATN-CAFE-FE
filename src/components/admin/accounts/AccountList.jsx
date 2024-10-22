@@ -28,13 +28,13 @@ const columns = (editAccount, updateAccountActive) => [
   },
   {
     title: "Họ và tên",
-    dataIndex: "fullname",
-    key: "fullname",
+    dataIndex: "fullName",
+    key: "fullName",
   },
   {
     title: "Số tiền đã trả",
-    dataIndex: "amountpaid",
-    key: "amountpaid",
+    dataIndex: "amountPaid",
+    key: "amountPaid",
     // width: 40,
   },
   {

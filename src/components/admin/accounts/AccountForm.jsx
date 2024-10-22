@@ -20,7 +20,7 @@ class AccountForm extends Component {
     super(props);
 
     this.state = {
-      account: { username: "", fullname: "", amountpaid: "", email: "", password: "", phone: "", image: "", active: true },
+      account: { username: "", fullName: "", amountPaid: "", email: "", password: "", phone: "", image: "", active: true },
       previewImage: "",
       previewVisible: false,
     };
@@ -107,8 +107,8 @@ class AccountForm extends Component {
           layout="vertical"
           initialValues={{
             username: account.username || "",
-            fullname: account.fullname || "",
-            amountpaid: account.amountpaid || "",
+            fullName: account.fullName || "",
+            amountPaid: account.amountPaid || "",
             password: "",
             email: account.email || "",
             phone: account.phone || "",
@@ -135,7 +135,7 @@ class AccountForm extends Component {
           </Form.Item>
           <Form.Item
             label="Họ và tên"
-            name="fullname"
+            name="fullName"
             rules={[
               { required: true, message: "Họ và tên là bắt buộc" },
               {
@@ -173,7 +173,7 @@ class AccountForm extends Component {
 
           <Form.Item
             label="Số tiền đã trả"
-            name="amountpaid"
+            name="amountPaid"
             rules={[
               { required: true, message: "Số tiền đã trả là bắt buộc" },
               {
