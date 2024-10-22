@@ -1,22 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  UserOutlined, 
-  ShoppingCartOutlined, 
+import {
+  UserOutlined,
+  ShoppingCartOutlined,
   SearchOutlined,
-  LoginOutlined, 
-  UserAddOutlined, 
-  KeyOutlined, 
-  IdcardOutlined, 
-  ShoppingOutlined, 
+  LoginOutlined,
+  UserAddOutlined,
+  KeyOutlined,
+  IdcardOutlined,
+  ShoppingOutlined,
   LogoutOutlined,
   TeamOutlined
-} from "@ant-design/icons"; 
+} from "@ant-design/icons";
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
+    // Giả sử thông tin người dùng được lưu trong localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user && user.username) {
+      setIsLoggedIn(true);  // Đã đăng nhập
+      setUsername(user.username); // Lưu username
+    }
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -41,7 +51,12 @@ function Header() {
       window.removeEventListener("scroll", handleScroll); // Remove scroll listener
     };
   }, []);
-
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Xóa thông tin đăng nhập
+    setIsLoggedIn(false); // Đặt lại trạng thái đăng nhập
+    setUsername(""); // Xóa tên người dùng
+    window.location.href = "/login"; // Chuyển hướng về trang đăng nhập
+  };
   return (
     <>
       {isLoading && (
@@ -52,30 +67,30 @@ function Header() {
         </div>
       )}
 
-<div className="top-header-area" id="sticker" ref={stickerRef}>
-  <div className="container">
-    <div className="row">
-      <div className="col-lg-12 col-sm-12 text-center">
-        <div className="main-menu-wrap">
-          {/* logo */}
-          <div className="site-logo">
-            <a href="/">
-              <img src="/assets/img/logo2.png" alt="" />
-            </a>
-          </div>
-          {/* logo */}
-          {/* menu start */}
-          <nav className="main-menu">
-            <ul>
-              <li className="current-list-item">
-                <a href="/">Trang chủ</a>
-              </li>
-              <li>
-                <a href="about.html">Về chúng tôi</a>
-              </li>
-              <li>
-                <a href="#">Pages</a>
-                {/* <ul className="sub-menu">
+      <div className="top-header-area" id="sticker" ref={stickerRef}>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12 col-sm-12 text-center">
+              <div className="main-menu-wrap">
+                {/* logo */}
+                <div className="site-logo">
+                  <a href="/">
+                    <img src="/assets/img/logo2.png" alt="" />
+                  </a>
+                </div>
+                {/* logo */}
+                {/* menu start */}
+                <nav className="main-menu">
+                  <ul>
+                    <li className="current-list-item">
+                      <a href="/">Trang chủ</a>
+                    </li>
+                    <li>
+                      <a href="about.html">Về chúng tôi</a>
+                    </li>
+                    <li>
+                      <a href="#">Pages</a>
+                      {/* <ul className="sub-menu">
                   <li>
                     <a href="about.html">About</a>
                   </li>
@@ -95,74 +110,85 @@ function Header() {
                     <a href="shop.html">Shop</a>
                   </li>
                 </ul> */}
-              </li>
-              <li>
-                <a href="/shop">Sản phẩm</a>
-              </li>
-              <li>
-              <li>
-                  <input
-                    type="text"
-                    placeholder="Tìm kiếm..."
-                    className="search-input"
-                    style={{ display: "inline-block", marginRight: 10 }}
-                  />
-                  </li>
-                  <li>
-                    <a className="mobile-hide search-bar-icon" href="#">
-                      <i className="fas fa-search" />
-                    </a>
-                  </li>
-                  <li>
-                    <a className="shopping-cart" href="/cart">
-                      <i className="fas fa-shopping-cart" />
-                    </a>
-                  </li>
-                  <div className="header-icons">
-      {/* Icon user */}
-      <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
-        <UserOutlined style={{ fontSize: "20px" }} />
-      </a>
+                    </li>
+                    <li>
+                      <a href="/shop">Sản phẩm</a>
+                    </li>
+                    <li>
+                      <li>
+                        <input
+                          type="text"
+                          placeholder="Tìm kiếm..."
+                          className="search-input"
+                          style={{ display: "inline-block", marginRight: 10 }}
+                        />
+                      </li>
+                      <li>
+                        <a className="mobile-hide search-bar-icon" href="#">
+                          <i className="fas fa-search" />
+                        </a>
+                      </li>
+                      <li>
+                        <a className="shopping-cart" href="/cart">
+                          <i className="fas fa-shopping-cart" />
+                        </a>
+                      </li>
+                      <div className="header-icons">
+                        {/* Icon user */}
+                        <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
+                          <UserOutlined style={{ fontSize: "20px" }} />
+                          {isLoggedIn ? <span>{username}</span> : <span>Account</span>}
+                        </a>
 
-      {/* Dropdown menu cho user */}
-      <div className="sub-menu user-dropdown">
-        <a href="/login">
-          <LoginOutlined style={{ marginRight: "8px" }} /> Đăng nhập
-        </a>
-        <a href="/register">
-          <UserAddOutlined style={{ marginRight: "8px" }} /> Đăng ký
-        </a>
-        <a href="/forgotpassword">
-          <KeyOutlined style={{ marginRight: "8px" }} /> Quên mật khẩu
-        </a>
-        <a href="/manager/*">
-          <IdcardOutlined style={{ marginRight: "8px" }} /> Tài khoản
-        </a>
-        <a href="/manager/*">
-          <ShoppingOutlined style={{ marginRight: "8px" }} /> Đơn hàng
-        </a>
-        <a href="/admin">
-          <TeamOutlined style={{ marginRight: "8px" }} /> Admin
-        </a>
-        <a href="/logout">
-        
-          <LogoutOutlined style={{ marginRight: "8px" }} /> Đăng xuất
-        </a>
-      </div>
-    </div>
-              </li>
-            </ul>
-          </nav>
-          <a className="mobile-show search-bar-icon" href="#">
-            <i className="fas fa-search" />
-          </a>
-          <div className="mobile-menu" />
-          {/* menu end */}
+                        {/* Dropdown menu cho user */}
+                        <div className="sub-menu user-dropdown">
+                          {!isLoggedIn ? (
+                            <>
+                              <a href="/login">
+                                <LoginOutlined style={{ marginRight: "8px" }} /> Đăng nhập
+                              </a>
+                              <a href="/register">
+                                <UserAddOutlined style={{ marginRight: "8px" }} /> Đăng ký
+                              </a>
+                              <a href="/forgotpassword">
+                                <KeyOutlined style={{ marginRight: "8px" }} /> Quên mật khẩu
+                              </a>
+                            </>
+                          ) : (
+                            <>
+                              <a href="/manager/*">
+                                <IdcardOutlined style={{ marginRight: "8px" }} /> Tài khoản
+                              </a>
+                              <a href="/manager/*">
+                                <ShoppingOutlined style={{ marginRight: "8px" }} /> Đơn hàng
+                              </a>
+                              {/* Hiện admin nếu user có vai trò admin */}
+                              {isLoggedIn && JSON.parse(localStorage.getItem("user"))?.roles.includes("ROLE_ADMIN") && (
+                                <a href="/admin">
+                                  <TeamOutlined style={{ marginRight: "8px" }} /> Admin
+                                </a>
+                              )}
+                              <a href="/" onClick={handleLogout}>
+                                <LogoutOutlined style={{ marginRight: "8px" }} /> Đăng xuất
+                              </a>
+                            </>
+                          )}
+
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </nav>
+                <a className="mobile-show search-bar-icon" href="#">
+                  <i className="fas fa-search" />
+                </a>
+                <div className="mobile-menu" />
+                {/* menu end */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
     </>
   );
 }

@@ -81,8 +81,11 @@ export const login = (username, password) => async (dispatch) => {
 
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
       window.location.href = "/admin";
-    } else {
+    } else if (data.roles.includes("ROLE_USER")) {
       window.location.href = "/";
+    } else {
+      // Nếu không có vai trò phù hợp
+      alert("Bạn không có quyền truy cập");
     }
 
     dispatch({
