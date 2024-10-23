@@ -1,11 +1,42 @@
-import React from 'react';
-import { Form, Input, Button, Row, Col } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, message } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Thêm import useNavigate
 import 'antd/dist/reset.css'; // CSS của Ant Design
 
 const OTPForm = () => {
-  const onFinish = (values) => {
-    console.log('Form submitted with values:', values);
-    // Xử lý logic gửi OTP tại đây
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Khởi tạo hook useNavigate
+
+  const onFinish = async (values) => {
+    setLoading(true); // Bắt đầu loading
+    try {
+      // Giả định rằng bạn đã gửi email trước đó và lưu nó ở đâu đó trong state
+      const email = localStorage.getItem('email'); // Lấy email từ local storage hoặc state
+      
+      const response = await fetch('http://localhost:8081/api/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp: values.otp }), // Gửi email và OTP
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(errorData.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+      } else {
+        const data = await response.json();
+        message.success(data.message);
+        
+        // Chuyển hướng người dùng đến trang đổi mật khẩu
+        navigate('/forgotpassword/otp/newpassword'); // Chuyển hướng
+      }
+    } catch (error) {
+      message.error('Có lỗi xảy ra, vui lòng thử lại.');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false); // Kết thúc loading
+    }
   };
 
   return (
@@ -54,12 +85,12 @@ const OTPForm = () => {
                   <Input placeholder="OTP" />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
+                  <Button type="primary" htmlType="submit" block loading={loading}>
                     Xác Nhận
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Trở về <a href="/home">trang chủ</a></p>
+              <p>Trở về <a href="/">trang chủ</a></p>
             </div>
           </Col>
         </Row>
