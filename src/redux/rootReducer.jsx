@@ -5,6 +5,7 @@ import commonReducer from "./reducers/commonReducer";
 import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
+import  authorityReducer  from "./reducers/authorityReducer";
 
 import  invoiceReducer  from "./reducers/invoiceReducer";
 import  accountReducer  from "./reducers/accountReducer";
@@ -19,7 +20,8 @@ const rootReducer = combineReducers({
     auth: authReducer,
     sizeReducer: sizeReducer,
     productVariantReducer: productVariantReducer,
-
+    authorityReducer:authorityReducer,
+    
     invoiceReducer: invoiceReducer,
     toppingReducer: toppingReducer,
     accountReducer: accountReducer,

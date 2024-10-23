@@ -1,18 +1,18 @@
 // src/components/AuthorityList.jsx
 
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Switch, Table, Tag, Checkbox, message } from 'antd';
+import { Button, Space, Switch, Table, Checkbox } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-const AuthorityList = ({ sizes, editSize, updateSizeActive, updateAuthorityRoles }) => {
+const AuthorityList = ({ accounts }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [hasData, setHasData] = useState(true);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageAuthority: 10,
             total: 0,
         },
     });
@@ -22,21 +22,21 @@ const AuthorityList = ({ sizes, editSize, updateSizeActive, updateAuthorityRoles
             setLoading(true);
             // Simulate fetching data
             setTimeout(() => {
-                setData(sizes);
+                setData(accounts);
                 setLoading(false);
-                setHasData(Array.isArray(sizes) && sizes.length > 0);
+                setHasData(Array.isArray(accounts) && accounts.length > 0);
                 setTableParams((prev) => ({
                     ...prev,
                     pagination: {
                         ...prev.pagination,
-                        total: Array.isArray(sizes) ? sizes.length : 0,
+                        total: Array.isArray(accounts) ? accounts.length : 0,
                     },
                 }));
             }, 500); // Reduced timeout for better UX
         };
 
         fetchData();
-    }, [sizes]);
+    }, [accounts]);
 
     const handleTableChange = (pagination) => {
         setTableParams({
@@ -44,100 +44,75 @@ const AuthorityList = ({ sizes, editSize, updateSizeActive, updateAuthorityRoles
         });
     };
 
-    // Handler for checkbox changes
-    const handleRoleChange = (record, role, checked) => {
-        const updatedRecord = { ...record, [role]: checked };
-        // Dispatch Redux action to update roles in backend
-        updateAuthorityRoles(updatedRecord)
-            .then(() => {
-                // Update local state on success
-                setData((prevData) =>
-                    prevData.map((item) => (item.id === record.id ? updatedRecord : item))
-                );
-                message.success(`Updated ${role} role for ${record.name}`);
-            })
-            .catch((error) => {
-                message.error(`Failed to update ${role} role for ${record.name}`);
-                console.error(error);
-            });
-    };
-
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            width: 80,
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+            width: 250,
             align: 'center',
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            width: 200,
-            align: 'center',
-            key: 'name',
-        },
-        {
-            title: 'Customer',
-            dataIndex: 'customer',
-            key: 'customer',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.customer}
-                    onChange={(e) => handleRoleChange(record, 'customer', e.target.checked)}
-                />
-            ),
         },
         {
             title: 'Staff',
-            dataIndex: 'staff',
             key: 'staff',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.staff}
-                    onChange={(e) => handleRoleChange(record, 'staff', e.target.checked)}
-                />
-            ),
+            
+            render: (_, record) => {
+                // Kiểm tra xem roleName có phải là "STAFF" hay không
+                const isStaff = record.role?.roleName.toUpperCase() === 'STAFF';
+        
+                return (
+                    <div>
+                        <Checkbox checked={isStaff}></Checkbox>
+                    </div>
+                );
+            },
         },
         {
-            title: 'Director',
-            dataIndex: 'director',
-            key: 'director',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.director}
-                    onChange={(e) => handleRoleChange(record, 'director', e.target.checked)}
-                />
-            ),
-        },
+            title: 'Admin',
+            key: 'admin',
+            render: (_, record) => {
+                // Kiểm tra xem roleName có phải là "STAFF" hay không
+                const isStaff = record.role?.roleName.toUpperCase() === 'ADMIN';
         
+                return (
+                    <div>
+                        <Checkbox checked={isStaff}></Checkbox>
+                    </div>
+                );
+            },
+        },
+        {
+            title: 'User',
+            key: 'user',
+            render: (_, record) => {
+                // Kiểm tra xem roleName có phải là "STAFF" hay không
+                const isStaff = record.role?.roleName.toUpperCase() === 'USER';
+        
+                return (
+                    <div>
+                        <Checkbox checked={isStaff}></Checkbox>
+                    </div>
+                );
+            },
+        }
     ];
 
     return (
         <Table
-            columns={columns}
-            rowKey="id"
-            dataSource={hasData ? data : []}
-            pagination={tableParams.pagination}
-            loading={loading}
-            size="middle"
-            locale={{ emptyText: 'No authorities found' }}
-            onChange={handleTableChange}
-        />
+        columns={columns}
+        rowKey={(record) => record.id || record.username || record.key} // Fallback to username or index if needed
+        dataSource={data}
+        pagination={tableParams.pagination}
+        loading={loading}
+        authority="small"
+        locale={{ emptyText: 'No accounts found' }}
+        onChange={handleTableChange}
+    />
     );
 };
 
 AuthorityList.propTypes = {
-    sizes: PropTypes.array.isRequired,
-    editSize: PropTypes.func.isRequired,
-    updateSizeActive: PropTypes.func.isRequired,
-    updateAuthorityRoles: PropTypes.func.isRequired, // New prop
+    accounts: PropTypes.array.isRequired,
 };
 
 export default AuthorityList;
