@@ -24,7 +24,8 @@ export const insertProduct = (product, navigate) => async (dispatch) => {
     const response = await services.insertProduct(product);
     console.log("API Response:", response);
 
-    if (response.status === 201) {
+    if (response && response.status === 201) {
+      // Kiểm tra xem response có tồn tại
       dispatch({
         type: PRODUCT_SET,
         payload: response.data,
@@ -49,11 +50,16 @@ export const insertProduct = (product, navigate) => async (dispatch) => {
     }
   } catch (error) {
     console.error("Error response:", error.response);
+
+    // Kiểm tra xem error.response có tồn tại trước khi truy cập
+    const errorMessage =
+      error.response && error.response.data
+        ? error.response.data.message
+        : error.message;
+
     dispatch({
       type: COMMON_ERROR_SET,
-      payload: error.response.data
-        ? error.response.data.message
-        : error.message,
+      payload: errorMessage,
     });
   } finally {
     dispatch({ type: COMMON_LOADING_SET, payload: false });
@@ -358,7 +364,6 @@ export const deleteProductImage = (fileName) => async (dispatch) => {
         payload: response?.data?.message || "Lỗi không xác định",
       });
     }
-    
   } catch (error) {
     console.error(error);
     dispatch({
@@ -372,8 +377,6 @@ export const deleteProductImage = (fileName) => async (dispatch) => {
     });
   }
 };
-
-
 
 export const getProductsUser = () => async (dispatch) => {
   const service = new ProductService();

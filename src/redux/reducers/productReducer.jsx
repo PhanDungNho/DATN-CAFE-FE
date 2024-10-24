@@ -18,6 +18,8 @@ const productReducer = (state = initialState, { type, payload }) => {
     case PRODUCTS_SET:
       return { ...state, products: payload };
     case PRODUCT_APPEND:
+      const updatedProducts = [payload, ...state.products];
+      console.log("Updated Products List:", updatedProducts);
       return {
         ...state,
         products: [payload, ...state.products],

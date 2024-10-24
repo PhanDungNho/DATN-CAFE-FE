@@ -5,7 +5,7 @@ import { Button, Space, Switch, Table, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-const SizeList = ({ sizes,editSize, updateSizeActive }) => {
+const SizeList = ({ sizes, editSize, updateSizeActive }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);

@@ -17,7 +17,7 @@ export class ListProduct extends Component {
     super(props);
 
     this.state = {
-      product: { id: "", name: "", active: true, description: "", images: []},
+      product: { id: "", name: "", active: true, description: "", images: [] },
       open: false,
       query: "",
     };
@@ -30,17 +30,17 @@ export class ListProduct extends Component {
     console.log("did mount products");
   };
 
-  componentWillUnmount = () => {
+  componentWillUnmount() {
     this.props.clearProductState();
     console.log("Component will unmount");
-  };
+  }
 
   editProduct = (product) => {
-   console.log(product)
+    console.log("Xin chào dũng nhớ nha: ", product);
 
-   const { navigate } = this.props.router;
+    const { navigate } = this.props.router;
 
-   navigate("/admin/products/update/" + product.id);
+    navigate("/admin/products/update/" + product.id);
   };
 
   handleSearch = (value) => {
