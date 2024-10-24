@@ -167,7 +167,7 @@ class ProductVariantForm extends Component {
       dataSource:
         props.productVariants.length > 0
           ? props.productVariants.map((variant) => ({
-              id: variant.id,
+              id: variant.id || 0,
               key: variant.id,
               size: variant.size || defaultSize,
               sizeId: variant.sizeId,
@@ -176,6 +176,7 @@ class ProductVariantForm extends Component {
             }))
           : [
               {
+                id: 0,
                 key: "0",
                 size: defaultSize,
                 sizeId: "1",
@@ -223,6 +224,7 @@ class ProductVariantForm extends Component {
     newData.splice(index, 1, {
       ...item,
       ...row,
+      id: row.id === undefined ? 0 : row.id,
       size: {
         id: row.sizeId,
         name: sizeName,
