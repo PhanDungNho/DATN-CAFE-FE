@@ -17,7 +17,7 @@ import {
       case PRODUCTVARIANT_SET:
         return { ...state, productVariant: payload };
       case PRODUCTVARIANTS_SET:
-        return { ...state, productVariants: payload };
+        return { ...state, productVariants: payload };  
       case PRODUCTVARIANT_APPEND:
         return {
           ...state,
@@ -39,6 +39,7 @@ import {
         return state;
     }
   };
+  
   
   export default productVariantReducer;
   

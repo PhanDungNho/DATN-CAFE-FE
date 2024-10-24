@@ -116,6 +116,7 @@ export const findToppingByNameContainsIgnoreCase =
       });
 
       const response = await service.findToppingByNameContainsIgnoreCase(query);
+      console.log("Find by name: ", response);
 
       // Kiểm tra nếu mã phản hồi không phải là 200
       if (response.status === 200) {

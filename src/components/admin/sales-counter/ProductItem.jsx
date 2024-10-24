@@ -1,50 +1,44 @@
 import React from "react";
 import { Col, Card, Row, Select, InputNumber, Button } from "antd";
-
+import ProductService from "../../../services/productService";
 const { Option } = Select;
-
+ 
 const ProductItem = ({
   products,
-  toppings,
   selectedVariants,
   handleSelectVariant,
   handleToppingChange,
   handleAddToCart,
   selectedToppings,
-  setSelectedToppings,
 }) => {
+ 
   return (
     <Row gutter={[16, 16]}>
-     <style>
-  {`
-    .ant-table-cell {
-      padding: 16px 8px !important;
-    }
-    
-    .ant-card-body {
-      padding: 12px !important;
-    }
-
-    :where(.css-dev-only-do-not-override-14qglws).ant-input-number-outlined {
-      width: 4rem !important;
-    }
-
-    :where(.css-dev-only-do-not-override-14qglws).ant-layout, 
-    :where(.css-dev-only-do-not-override-14qglws).ant-layout * {
-      vertical-align: top;
-    }
-
-    :where(.css-dev-only-do-not-override-14qglws).ant-table-wrapper 
-    .ant-table-thead > tr > th, 
-    :where(.css-dev-only-do-not-override-14qglws).ant-table-wrapper 
-    .ant-table-thead > tr > td {
-      align-content: center;
-    }
-
-   :where(.css-dev-only-do-not-override-11lehqq).ant-input-number {
-   width: 3.2rem !important;
-  `}
-</style>
+      <style>
+        {`
+          .ant-table-cell {
+            padding: 16px 8px !important;
+          }
+          .ant-card-body {
+            padding: 12px !important;
+          }
+          :where(.css-dev-only-do-not-override-14qglws).ant-input-number-outlined {
+            width: 4rem !important;
+          }
+          :where(.css-dev-only-do-not-override-14qglws).ant-layout, 
+          :where(.css-dev-only-do-not-override-14qglws).ant-layout * {
+            vertical-align: top;
+          }
+          :where(.css-dev-only-do-not-override-14qglws).ant-table-wrapper 
+          .ant-table-thead > tr > th, 
+          :where(.css-dev-only-do-not-override-14qglws).ant-table-wrapper 
+          .ant-table-thead > tr > td {
+            align-content: center;
+          }
+         :where(.css-dev-only-do-not-override-11lehqq).ant-input-number {
+         width: 3.2rem !important;
+        `}
+      </style>
 
       {products
         .filter((product) => product.productVariants.length > 0)
@@ -55,10 +49,12 @@ const ProductItem = ({
               cover={
                 <img
                   alt={product.name}
-                  src={
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSVaNcfHJpRnP89X8FTgG98XWXgvQcYld9xQ&s"
-                  }
-                  style={{    objectFit: "cover" }}
+                 
+
+                    src={ProductService.getProductImageUrl(product.images[0].fileName)}
+                    
+                 
+                  style={{ objectFit: "cover" }}
                 />
               }
             >
@@ -93,9 +89,9 @@ const ProductItem = ({
                 </Col>
 
                 <Col span={24}>
-                  {toppings.map((topping) => (
+                  {product.productToppings.map((topping) => (
                     <Row
-                      key={topping.id}
+                      key={topping.topping.id}
                       style={{
                         alignItems: "center",
                         marginBottom: "8px",
@@ -103,16 +99,16 @@ const ProductItem = ({
                       }}
                     >
                       <Col span={18}>
-                        <span>{topping.name}</span>
+                        <span>{topping.topping.name}</span>
                       </Col>
                       <Col span={6}>
                         <InputNumber
                           min={0}
                           value={
-                            selectedToppings[product.id]?.[topping.id] || 0
+                            selectedToppings[product.id]?.[topping.topping.id] || 0
                           }
                           onChange={(value) =>
-                            handleToppingChange(product.id, topping.id, value)
+                            handleToppingChange(product.id, topping.topping.id, value)
                           }
                         />
                       </Col>

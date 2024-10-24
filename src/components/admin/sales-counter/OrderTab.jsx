@@ -40,7 +40,7 @@ const OrderTab = ({
     >
  
       {orders.map((customer, index) => (
-        <Tabs.TabPane
+        <Tabs.TabPane 
           tab={customer.customerName}
           key={index}
           closable={orders.length > 1}
