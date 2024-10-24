@@ -1,13 +1,13 @@
-// src/components/ListAuthority.jsx
-
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import AuthorityList from './AuthorityList';
 import {
-  getAccounts,
+  getAccountsAdmin,
   findAccountByNameContainsIgnoreCase,
-
-} from '../../../redux/actions/accountAction.jsx';
+} from '../../../redux/actions/accountAction';
+import {
+  getAuthorities
+} from '../../../redux/actions/authorityAction';
 import {
   Col,
   Form,
@@ -32,7 +32,8 @@ export class ListAuthority extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getAccounts();
+    this.props.getAccountsAdmin();
+    this.props.getAuthorities(); 
     console.log('Component Mounted: Fetching accounts');
   };
 
@@ -63,7 +64,7 @@ export class ListAuthority extends Component {
       if (query) {
         this.props.findAccountByNameContainsIgnoreCase(query);
       } else {
-        this.props.getAccounts();
+        this.props.getAccountsAdmin();
       }
     }, 1500); // Reduced debounce time for better UX
   };
@@ -118,7 +119,9 @@ export class ListAuthority extends Component {
         <AuthorityList
           // editAuthority={this.editAuthority}
           accounts={accounts}
-          getAccounts={getAccounts}
+          getAccountsAdmin={getAccountsAdmin}
+          authorities={this.props.authorities}
+          getAuthorities={this.props.getAuthorities} 
         //   updateAuthorityActive={this.props.updateAuthorityActive}
         />
 
@@ -132,11 +135,13 @@ const mapStateToProps = (state) => ({
   accounts: state.accountReducer.accounts,
   isLoading: state.authorityReducer.isLoading,
   error: state.authorityReducer.error,
+  authorities: state.authorityReducer.authorities,
 });
 
 const mapDispatchToProps = {
-  getAccounts,
-  findAccountByNameContainsIgnoreCase
+  getAccountsAdmin,
+  findAccountByNameContainsIgnoreCase,
+  getAuthorities  
 };
 
 export default connect(

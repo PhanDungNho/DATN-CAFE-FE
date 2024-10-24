@@ -1,14 +1,10 @@
-// src/components/AuthorityList.jsx
-
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Switch, Table, Checkbox } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Table, Checkbox } from 'antd';
 import PropTypes from 'prop-types';
 
-const AuthorityList = ({ accounts }) => {
+const AuthorityList = ({ accounts, authorities }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [hasData, setHasData] = useState(true);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
@@ -20,11 +16,9 @@ const AuthorityList = ({ accounts }) => {
     useEffect(() => {
         const fetchData = () => {
             setLoading(true);
-            // Simulate fetching data
             setTimeout(() => {
                 setData(accounts);
                 setLoading(false);
-                setHasData(Array.isArray(accounts) && accounts.length > 0);
                 setTableParams((prev) => ({
                     ...prev,
                     pagination: {
@@ -32,7 +26,7 @@ const AuthorityList = ({ accounts }) => {
                         total: Array.isArray(accounts) ? accounts.length : 0,
                     },
                 }));
-            }, 500); // Reduced timeout for better UX
+            }, 500);
         };
 
         fetchData();
@@ -42,6 +36,18 @@ const AuthorityList = ({ accounts }) => {
         setTableParams({
             pagination,
         });
+    };
+    const authorityOf = (acc, role) => {
+        if (authorities) {
+            return authorities.find(ur => 
+                ur.account.username === acc.username && ur.role.id === role.id
+            );
+        }
+        return null;  // Nếu không tìm thấy quyền, trả về null
+    };
+    const renderCheckbox = (record, role) => {
+        const authority = authorityOf(record, role);
+        return <Checkbox checked={!!authority} />;
     };
 
     const columns = [
@@ -53,66 +59,38 @@ const AuthorityList = ({ accounts }) => {
             align: 'center',
         },
         {
-            title: 'Staff',
-            key: 'staff',
-            
-            render: (_, record) => {
-                // Kiểm tra xem roleName có phải là "STAFF" hay không
-                const isStaff = record.role?.roleName.toUpperCase() === 'STAFF';
-        
-                return (
-                    <div>
-                        <Checkbox checked={isStaff}></Checkbox>
-                    </div>
-                );
-            },
-        },
-        {
             title: 'Admin',
             key: 'admin',
-            render: (_, record) => {
-                // Kiểm tra xem roleName có phải là "STAFF" hay không
-                const isStaff = record.role?.roleName.toUpperCase() === 'ADMIN';
-        
-                return (
-                    <div>
-                        <Checkbox checked={isStaff}></Checkbox>
-                    </div>
-                );
-            },
+            render: (_, record) => renderCheckbox(record, { id: 1 }), // ID 1 là ADMIN
+        },
+        {
+            title: 'Staff',
+            key: 'staff',
+            render: (_, record) => renderCheckbox(record, { id: 2 }), // ID 2 là STAFF
         },
         {
             title: 'User',
             key: 'user',
-            render: (_, record) => {
-                // Kiểm tra xem roleName có phải là "STAFF" hay không
-                const isStaff = record.role?.roleName.toUpperCase() === 'USER';
-        
-                return (
-                    <div>
-                        <Checkbox checked={isStaff}></Checkbox>
-                    </div>
-                );
-            },
-        }
+            render: (_, record) => renderCheckbox(record, { id: 3 }), // ID 3 là USER
+        },
     ];
-
     return (
         <Table
-        columns={columns}
-        rowKey={(record) => record.id || record.username || record.key} // Fallback to username or index if needed
-        dataSource={data}
-        pagination={tableParams.pagination}
-        loading={loading}
-        authority="small"
-        locale={{ emptyText: 'No accounts found' }}
-        onChange={handleTableChange}
-    />
+            columns={columns}
+            rowKey={(record) => record.id || (record.account ? record.account.username : record.key)}
+            dataSource={data}
+            pagination={tableParams.pagination}
+            loading={loading}
+            locale={{ emptyText: 'No accounts found' }}
+            onChange={handleTableChange}
+        />
     );
 };
 
 AuthorityList.propTypes = {
     accounts: PropTypes.array.isRequired,
+    authorities: PropTypes.array.isRequired,
+
 };
 
 export default AuthorityList;
