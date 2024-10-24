@@ -40,7 +40,7 @@ const CounterForm = () => {
   const [products, setProducts] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [accounts, setAccounts] = useState([]);
-  const [toppings, setToppings] = useState([]);
+  // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
     { cart: [], customerName: "Đơn 1", customerId: "" },
@@ -87,19 +87,19 @@ const CounterForm = () => {
       }
     };
 
-    const fetchToppings = async () => {
-      try {
-        const response = await toppingService.getToppings();
-        setToppings(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy topping:", error);
-        message.error("Không thể lấy topping.");
-      }
-    };
+    // const fetchToppings = async () => {
+    //   try {
+    //     const response = await toppingService.getToppings();
+    //     setToppings(response.data);
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.error("Lỗi khi lấy topping:", error);
+    //     message.error("Không thể lấy topping.");
+    //   }
+    // };
 
     fetchProducts();
-    fetchToppings();
+    // fetchToppings();
     fetchAccounts();
  
    
@@ -124,37 +124,41 @@ const CounterForm = () => {
         }))
       )
       .find((variant) => variant.id === variantId);
-
+  
     if (selectedVariant) {
       const newOrders = [...orders];
       const currentCart = newOrders[activeTab].cart;
-
+  
+      // Lấy topping hợp lệ cho sản phẩm
+      const validToppings = products.find(product => product.id === productId)?.productToppings || [];
+      
       // Tìm topping đã chọn cho sản phẩm
       const toppingsWithQuantity = Object.entries(
         selectedToppings[productId] || {}
       )
-        .filter(([toppingId, quantity]) => quantity > 0)
+        .filter(([toppingId, quantity]) => 
+          quantity > 0 && validToppings.some(t => t.topping.id === parseInt(toppingId))
+        )
         .map(([toppingId, quantity]) => {
-          const foundTopping = toppings.find(
-            (t) => t.id === parseInt(toppingId)
-          );
+          const foundTopping = validToppings.find(t => t.topping.id === parseInt(toppingId));
           return foundTopping
             ? {
-                id: foundTopping.id,
-                name: foundTopping.name,
-                price: foundTopping.price,
+                id: foundTopping.topping.id,
+                name: foundTopping.topping.name,
+                price: foundTopping.topping.price,
                 quantity: quantity,
               }
             : null;
         })
         .filter((topping) => topping !== null);
-
-      // Tạo sản phẩm mới với topping đã chọn
+  
+      // Tính giá topping
       const toppingPrice = toppingsWithQuantity.reduce(
         (total, topping) => total + topping.price * topping.quantity,
         0
       );
-
+  
+      // Tạo sản phẩm mới với topping đã chọn
       const newItem = {
         ...selectedVariant,
         quantity: 1,
@@ -162,22 +166,23 @@ const CounterForm = () => {
         toppingPrice: toppingPrice,
         amount: selectedVariant.price + toppingPrice,
       };
-
+  
       // Thêm sản phẩm mới vào giỏ hàng
       currentCart.push(newItem);
-
+  
       // Cập nhật orders và localStorage
       setOrders(newOrders);
-
+      localStorage.setItem("orders", JSON.stringify(newOrders));
+  
       message.success(
         `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
       );
-
+  
       // Reset số lượng topping về 0 cho sản phẩm đã thêm
       setSelectedToppings((prev) => ({
         ...prev,
-        [productId]: toppings.reduce((acc, topping) => {
-          acc[topping.id] = 0;
+        [productId]: validToppings.reduce((acc, topping) => {
+          acc[topping.topping.id] = 0;
           return acc;
         }, {}),
       }));
@@ -214,9 +219,9 @@ const CounterForm = () => {
 
   const handleFinish = async (values, index) => {
     const cartItems = orders[index].cart.map((item) => ({
-      productvariant: { id: item.id },
+      productVariant: { id: item.id },
       quantity: item.quantity,
-      momentprice: item.price,
+      momentPrice: item.price,
       note: item.note,
       totalPrice:
         item.price * item.quantity +
@@ -224,14 +229,14 @@ const CounterForm = () => {
           (total, topping) => total + topping.price * topping.quantity,
           0
         ),
-      orderdetailtoppings: item.toppings.map((topping) => ({
+      orderDetailToppings: item.toppings.map((topping) => ({
         topping: {
           id: topping.id,
           name: topping.name,
           price: topping.price,
         },
         quantity: topping.quantity,
-        momentprice: topping.price,
+        momentPrice: topping.price,
       })),
     }));
     const totalAmount = cartItems.reduce(
@@ -240,24 +245,25 @@ const CounterForm = () => {
     );
 
     const order = {
-      cashierid: JSON.parse(localStorage.getItem("user")).username,
-      totalamount: totalAmount,
+      cashierId: JSON.parse(localStorage.getItem("user")).username,
+      totalAmount: totalAmount,
 
       phone: orders[index].customerPhone || phoneNumberInput,
-      status: paymentMethod === "ONLINE" ? 0 : 1,
-      paymentmethod: paymentMethod,
+      orderStatus: paymentMethod === "ONLINE" ? 0 : 1,
+      paymentMethod: paymentMethod,
+      paymentStatus:paymentMethod === "CASH" ? 1 : 0,
       active: false,
 
-      shippingfee: 0,
-      ordertype: 0,
-      fulladdresstext: null,
-      customerid: orders[index].customerId || "test1",
-      orderdetails: cartItems,
+      shippingFee: 0,
+      orderType: 0,
+      fullAddress: null,
+      customerId: orders[index].customerId || "test1",
+      orderDetails: cartItems,
     };
 
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
-
+      console.log("Order not yet:", order);
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
@@ -527,16 +533,14 @@ const CounterForm = () => {
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
     
-            <ProductItem
-              products={products}
-              toppings={toppings}
-              selectedVariants={selectedVariants}
-              handleSelectVariant={handleSelectVariant}
-              handleToppingChange={handleToppingChange}
-              handleAddToCart={handleAddToCart}
-              selectedToppings={selectedToppings}
-              setSelectedToppings={setSelectedToppings}
-            />
+      <ProductItem
+          products={products}
+          selectedVariants={selectedVariants}
+          handleSelectVariant={handleSelectVariant}
+          handleToppingChange={handleToppingChange}
+          handleAddToCart={handleAddToCart}
+          selectedToppings={selectedToppings}
+        />
     
         
       </Col>
