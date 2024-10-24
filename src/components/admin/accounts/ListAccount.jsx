@@ -28,7 +28,7 @@ export class ListAccount extends Component {
     super(props);
 
     this.state = {
-      account: { username: "", fullname: "", amountpaid: "", phone: "", active: true, image: "" },
+      account: { username: "", fullName: "", amountPaid: "", phone: "", active: true, image: "" },
       open: false,
       query: "",
     };

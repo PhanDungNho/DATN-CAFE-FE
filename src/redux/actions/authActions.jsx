@@ -105,39 +105,7 @@ export const login = (username, password) => async (dispatch) => {
   }
 };
 
-export const loginGG = () => async (dispatch) => {
-  try {
-    dispatch({ type: LOGIN_REQUEST });
-
-    const { data } = await axios.post(API_GOOGLE_LOGIN);
-
-    console.log("Login response:", data);
-
-    if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
-      window.location.href = "/admin";
-    } else {
-      alert("Bạn không có quyền truy cập");
-    }
-
-    dispatch({
-      type: LOGIN_SUCCESS,
-      payload: {
-        username: data.username,
-        roles: data.roles,
-        token: data.accessToken,
-      },
-    });
-
-    localStorage.setItem("token", data.accessToken);
-    localStorage.setItem("user", JSON.stringify(data));
-  
-  } catch (error) {
-    dispatch({
-      type: LOGIN_FAILURE,
-      payload: error.response ? error.response.data.message : "Login failed",
-    });
-  }
-};
+ 
 export const handleGoogleLoginSuccess = async (credentialResponse) => {
   console.log(credentialResponse);
   console.log(credentialResponse.credential);
@@ -149,14 +117,14 @@ export const handleGoogleLoginSuccess = async (credentialResponse) => {
       // }
     });
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data));
+   
       window.location.href = "/admin";
     
     } else {
       window.location.href = "/";
     }
-
+    localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(data));
     console.log('Response from backend:', data);
     // Xử lý response từ backend ở đây, ví dụ lưu JWT vào localStorage
   } catch (error) {

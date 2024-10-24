@@ -7,11 +7,11 @@ export default class AccountService {
 
     // Append account fields to FormData
     formData.append("username", account.username);
-    formData.append("fullname", account.fullname);
+    formData.append("fullName", account.fullName);
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountpaid", account.amountpaid);
+    formData.append("amountPaid", account.amountPaid);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
@@ -32,11 +32,11 @@ export default class AccountService {
     let formData = new FormData();
 
     formData.append("username", account.username);
-    formData.append("fullname", account.fullname);
+    formData.append("fullName", account.fullName);
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountpaid", account.amountpaid);
+    formData.append("amountPaid", account.amountPaid);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
