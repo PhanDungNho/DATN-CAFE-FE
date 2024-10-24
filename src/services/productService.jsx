@@ -5,15 +5,31 @@ export default class ProductService {
   insertProduct(product) {
     const formData = new FormData();
 
+    const baseSlug = this.createSlug(product.name);
+
     // Append product fields to FormData
     formData.append("name", product.name);
     formData.append("active", product.active);
+    formData.append("slug", baseSlug);
     formData.append("description", product.description);
-    formData.append("categoryid", product.categoryid);
+    formData.append("categoryId", product.categoryId);
 
-    // Append image files
+    // Append image files (giữ lại file thực tế)
     product.imageFiles.forEach((file) => {
       formData.append("imageFiles", file);
+    });
+
+    // Append product variants
+    product.productVariants.forEach((variant, index) => {
+      formData.append(`productVariants[${index}].sizeId`, variant.sizeId);
+      formData.append(`productVariants[${index}].price`, variant.price);
+      formData.append(`productVariants[${index}].active`, variant.active);
+    });
+
+    // Append product toppings
+    product.productToppings.forEach((topping, index) => {
+      formData.append(`productToppings[${index}].toppingId`, topping.toppingId); // Sử dụng topping.toppingId thay vì topping.id
+      formData.append(`productToppings[${index}].productId`, product.id);
     });
 
     console.log("insert nè", [...formData]);
@@ -26,17 +42,41 @@ export default class ProductService {
     });
   }
 
+  createSlug = (text) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[\s]+/g, "-")
+      .replace(/[^\w\-]+/g, "")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
+  generateUniqueSlug(baseSlug, existingSlugs) {
+    let newSlug = baseSlug;
+    let count = 1;
+
+    while (existingSlugs.includes(newSlug)) {
+      newSlug = `${baseSlug}-${count}`;
+      count++;
+    }
+
+    return newSlug;
+  }
+
   updateProduct = async (id, product) => {
     const formData = new FormData();
+
+    const baseSlug = this.createSlug(product.name);
 
     // Append product fields to FormData
     formData.append("name", product.name);
     formData.append("active", product.active);
+    formData.append("slug", baseSlug); // Thêm slug
     formData.append("description", product.description);
-    formData.append("categoryid", product.categoryid);
+    formData.append("categoryId", product.categoryId);
 
     // Kiểm tra nếu imageFiles tồn tại và không rỗng trước khi append
-
     if (product.imageFiles && product.imageFiles.length > 0) {
       product.imageFiles.forEach((file) => {
         if (file) {
@@ -45,7 +85,28 @@ export default class ProductService {
       });
     }
 
-    console.log([...formData]);
+    // Append product variants (nếu có)
+    if (product.productVariants && product.productVariants.length > 0) {
+      product.productVariants.forEach((variant, index) => {
+        formData.append(`productVariants[${index}].id`, variant.id);
+        formData.append(`productVariants[${index}].sizeId`, variant.sizeId);
+        formData.append(`productVariants[${index}].price`, variant.price);
+        formData.append(`productVariants[${index}].active`, variant.active);
+      });
+    }
+
+    // Append product toppings (nếu có)
+    if (product.productToppings && product.productToppings.length > 0) {
+      product.productToppings.forEach((topping, index) => {
+        formData.append(
+          `productToppings[${index}].toppingId`,
+          topping.toppingId
+        ); // Sử dụng topping.toppingId thay vì topping.id
+        formData.append(`productToppings[${index}].productId`, product.id);
+      });
+    }
+
+    console.log("update nè", [...formData]);
 
     return axios.patch(API_PRODUCT + "/" + id, formData, {
       headers: {
@@ -64,10 +125,8 @@ export default class ProductService {
   };
 
   getProductsUser = async () => {
-    return await axios.get(API_PRODUCT, {
-    });
+    return await axios.get(API_PRODUCT, {});
   };
-
 
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {

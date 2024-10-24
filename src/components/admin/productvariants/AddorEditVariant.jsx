@@ -3,8 +3,10 @@ import { connect } from "react-redux";
 import withRouter from "../../../helpers/withRouter";
 import { findProductNameContainsIgnoreCase } from "../../../redux/actions/productAction";
 import {
+  clearProductVariantState,
   getProductVariant,
   insertProductVariant,
+  updateProductVariant,
 } from "../../../redux/actions/productVariantAction";
 import ProductService from "../../../services/productService";
 import SizeService from "../../../services/sizeService";
@@ -62,13 +64,25 @@ export class AddorEditVariant extends Component {
     const { id } = this.props.router.params;
 
     if (!id) {
-      this.props.insertProductVariant(values);
+      this.props.insertProductVariant(values, navigate);
       console.log("Insert product variant: ", values);
     } else {
-      // this.props.updateProductVariant(id, values, navigate);
-      console.log("Update product variant: ")
+      this.props.updateProductVariant(id, values, navigate);
+      console.log("Update product variant: ");
     }
   };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (
+      nextProps.productVariant &&
+      prevState.productVariant.id !== nextProps.productVariant.id
+    ) {
+      return {
+        productVariant: nextProps.productVariant,
+      };
+    }
+    return null;
+  }
 
   render() {
     const { isLoading, router } = this.props;
@@ -106,6 +120,7 @@ export class AddorEditVariant extends Component {
           findProductByNameContainsIgnoreCase={
             this.props.findProductNameContainsIgnoreCase
           }
+          clearProductVariantState={this.props.clearProductVariantState}
         />
       </>
     );
@@ -120,6 +135,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   getProductVariant,
   insertProductVariant,
+  updateProductVariant,
+  clearProductVariantState,
   findProductNameContainsIgnoreCase,
 };
 

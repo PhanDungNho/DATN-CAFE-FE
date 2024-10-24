@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { Image, message, Modal, Upload, Popconfirm } from "antd";
+import { Image, message, Modal, Upload } from "antd";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { API_PRODUCT } from "../../../services/constant";
@@ -59,7 +59,7 @@ const UploadImage = (props) => {
             props.onUpdateFileList(
               props.fileList.filter((item) => item.uid !== file.uid)
             );
-  
+
             resolve(true);
             await axios.delete(API_PRODUCT + "/images/" + file.name, {
               headers: {
@@ -78,7 +78,7 @@ const UploadImage = (props) => {
       });
     });
   };
-  
+
   const uploadButton = (
     <div>
       <PlusOutlined />
@@ -109,8 +109,9 @@ const UploadImage = (props) => {
         headers={headers}
         onPreview={handlePreview}
         onChange={handleChange}
-        onRemove={handleRemove} 
-        beforeUpload={() => false} 
+        onRemove={handleRemove}
+        accept=".jpg, .png, .gif"
+        beforeUpload={() => false}
       >
         <div onClick={handleUploadClick}>
           {fileList.length >= 8 ? null : uploadButton}
