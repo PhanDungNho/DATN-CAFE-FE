@@ -113,6 +113,7 @@ export class ListTopping extends Component {
                   placeholder="Search toppings"
                   value={query}
                   onChange={this.handleSearch}
+                  allowClear
                 />
               </Form.Item>
             </Form>

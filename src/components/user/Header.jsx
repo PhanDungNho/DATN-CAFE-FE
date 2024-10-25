@@ -83,13 +83,13 @@ function Header() {
                 <nav className="main-menu">
                   <ul>
                     <li className="current-list-item">
-                      <a href="/">Trang chủ</a>
+                      <a href="/">Home</a>
                     </li>
                     <li>
-                      <a href="about.html">Về chúng tôi</a>
+                      <a href="/about">About</a>
                     </li>
                     <li>
-                      <a href="#">Pages</a>
+                      <a href="">Pages</a>
                       {/* <ul className="sub-menu">
                   <li>
                     <a href="about.html">About</a>
@@ -112,13 +112,13 @@ function Header() {
                 </ul> */}
                     </li>
                     <li>
-                      <a href="/shop">Sản phẩm</a>
+                      <a href="/shop">Products</a>
                     </li>
                     <li>
                       <li>
                         <input
                           type="text"
-                          placeholder="Tìm kiếm..."
+                          placeholder="Search..."
                           className="search-input"
                           style={{ display: "inline-block", marginRight: 10 }}
                         />

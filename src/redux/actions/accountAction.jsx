@@ -152,6 +152,47 @@ export const getAccounts = () => async (dispatch) => {
   });
 };
 
+export const getAccountsAdmin = () => async (dispatch) => {
+  const service = new accountService();
+
+  try {
+    console.log("get all accounts admin");
+
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.getAccountsAdmin();
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: ACCOUNTS_SET,
+        payload: response.data,
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+  dispatch({
+    type: COMMON_LOADING_SET,
+    payload: false,
+  });
+};
+
+
+
 export const getAccount = (username) => async (dispatch) => {
   const service = new accountService();
 
@@ -256,7 +297,6 @@ export const updateAccountActive =
 export const findAccountByNameContainsIgnoreCase =
   (query) => async (dispatch) => {
     const service = new accountService();
-
     console.log("Find");
     try {
       dispatch({
@@ -314,6 +354,54 @@ export const findAccountByPhoneContainsIgnoreCase =
       const response = await service.findAccountByPhoneContainsIgnoreCase(
         query
       );
+
+      if (response.status === 200) {
+        const accounts = Array.isArray(response.data) ? response.data : [];
+        dispatch({
+          type: ACCOUNTS_SET,
+          payload: accounts,
+        });
+      } else {
+        dispatch({
+          type: ACCOUNTS_SET,
+          payload: [],
+        });
+        dispatch({
+          type: COMMON_ERROR_SET,
+          payload:
+            response.message || "An error occurred while fetching accounts",
+        });
+      }
+    } catch (error) {
+      dispatch({
+        type: ACCOUNTS_SET,
+        payload: [],
+      });
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: error.response?.data?.message || error.message,
+      });
+    } finally {
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: false,
+      });
+    }
+  };
+
+
+
+  export const findAccountByNameContainsIgnoreCaseAdmin =
+  (query) => async (dispatch) => {
+    const service = new accountService();
+    console.log("FindAdmin");
+    try {
+      dispatch({
+        type: COMMON_LOADING_SET,
+        payload: true,
+      });
+
+      const response = await service.findAccountByNameContainsIgnoreCaseAdmin(query);
 
       if (response.status === 200) {
         const accounts = Array.isArray(response.data) ? response.data : [];

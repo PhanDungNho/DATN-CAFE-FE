@@ -10,7 +10,6 @@ import {
   const initialState = {
     topping: {},
     toppings: [],
-    pagination: { current: 1, pageSize: 10, total: 0 },
   };
   
   const toppingReducer = (state = initialState, { type, payload }) => {

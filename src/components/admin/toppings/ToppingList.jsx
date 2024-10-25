@@ -1,5 +1,3 @@
-// src/components/ToppingList.jsx
-
 import React, { useEffect, useState } from 'react';
 import { Button, Image, Space, Switch, Table, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';

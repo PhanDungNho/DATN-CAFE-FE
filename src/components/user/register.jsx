@@ -112,7 +112,7 @@ const Register = () => {
                   <Input prefix={<UserOutlined />} placeholder="Tài khoản" />
                 </Form.Item>
                 <Form.Item
-                  name="fullname"
+                  name="fullName"
                   rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
                 >
                   <Input prefix={<MdDriveFileRenameOutline />} placeholder="Họ và tên" />

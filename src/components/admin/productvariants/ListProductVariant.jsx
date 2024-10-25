@@ -1,7 +1,12 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { connect } from "react-redux";
 import withRouter from "../../../helpers/withRouter";
-import { getProductVariants } from "../../../redux/actions/productVariantAction";
+import {
+  findProductVariantByNameContainsIgnoreCase,
+  getProductVariant,
+  getProductVariants,
+  updateProductVariantActive,
+} from "../../../redux/actions/productVariantAction";
 import ContentHeader from "../common/ContentHeader";
 import { Col, Form, Input, Row, Skeleton } from "antd";
 import ProductVariantList from "./ProductVariantList";
@@ -16,6 +21,7 @@ export class ListProductVariant extends Component {
         price: "",
         active: true,
       },
+      query: "",
     };
 
     this.timeout = null;
@@ -26,8 +32,30 @@ export class ListProductVariant extends Component {
     console.log("did mount products");
   };
 
+  editProductVariant = (productVariant) => {
+    console.log(productVariant);
+    const { navigate } = this.props.router;
+
+    navigate("/admin/productvariants/update/" + productVariant.id);
+  };
+
+  handleSearch = (value) => {
+    const query = value.target.value;
+    this.setState({ query });
+
+    clearTimeout(this.timeout);
+
+    this.timeout = setTimeout(() => {
+      if (query) {
+        this.props.findProductVariantByNameContainsIgnoreCase(query);
+      } else {
+        this.props.getProductVariants();
+      }
+    }, 1500);
+  };
+
   render() {
-    const { productVariants, router, isLoading } = this.props;
+    const { productVariant, productVariants, router, isLoading } = this.props;
     const { query } = this.state;
     const { navigate } = this.props.router;
 
@@ -59,8 +87,8 @@ export class ListProductVariant extends Component {
                 <Input
                   placeholder="Search"
                   value={query}
+                  onChange={this.handleSearch}
                   allowClear
-                  onChange={(e) => this.setState({ query: e.target.value })}
                 />
               </Form.Item>
             </Form>
@@ -68,10 +96,11 @@ export class ListProductVariant extends Component {
         </Row>
 
         <ProductVariantList
-          //   editProduct={this.editProduct}
+          editProductVariant={this.editProductVariant}
           productVariants={productVariants}
+          productVariant={productVariant}
           router={router}
-          updateProductActive={this.props.updateProductActive}
+          updateProductVariantActive={this.props.updateProductVariantActive}
         />
       </>
     );
@@ -79,12 +108,16 @@ export class ListProductVariant extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  productVariant: state.productVariantReducer.productVariant,
   productVariants: state.productVariantReducer.productVariants,
   isLoading: state.commonReducer.isLoading,
 });
 
 const mapDispatchToProps = {
   getProductVariants,
+  getProductVariant,
+  findProductVariantByNameContainsIgnoreCase,
+  updateProductVariantActive,
 };
 
 export default connect(

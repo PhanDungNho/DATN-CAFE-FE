@@ -1,16 +1,44 @@
-import React from 'react';
-import { Form, Input, Button, Row, Col } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, message } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate từ react-router-dom
 import 'antd/dist/reset.css'; // CSS của Ant Design
 
 const ForgotPassword = () => {
-const onFinish = (values) => {
-    console.log('Success:', values);
-    // Gửi request đến server hoặc xử lý form
-};
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Khởi tạo useNavigate
 
-return (
+  const onFinish = async (values) => {
+    setLoading(true); // Bắt đầu loading
+    try {
+      const response = await fetch('http://localhost:8081/api/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: values.email }), // Gửi email đến backend
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(errorData.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+      } else {
+        const data = await response.json();
+        message.success(data.message);
+        // Lưu email vào local storage hoặc state trước khi điều hướng
+        localStorage.setItem('email', values.email); // Lưu email vào local storage
+        navigate('/forgotpassword/otp'); // Điều hướng đến trang xác thực OTP
+      }
+    } catch (error) {
+      message.error('Có lỗi xảy ra, vui lòng thử lại.');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false); // Kết thúc loading
+    }
+  };
+
+  return (
     <div
-    style={{
+      style={{
         display: 'flex',
         alignItems: 'center',
         minHeight: '100vh',
@@ -38,7 +66,7 @@ return (
             />
           </Col>
           <Col lg={10}>
-            <div style={{ textAlign: 'center', }}>
+            <div style={{ textAlign: 'center' }}>
               <h1>Quên Mật Khẩu</h1>
               <Form
                 name="forgot-password"
@@ -48,12 +76,15 @@ return (
               >
                 <Form.Item
                   name="email"
-                  rules={[{ required: true, message: 'Vui lòng nhập email của bạn!' }, { type: 'email', message: 'Vui lòng nhập đúng định dạng email!' }]}
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập email của bạn!' },
+                    { type: 'email', message: 'Vui lòng nhập đúng định dạng email!' },
+                  ]}
                 >
                   <Input placeholder="Email" />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block icon={<i className="fa fa-envelope"></i>}>
+                  <Button type="primary" htmlType="submit" block loading={loading}>
                     Gửi Mã
                   </Button>
                 </Form.Item>
