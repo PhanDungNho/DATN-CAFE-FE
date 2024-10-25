@@ -297,9 +297,28 @@ const CounterForm = () => {
         });
 
         console.log("Payment URL created:", response);
-        window.open(response.data.payUrl, "_blank", "width=800,height=600");
+       const paymentWindow =  window.open(response.data.payUrl, "_blank", "width=800,height=600");
 
-        // handleSuccess(order, index);
+        const checkPaymentStatus = setInterval(() => {
+          if (paymentWindow.closed) {
+            clearInterval(checkPaymentStatus);
+  
+            // Kiểm tra trạng thái thanh toán từ localStorage
+            const paymentStatus = localStorage.getItem(`payment_status_${order.id}`);
+  
+            if (paymentStatus === "success") {
+              message.success("Thanh toán thành công!");
+              // handleSuccess(order, index); // Đóng form bán hàng
+              removeCustomer(index.toString()); 
+            } else {
+              message.error("Thanh toán thất bại hoặc bị hủy.");
+            }
+            console.log("first")
+            console.log(order.id)
+            console.log(order)
+            console.log(index)
+          }
+        }, 1000); // Kiểm tra mỗi giây
       } else {
         throw new Error("Không thể tạo URL thanh toán.");
       }
