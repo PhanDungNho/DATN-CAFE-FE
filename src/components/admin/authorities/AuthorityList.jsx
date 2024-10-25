@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Checkbox } from 'antd';
+import { Table, Checkbox, message } from 'antd';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { postAuthority, deleteAuthority, getAuthorities } from '../../../redux/actions/authorityAction';
 
 const AuthorityList = ({ accounts, authorities }) => {
     const [data, setData] = useState([]);
@@ -12,6 +14,8 @@ const AuthorityList = ({ accounts, authorities }) => {
             total: 0,
         },
     });
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchData = () => {
@@ -37,17 +41,49 @@ const AuthorityList = ({ accounts, authorities }) => {
             pagination,
         });
     };
+
     const authorityOf = (acc, role) => {
-        if (authorities) {
-            return authorities.find(ur => 
-                ur.account.username === acc.username && ur.role.id === role.id
-            );
-        }
-        return null;  // Nếu không tìm thấy quyền, trả về null
+        if (!acc || !role || !authorities) return null;
+        return authorities.find(ur => ur.account?.username === acc.username && ur.role?.id === role.id) || null;
     };
+
+    const handleCheckboxChange = (acc, role) => {
+        const authority = authorityOf(acc, role);
+    
+        if (authority) {
+            // Revoke authority
+            dispatch(deleteAuthority(authority.id))
+                .then(() => {
+                    message.success("Authority successfully revoked");
+                    dispatch(getAuthorities());  // Refresh data after revocation
+                })
+                .catch((error) => {
+                    message.error("Failed to revoke authority");
+                    console.error("Revoke authority error:", error);
+                });
+        } else {
+            // Grant authority by calling postAuthority
+            const newAuthority = { username: acc.username, roleId: role.id };
+            dispatch(postAuthority(newAuthority))
+                .then(() => {
+                    message.success("Authority successfully granted");
+                    dispatch(getAuthorities());  // Refresh data after granting
+                })
+                .catch((error) => {
+                    message.error("Failed to grant authority");
+                    console.error("Grant authority error:", error);
+                });
+        }
+    };
+
     const renderCheckbox = (record, role) => {
         const authority = authorityOf(record, role);
-        return <Checkbox checked={!!authority} />;
+        return (
+            <Checkbox
+                checked={!!authority}
+                onChange={() => handleCheckboxChange(record, role)}
+            />
+        );
     };
 
     const columns = [
@@ -61,19 +97,20 @@ const AuthorityList = ({ accounts, authorities }) => {
         {
             title: 'Admin',
             key: 'admin',
-            render: (_, record) => renderCheckbox(record, { id: 1 }), // ID 1 là ADMIN
+            render: (_, record) => renderCheckbox(record, { id: 1, name: 'Admin' }), // Role ID 1 is ADMIN
         },
         {
             title: 'Staff',
             key: 'staff',
-            render: (_, record) => renderCheckbox(record, { id: 2 }), // ID 2 là STAFF
+            render: (_, record) => renderCheckbox(record, { id: 2, name: 'Staff' }), // Role ID 2 is STAFF
         },
         {
             title: 'User',
             key: 'user',
-            render: (_, record) => renderCheckbox(record, { id: 3 }), // ID 3 là USER
+            render: (_, record) => renderCheckbox(record, { id: 3, name: 'User' }), // Role ID 3 is USER
         },
     ];
+
     return (
         <Table
             columns={columns}
@@ -90,7 +127,6 @@ const AuthorityList = ({ accounts, authorities }) => {
 AuthorityList.propTypes = {
     accounts: PropTypes.array.isRequired,
     authorities: PropTypes.array.isRequired,
-
 };
 
 export default AuthorityList;

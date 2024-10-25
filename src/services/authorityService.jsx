@@ -24,21 +24,21 @@ export default class authorityService {
     });
   };
 
-  // Trao quyền cho tài khoản
   postAuthority = async (authorityDto) => {
     try {
-      const response = await axios.post(API_AUTHORITY, authorityDto, {
-        headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
+        const response = await axios.post(API_AUTHORITY, authorityDto, {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token"),
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data;
     } catch (error) {
-      console.error("Error creating authority", error);
-      throw error;
+        console.error("Error creating authority:", error.response?.data || error.message);
+        throw error;  // Ném lại lỗi để Redux hoặc phần xử lý ở trên nhận được
     }
-  };
+};
+
 
   // Tước quyền (xóa quyền) của tài khoản
   deleteAuthority = async (id) => {
