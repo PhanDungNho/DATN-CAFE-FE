@@ -1,42 +1,40 @@
-// src/components/AuthorityList.jsx
-
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Switch, Table, Tag, Checkbox, message } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Table, Checkbox, message } from 'antd';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { postAuthority, deleteAuthority, getAuthorities } from '../../../redux/actions/authorityAction';
 
-const AuthorityList = ({ sizes, editSize, updateSizeActive, updateAuthorityRoles }) => {
+const AuthorityList = ({ accounts, authorities }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [hasData, setHasData] = useState(true);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageAuthority: 10,
             total: 0,
         },
     });
 
+    const dispatch = useDispatch();
+
     useEffect(() => {
         const fetchData = () => {
             setLoading(true);
-            // Simulate fetching data
             setTimeout(() => {
-                setData(sizes);
+                setData(accounts);
                 setLoading(false);
-                setHasData(Array.isArray(sizes) && sizes.length > 0);
                 setTableParams((prev) => ({
                     ...prev,
                     pagination: {
                         ...prev.pagination,
-                        total: Array.isArray(sizes) ? sizes.length : 0,
+                        total: Array.isArray(accounts) ? accounts.length : 0,
                     },
                 }));
-            }, 500); // Reduced timeout for better UX
+            }, 500);
         };
 
         fetchData();
-    }, [sizes]);
+    }, [accounts]);
 
     const handleTableChange = (pagination) => {
         setTableParams({
@@ -44,100 +42,91 @@ const AuthorityList = ({ sizes, editSize, updateSizeActive, updateAuthorityRoles
         });
     };
 
-    // Handler for checkbox changes
-    const handleRoleChange = (record, role, checked) => {
-        const updatedRecord = { ...record, [role]: checked };
-        // Dispatch Redux action to update roles in backend
-        updateAuthorityRoles(updatedRecord)
-            .then(() => {
-                // Update local state on success
-                setData((prevData) =>
-                    prevData.map((item) => (item.id === record.id ? updatedRecord : item))
-                );
-                message.success(`Updated ${role} role for ${record.name}`);
-            })
-            .catch((error) => {
-                message.error(`Failed to update ${role} role for ${record.name}`);
-                console.error(error);
-            });
+    const authorityOf = (acc, role) => {
+        if (!acc || !role || !authorities) return null;
+        return authorities.find(ur => ur.account?.username === acc.username && ur.role?.id === role.id) || null;
+    };
+
+    const handleCheckboxChange = (acc, role) => {
+        const authority = authorityOf(acc, role);
+    
+        if (authority) {
+            // Revoke authority
+            dispatch(deleteAuthority(authority.id))
+                .then(() => {
+                    message.success("Authority successfully revoked");
+                    dispatch(getAuthorities());  // Refresh data after revocation
+                })
+                .catch((error) => {
+                    message.error("Failed to revoke authority");
+                    console.error("Revoke authority error:", error);
+                });
+        } else {
+            // Grant authority by calling postAuthority
+            const newAuthority = { username: acc.username, roleId: role.id };
+            dispatch(postAuthority(newAuthority))
+                .then(() => {
+                    message.success("Authority successfully granted");
+                    dispatch(getAuthorities());  // Refresh data after granting
+                })
+                .catch((error) => {
+                    message.error("Failed to grant authority");
+                    console.error("Grant authority error:", error);
+                });
+        }
+    };
+
+    const renderCheckbox = (record, role) => {
+        const authority = authorityOf(record, role);
+        return (
+            <Checkbox
+                checked={!!authority}
+                onChange={() => handleCheckboxChange(record, role)}
+            />
+        );
     };
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            width: 80,
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+            width: 250,
             align: 'center',
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            width: 200,
-            align: 'center',
-            key: 'name',
-        },
-        {
-            title: 'Customer',
-            dataIndex: 'customer',
-            key: 'customer',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.customer}
-                    onChange={(e) => handleRoleChange(record, 'customer', e.target.checked)}
-                />
-            ),
+            title: 'Admin',
+            key: 'admin',
+            render: (_, record) => renderCheckbox(record, { id: 1, name: 'Admin' }), // Role ID 1 is ADMIN
         },
         {
             title: 'Staff',
-            dataIndex: 'staff',
             key: 'staff',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.staff}
-                    onChange={(e) => handleRoleChange(record, 'staff', e.target.checked)}
-                />
-            ),
+            render: (_, record) => renderCheckbox(record, { id: 2, name: 'Staff' }), // Role ID 2 is STAFF
         },
         {
-            title: 'Director',
-            dataIndex: 'director',
-            key: 'director',
-            width: 150,
-            align: 'center',
-            render: (text, record) => (
-                <Checkbox
-                    checked={record.director}
-                    onChange={(e) => handleRoleChange(record, 'director', e.target.checked)}
-                />
-            ),
+            title: 'User',
+            key: 'user',
+            render: (_, record) => renderCheckbox(record, { id: 3, name: 'User' }), // Role ID 3 is USER
         },
-        
     ];
 
     return (
         <Table
             columns={columns}
-            rowKey="id"
-            dataSource={hasData ? data : []}
+            rowKey={(record) => record.id || (record.account ? record.account.username : record.key)}
+            dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
-            size="middle"
-            locale={{ emptyText: 'No authorities found' }}
+            locale={{ emptyText: 'No accounts found' }}
             onChange={handleTableChange}
         />
     );
 };
 
 AuthorityList.propTypes = {
-    sizes: PropTypes.array.isRequired,
-    editSize: PropTypes.func.isRequired,
-    updateSizeActive: PropTypes.func.isRequired,
-    updateAuthorityRoles: PropTypes.func.isRequired, // New prop
+    accounts: PropTypes.array.isRequired,
+    authorities: PropTypes.array.isRequired,
 };
 
 export default AuthorityList;

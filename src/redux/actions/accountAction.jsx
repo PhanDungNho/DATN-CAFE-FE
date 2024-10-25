@@ -152,6 +152,47 @@ export const getAccounts = () => async (dispatch) => {
   });
 };
 
+export const getAccountsAdmin = () => async (dispatch) => {
+  const service = new accountService();
+
+  try {
+    console.log("get all accounts admin");
+
+    dispatch({
+      type: COMMON_LOADING_SET,
+      payload: true,
+    });
+
+    const response = await service.getAccountsAdmin();
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: ACCOUNTS_SET,
+        payload: response.data,
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+  dispatch({
+    type: COMMON_LOADING_SET,
+    payload: false,
+  });
+};
+
+
+
 export const getAccount = (username) => async (dispatch) => {
   const service = new accountService();
 
