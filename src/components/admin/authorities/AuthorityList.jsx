@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Checkbox, message } from 'antd';
+import { Table, Checkbox, message, Modal } from 'antd';  // Thêm Modal ở đây
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { postAuthority, deleteAuthority, getAuthorities } from '../../../redux/actions/authorityAction';
@@ -49,31 +49,27 @@ const AuthorityList = ({ accounts, authorities }) => {
 
     const handleCheckboxChange = (acc, role) => {
         const authority = authorityOf(acc, role);
-    
-        if (authority) {
-            // Revoke authority
-            dispatch(deleteAuthority(authority.id))
-                .then(() => {
-                    message.success("Authority successfully revoked");
-                    dispatch(getAuthorities());  // Refresh data after revocation
-                })
-                .catch((error) => {
-                    message.error("Failed to revoke authority");
-                    console.error("Revoke authority error:", error);
-                });
-        } else {
-            // Grant authority by calling postAuthority
-            const newAuthority = { username: acc.username, roleId: role.id };
-            dispatch(postAuthority(newAuthority))
-                .then(() => {
-                    message.success("Authority successfully granted");
-                    dispatch(getAuthorities());  // Refresh data after granting
-                })
-                .catch((error) => {
-                    message.error("Failed to grant authority");
-                    console.error("Grant authority error:", error);
-                });
-        }
+        const action = authority ? 'revoke' : 'grant';
+        Modal.confirm({
+            title: `Are you sure you want to ${action} this authority?`,
+            onOk() {
+                if (authority) {
+                    dispatch(deleteAuthority(authority.id))
+                        .then(() => {
+                            dispatch(getAuthorities());
+                        })
+                        
+                } else {
+                    const newAuthority = { username: acc.username, roleId: role.id };
+                    dispatch(postAuthority(newAuthority))
+                        .then(() => {
+                            dispatch(getAuthorities());
+                        })
+                }
+            },
+            onCancel() {
+            },
+        });
     };
 
     const renderCheckbox = (record, role) => {

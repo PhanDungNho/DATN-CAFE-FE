@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom"; // Để lấy tham số URL
+import { getProduct } from "../../redux/actions/productAction"; // Hành động lấy sản phẩm
+
 import { Row, Col, Image, Button, Card } from "antd";
 import { ShoppingCartOutlined, LeftOutlined, RightOutlined, LineHeightOutlined } from "@ant-design/icons";
 import Header from "./Header";
@@ -11,12 +15,17 @@ function Product() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [price, setPrice] = useState(50000); // Giá khởi điểm cho size M
   const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0); // Để điều khiển nhóm thumbnail hiện tại
-
+  const { id } = useParams(); // Lấy ID từ URL
+  const dispatch = useDispatch();
+  const product = useSelector((state) => state.productReducer.product);
   const sizes = [
     { size: "S", price: 40000 },
     { size: "M", price: 50000 },
     { size: "L", price: 60000 },
   ];
+  useEffect(() => {
+    dispatch(getProduct(id)); // Gọi hàm để lấy sản phẩm theo ID
+  }, [dispatch, id]);
 
   const thumbnails = [
     "assets/img/index/cafeden.png",

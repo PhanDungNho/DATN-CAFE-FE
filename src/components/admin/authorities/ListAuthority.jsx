@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import AuthorityList from './AuthorityList';
 import {
   getAccountsAdmin,
-  findAccountByNameContainsIgnoreCase,
+  findAccountByNameContainsIgnoreCaseAdmin,
 } from '../../../redux/actions/accountAction';
 import {
   getAuthorities
@@ -62,7 +62,7 @@ export class ListAuthority extends Component {
 
     this.timeout = setTimeout(() => {
       if (query) {
-        this.props.findAccountByNameContainsIgnoreCase(query);
+        this.props.findAccountByNameContainsIgnoreCaseAdmin(query);
       } else {
         this.props.getAccountsAdmin();
       }
@@ -140,7 +140,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getAccountsAdmin,
-  findAccountByNameContainsIgnoreCase,
+  findAccountByNameContainsIgnoreCaseAdmin,
   getAuthorities  
 };
 
