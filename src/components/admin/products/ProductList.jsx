@@ -69,7 +69,7 @@ const columns = (editProduct, updateProductActive) => [
 const ProductList = ({ products, editProduct, updateProductActive }) => {
   const [data, setData] = useState(products);
   const [loading, setLoading] = useState(false);
-  const [hasData, setHasData] = useState(true);
+  const [hasData, setHasData] = useState(products);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -93,6 +93,7 @@ const ProductList = ({ products, editProduct, updateProductActive }) => {
   };
 
   useEffect(fetchData, [
+    products,
     tableParams.pagination?.current,
     tableParams.pagination?.pageSize,
   ]);

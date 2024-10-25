@@ -36,8 +36,11 @@ import { setError, setMessage } from "../../../redux/actions/commonAction";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/actions/authActions";
 import { FaCoffee, FaCookieBite } from "react-icons/fa";
+import AccountService from "../../../services/accountService";
 
 function DashboardPage() {
+  const LoginedUser = JSON.parse(localStorage.getItem("user"));
+
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { borderRadiusLG },
@@ -91,9 +94,6 @@ function DashboardPage() {
       return "4b";
     }
 
-    if (location.pathname.startsWith("/admin/products/update")) {
-      return "5";
-    }
     if (location.pathname === "/admin/sizes/list") {
       return "6";
     }
@@ -222,11 +222,6 @@ function DashboardPage() {
               ],
             },
             {
-              key: "5",
-              icon: <MdManageAccounts />,
-              label: "Profiles",
-            },
-            {
               key: "6",
               icon: <FaCoffee />,
               label: "Sizes",
@@ -300,9 +295,13 @@ function DashboardPage() {
             }}
           />
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Avatar size="default" icon={<UserOutlined />} />
+            <Avatar
+              size="default"
+              src={AccountService.getAccountLogoUrl(LoginedUser.image)}
+              icon={!LoginedUser?.image && <UserOutlined />}
+            />
             <span style={{ marginLeft: 8, color: "#000000" }}>
-              Phan Dũng Nhớ
+              {LoginedUser.username}
             </span>
           </div>
         </Header>
@@ -310,7 +309,7 @@ function DashboardPage() {
           style={{
             margin: "70px 0 0 0",
             minHeight: 280,
-            background: "#FFFFFF", 
+            background: "#FFFFFF",
           }}
         >
           <div className="content-panel">

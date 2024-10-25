@@ -115,6 +115,8 @@ export const loginGG = () => async (dispatch) => {
 
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
       window.location.href = "/admin";
+    } else if (data.roles.includes("ROLE_USER")) {
+      window.location.href = "/";
     } else {
       alert("Bạn không có quyền truy cập");
     }
@@ -149,14 +151,14 @@ export const handleGoogleLoginSuccess = async (credentialResponse) => {
       // }
     });
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data));
+   
       window.location.href = "/admin";
     
     } else {
       window.location.href = "/";
     }
-
+    localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(data));
     console.log('Response from backend:', data);
     // Xử lý response từ backend ở đây, ví dụ lưu JWT vào localStorage
   } catch (error) {

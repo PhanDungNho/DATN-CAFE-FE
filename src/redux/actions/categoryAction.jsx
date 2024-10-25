@@ -22,6 +22,7 @@ export const insertCategory = (category) => async (dispatch) => {
       payload: true,
     });
 
+
     const response = await service.insertCategory(category);
     console.log(response);
 

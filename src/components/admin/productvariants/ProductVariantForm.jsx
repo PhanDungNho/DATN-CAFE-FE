@@ -61,6 +61,11 @@ export class ProductVariantForm extends Component {
     navigate("/admin/productvariants/add");
   };
 
+  componentWillUnmount = () => {
+    this.props.clearProductVariantState();
+    console.log("Component will unmount");
+  };
+
   async onSearch(value) {
     const service = new ProductService();
     try {
