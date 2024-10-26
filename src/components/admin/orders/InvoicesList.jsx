@@ -24,8 +24,8 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   },
   {
     title: "Time",
-    dataIndex: "createtime",
-    key: "createdtime",
+    dataIndex: "createdTime",
+    key: "createdTime",
     align: "center",
     render: (text) => {
       return moment(text).format("HH:mm:ss DD-MM-YYYY");
@@ -33,27 +33,27 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   },
   {
     title: "Total Amount",
-    dataIndex: "totalalount",
-    key: "totalalount",
+    dataIndex: "totalAmount",
+    key: "totalAmount",
     align: "center",
     render: (text) => (text ? text.toLocaleString() : "0"),
   },
   {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
+    title: "Order Status",
+    dataIndex: "orderStatus",
+    key: "orderStatus",
     align: "center",
   },
   {
     title: "Order Type",
-    dataIndex: "ordertype",
-    key: "ordertype",
+    dataIndex: "orderType",
+    key: "orderType",
     align: "center",
   },
   {
     title: "Payment Method",
-    dataIndex: "paymentmethod",
-    key: "paymentmethod",
+    dataIndex: "paymentMethod",
+    key: "paymentMethod",
     align: "center",
   },
   {

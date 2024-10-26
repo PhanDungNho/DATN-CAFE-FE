@@ -7,6 +7,7 @@ import { MdOutlineCategory } from "react-icons/md";
 import ProductService from "../../../services/productService";
 import ToppingService from "../../../services/toppingService";
 import ProductVariantForm from "./ProductVariantForm";
+import VariantT from "./ProductVariantForm";
 
 export class ProductForm extends Component {
   formRef = React.createRef();
@@ -18,7 +19,9 @@ export class ProductForm extends Component {
       images: props.product.images || [],
       sizes: [],
       products: [],
-      productVariants: props.product.productVariant || [],
+      productVariants: Array.isArray(props.product.productVariant)
+        ? props.product.productVariant
+        : [],
     };
   }
 
@@ -46,13 +49,9 @@ export class ProductForm extends Component {
           product: {},
           topping: {},
         },
-        productVariants: {
-          id: "",
-          active: true,
-          price: 0,
-          size: {},
-          product: {},
-        },
+        productVariants: Array.isArray(this.props.product.productVariant)
+          ? this.props.product.productVariant
+          : [],
       });
     }
   }
@@ -90,7 +89,6 @@ export class ProductForm extends Component {
     return this.props.sizes.map((item) => (
       <Select.Option value={item.id} key={item.id}>
         {item.name}
-        {console.log(`Đây là test size`, item.id)}
       </Select.Option>
     ));
   };
@@ -123,7 +121,6 @@ export class ProductForm extends Component {
 
   render() {
     const { product, onDeleteProductImage, sizes, products } = this.props;
-    console.log("ProductForm: ", product);
     return (
       <Form
         ref={this.formRef}
@@ -145,7 +142,7 @@ export class ProductForm extends Component {
             sizeId: variant.size.id,
             price: variant.price,
             active: variant.active,
-            key: variant.id, 
+            key: variant.id,
           })),
         }}
       >
@@ -184,16 +181,7 @@ export class ProductForm extends Component {
               </Select>
             </Form.Item>
 
-            <Form.Item
-              label="Toppings"
-              name="toppingId"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select at least one topping!",
-                },
-              ]}
-            >
+            <Form.Item label="Toppings" name="toppingId">
               <Select
                 showSearch
                 mode="multiple"
@@ -255,7 +243,6 @@ export class ProductForm extends Component {
               ref={this.variantFormRef}
               key={sizes.id + sizes.name}
               sizes={sizes}
-              products={products}
               productVariants={this.state.productVariants}
             />
           </Col>
