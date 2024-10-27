@@ -16,6 +16,7 @@ const { Title, Paragraph } = Typography;
 
 function Index() {
   const [startIndex, setStartIndex] = useState(0);
+  const [startIndexSecondRow, setStartIndexSecondRow] = useState(0);
   const [products, setProducts] = useState([]); // State for products
   const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
   const [error, setError] = useState(null); // State để lưu thông tin lỗi nếu có
@@ -50,8 +51,17 @@ function Index() {
 
     fetchProducts();
   }, []);
-
-
+//tự động chạy ảnh 
+  useEffect(() => {
+    if (products && products.length > 0) { // Kiểm tra products có phần tử
+      const interval = setInterval(() => {
+        setStartIndex((prev) => (prev + 1) % products.length);
+        setStartIndexSecondRow((prev) => (prev + 1) % products.length);
+      }, 4500);
+      
+      return () => clearInterval(interval); // Dọn dẹp interval
+    }
+  }, [products.length]);
   // Nếu đang tải dữ liệu, hiển thị loading
   if (loading) {
     return <div>Đang tải sản phẩm...</div>;
@@ -67,19 +77,23 @@ function Index() {
     return <div>Không có sản phẩm nào để hiển thị.</div>;
   }
 
-  const visibleProducts = [
+  const handleNextFirstRow = () => setStartIndex((prev) => (prev + 1) % products.length);
+  const handlePrevFirstRow = () => setStartIndex((prev) => (prev - 1 + products.length) % products.length);
+  const handleNextSecondRow = () => setStartIndexSecondRow((prev) => (prev + 1) % products.length);
+  const handlePrevSecondRow = () => setStartIndexSecondRow((prev) => (prev - 1 + products.length) % products.length);
+
+  const visibleProductsFirstRow = [
     products[startIndex],
     products[(startIndex + 1) % products.length],
     products[(startIndex + 2) % products.length],
   ];
 
-  const handleNext = () => {
-    setStartIndex((prevIndex) => (prevIndex + 1) % products.length); // Cycle to the next product
-  };
+  const visibleProductsSecondRow = [
+    products[startIndexSecondRow],
+    products[(startIndexSecondRow + 1) % products.length],
+    products[(startIndexSecondRow + 2) % products.length],
+  ];
 
-  const handlePrev = () => {
-    setStartIndex((prevIndex) => (prevIndex - 1 + products.length) % products.length); // Cycle to the previous product
-  };
 
 
 
@@ -125,8 +139,7 @@ function Index() {
             <Col>
               <Button
                 icon={<LeftOutlined />}
-                onClick={handlePrev}
-                disabled={startIndex === 0}
+                onClick={handlePrevFirstRow} disabled={startIndex === 0}
                 style={{
                   marginRight: '10px',
                   backgroundColor: '#ff8c00',
@@ -155,8 +168,8 @@ function Index() {
             </Col>
 
             <Row gutter={[16, 16]} justify="center">
-              {visibleProducts.length > 0 ? (
-                visibleProducts.map((product) => (
+              {visibleProductsFirstRow.length > 0 ? (
+                visibleProductsFirstRow.map((product) => (
                   product && (
                     <Col key={product.id} style={{ margin: "0 10px" }}>
                       <Link to={`/single-product/${product.id}`}>
@@ -213,8 +226,7 @@ function Index() {
             <Col>
               <Button
                 icon={<RightOutlined />}
-                onClick={handleNext}
-                disabled={startIndex + 3 >= products.length}
+                onClick={handleNextFirstRow} disabled={startIndex + 3 >= products.length}
                 style={{
                   marginLeft: '10px',
                   backgroundColor: '#ff8c00',
@@ -251,12 +263,42 @@ function Index() {
               </Paragraph>
             </Col>
           </Row>
+          <Row justify="center" align="middle" style={{ marginBottom: '20px' }}>
+            <Col>
+              <Button
+                icon={<LeftOutlined />}
+                onClick={handlePrevSecondRow} disabled={startIndexSecondRow === 0}
+                style={{
+                  marginRight: '10px',
+                  backgroundColor: '#ff8c00',
+                  color: '#fff',
+                  borderRadius: '50%', // Make the button round
+                  width: '50px', // Set the width and height
+                  height: '50px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 'none',
+                  transition: 'all 0.3s ease',
 
-          <Row gutter={[24, 24]} justify="center" align="middle" style={{ marginBottom: '20px' }}>
-            {visibleProducts.length > 0 ? (
-              visibleProducts.slice(0, 4).map((product) => (
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#000';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                  e.currentTarget.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ff8c00';
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              />
+            </Col>
+          <Row gutter={[16, 16]} justify="center" align="middle" style={{ marginBottom: '20px' }}>
+            {visibleProductsSecondRow.length > 0 ? (
+              visibleProductsSecondRow.slice(0, 4).map((product) => (
                 product && (
-                  <Col key={product.id} span={6} style={{ margin: "0 10px" }}>
+                  <Col key={product.id} style={{ margin: "0 10px" }}>
                     <Link to={`/single-product/${product.id}`}>
                       <Card
                         cover={<img
@@ -304,7 +346,36 @@ function Index() {
                 <Paragraph>Không có sản phẩm nào để hiển thị.</Paragraph>
               </Col>
             )}
-
+            </Row>
+            <Col>
+              <Button
+                icon={<RightOutlined />}
+                onClick={handleNextSecondRow} disabled={startIndexSecondRow + 3 >= products.length}
+                style={{
+                  marginLeft: '10px',
+                  backgroundColor: '#ff8c00',
+                  color: '#fff',
+                  borderRadius: '50%', // Make the button round
+                  width: '50px', // Set the width and height
+                  height: '50px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 'none',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#000';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                  e.currentTarget.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ff8c00';
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              />
+            </Col>
           </Row>
           <div>
             <img src="assets/img/index/banner2.png" alt=""
