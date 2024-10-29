@@ -58,6 +58,14 @@ export default class AccountService {
       },
     });
   };
+  
+  getAccountsAdmin = async () => {
+    return await axios.get(API_ACCOUNT+"?admin=true", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 
   getAccount = async (username) => {
     return await axios.get(API_ACCOUNT + "/" + username + "/get", {
@@ -89,6 +97,18 @@ export default class AccountService {
       },
     });
   };
+
+  findAccountByNameContainsIgnoreCaseAdmin = async (query) => {
+    return await axios.get(API_ACCOUNT + "/findadmin", {
+      params: {
+        query: query,
+      },
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+  };
+
 
   findAccountByPhoneContainsIgnoreCase = async (query) => {
     return await axios.get(API_ACCOUNT + "/find/phone", {

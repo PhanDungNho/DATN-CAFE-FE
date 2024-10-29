@@ -105,7 +105,41 @@ export const login = (username, password) => async (dispatch) => {
   }
 };
 
- 
+export const loginGG = () => async (dispatch) => {
+  try {
+    dispatch({ type: LOGIN_REQUEST });
+
+    const { data } = await axios.post(API_GOOGLE_LOGIN);
+
+    console.log("Login response:", data);
+
+    if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
+      window.location.href = "/admin";
+    } else if (data.roles.includes("ROLE_USER")) {
+      window.location.href = "/";
+    } else {
+      alert("Bạn không có quyền truy cập");
+    }
+
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: {
+        username: data.username,
+        roles: data.roles,
+        token: data.accessToken,
+      },
+    });
+
+    localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(data));
+  
+  } catch (error) {
+    dispatch({
+      type: LOGIN_FAILURE,
+      payload: error.response ? error.response.data.message : "Login failed",
+    });
+  }
+};
 export const handleGoogleLoginSuccess = async (credentialResponse) => {
   console.log(credentialResponse);
   console.log(credentialResponse.credential);

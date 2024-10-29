@@ -6,7 +6,6 @@ const Updateprofile = () => {
   // Hàm xử lý khi form được submit
   const onFinish = (values) => {
     console.log("Form values: ", values);
-    // Thực hiện xử lý cập nhật thông tin ở đây (API call, v.v.)
   };
 
   const handleUploadChange = (info) => {
@@ -23,9 +22,9 @@ const Updateprofile = () => {
       <Form
         name="update-profile"
         layout="vertical"
-        onFinish={onFinish} // Gọi hàm khi form được submit
+        onFinish={onFinish}
         initialValues={{
-          name: "Nguyễn Văn A", // Giá trị mặc định, có thể load từ API
+          name: "Nguyễn Văn A",
           email: "nguyenvana@gmail.com",
           phone: "0123456789",
         }}

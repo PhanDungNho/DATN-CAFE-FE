@@ -1,45 +1,60 @@
-import React, { useState } from "react";
-import { Row, Col, Image, Button, Card } from "antd";
-import { ShoppingCartOutlined, LeftOutlined, RightOutlined, LineHeightOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom"; // Để lấy tham số URL
+import { getProduct } from "../../redux/actions/productAction"; // Hành động lấy sản phẩm
+
+import { Row, Col, Image, Button, Card, Input } from "antd";
+import { ShoppingCartOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import Header from "./Header";
 import Footer from "./Footer";
-
+import ProductService from "../../services/productService"; 
 const { Meta } = Card;
 
 function Product() {
   const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("M");
-  const [price, setPrice] = useState(50000); // Giá khởi điểm cho size M
-  const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0); // Để điều khiển nhóm thumbnail hiện tại
+  const [selectedSize, setSelectedSize] = useState(null); // Mặc định không có size nào
+  const [selectedToppings, setSelectedToppings] = useState({});
+  const [note, setNote] = useState(""); // Để lưu ghi chú
+  const [price, setPrice] = useState(50000);
+  const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0);
 
-  const sizes = [
-    { size: "S", price: 40000 },
-    { size: "M", price: 50000 },
-    { size: "L", price: 60000 },
-  ];
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const product = useSelector((state) => state.productReducer.product);
 
-  const thumbnails = [
-    "assets/img/index/cafeden.png",
-    "assets/img/index/cafesua.png",
-    "assets/img/index/imgbacxiu.png",
-    "assets/img/index/imgbacxiu.png",
-    "assets/img/index/imgbacxiu.png",
-    "assets/img/index/imgbacxiu.png",
-    "assets/img/index/imgbacxiu.png",
-    "assets/img/index/imgbacxiu.png",
-  ];
+  useEffect(() => {
+    dispatch(getProduct(id)); // Gọi hàm để lấy sản phẩm theo ID
+  }, [dispatch, id]);
 
-  const featuredProducts = [
-    {
-      name: "Banana",
-      price: 40,
-      img: "assets/img/products/product-img-6.jpg",
-    },
-  ];
+  // Kiểm tra nếu product tồn tại thì lấy giá trị thumbnails và sizes, nếu không trả về mảng rỗng
+  const thumbnails = product?.images?.map((image) => image.filename) || [];
+  const sizes = product?.productVariant?.map((variant) => ({
+    size: variant.size.name,
+    price: variant.price,
+  })) || [];
+  const toppings = product?.productTopping?.map((topping) => ({
+    name: topping.topping.name,
+    price: topping.topping.price,
+  })) || [];
+
+  // Thiết lập size đầu tiên nếu chưa được chọn
+  useEffect(() => {
+    if (sizes.length > 0 && !selectedSize) {
+      setSelectedSize(sizes[0].size);
+      setPrice(sizes[0].price);
+    }
+  }, [sizes]);
 
   const handleSizeClick = (size, price) => {
     setSelectedSize(size);
-    setPrice(price); // Cập nhật giá khi size được chọn
+    setPrice(price);
+  };
+
+  const handleToppingChange = (toppingName, value) => {
+    setSelectedToppings((prev) => ({
+      ...prev,
+      [toppingName]: value,
+    }));
   };
 
   const handleThumbnailClick = (index) => {
@@ -57,7 +72,7 @@ function Product() {
   };
 
   // Điều khiển ảnh thumbnail
-  const thumbnailsPerPage = 4; // Số ảnh hiển thị mỗi lần
+  const thumbnailsPerPage = 4;
   const maxThumbnailIndex = Math.max(0, thumbnails.length - thumbnailsPerPage);
 
   const handleNextThumbnails = () => {
@@ -71,34 +86,54 @@ function Product() {
       prevIndex > 0 ? prevIndex - 1 : prevIndex
     );
   };
+  const handleAddToCart = () => {
+    // Tìm productVariantId tương ứng với selectedSize
+    const selectedVariant = product.productVariant.find(variant => variant.size.name === selectedSize);
+    const productVariantId = selectedVariant ? selectedVariant.id : null; // Lấy id của variant tương ứng
+  
+    const selectedSizeObject = sizes.find(size => size.size === selectedSize);
+    
+    const toppingsArray = Object.entries(selectedToppings).flatMap(([name, quantity]) => 
+      quantity > 0 ? [{ name, quantity }] : []
+    );
+  
+    const toppingPrice = toppingsArray.reduce((total, topping) => {
+      const toppingInfo = toppings.find(t => t.name === topping.name);
+      return total + (toppingInfo.price * topping.quantity);
+    }, 0);
+  
+    const amount = price + toppingPrice;
+  
+    const cartItem = {
+      productVariantId,
+      active: true,
+      size: selectedSizeObject,
+      productId: product.id,
+      sizeId: selectedSizeObject?.id,
+      price: selectedSizeObject?.price,
+      productName: product.name,
+      quantity: 1, // hoặc giá trị mà người dùng chọn
+      toppings: toppingsArray,
+      toppingPrice,
+      amount,
+      note,
+    };
+  
+    console.log(cartItem);
+  };
 
   return (
     <>
       <Header />
-      <style>{`
-        :where(.css-dev-only-do-not-override-11lehqq).ant-btn-primary {
-      color: #fff;
-      background: #ff8416;
-      box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
-      }
-      :where(.css-dev-only-do-not-override-11lehqq).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
-          color: #fff;
-          background: #ff8416;
-      }
-          :where(.css-dev-only-do-not-override-11lehqq).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
-          color: #fff;
-          border-color: black;
-          background: #ff8416;
-}
-      `}
-      </style>
       <div className="product mt-150 mb-150">
         <div className="container">
           <Row gutter={[16, 16]}>
             <Col md={12}>
               <div style={{ position: "relative", backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px" }}>
                 <Image
-                  src={thumbnails[mainImageIndex]}
+
+                src={ProductService.getProductImageUrl(thumbnails[mainImageIndex])}
+               
                   alt="Product"
                   style={{
                     borderRadius: "8px",
@@ -109,7 +144,6 @@ function Product() {
                     marginLeft: "50px",
                   }}
                 />
-                {/* Nút Previous (icon) */}
                 <Button
                   icon={<LeftOutlined />}
                   shape="circle"
@@ -124,7 +158,6 @@ function Product() {
                     color: "white",
                   }}
                 />
-                {/* Nút Next (icon) */}
                 <Button
                   icon={<RightOutlined />}
                   shape="circle"
@@ -154,7 +187,7 @@ function Product() {
                     .map((imgSrc, index) => (
                       <div key={index} style={{ flex: "0 0 auto", marginRight: "8px" }}>
                         <Image
-                          src={imgSrc}
+                          src={ProductService.getProductImageUrl(imgSrc)}
                           alt={`Product thumbnail ${index + 1}`}
                           style={{
                             borderRadius: "8px",
@@ -163,8 +196,8 @@ function Product() {
                             objectFit: "cover",
                             cursor: "pointer",
                             transition: "transform 0.3s ease",
-                            border: "1px solid rgba(0, 0, 0, 0.1)", // Viền mờ nhẹ
-                            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)", // Tạo thêm hiệu ứng bóng đổ nhẹ
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
                           }}
                           onClick={() => handleThumbnailClick(currentThumbnailIndex + index)}
                           onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
@@ -185,27 +218,20 @@ function Product() {
 
             <Col md={12}>
               <div className="product-content" style={{ marginLeft: "80px" }}>
-                <h3 style={{
-                  color: "#f28123", letterSpacing: "0.15px",
-                  fontSize: "22px",
-                  lineHeight: "32px", // Corrected property name
-                  fontWeight: "500"
-                }}>Trà sữa chân trâu</h3>
-                <p className="product-pricing"
-                  style={{
+                <h3 style={{ color: "#f28123" }}>{product?.name}</h3>
+                <p className="product-pricing" style={{
                     letterSpacing: "0.15px",
                     fontSize: "20px",
-                    lineHeight: "32px", // Corrected property name
+                    lineHeight: "32px",
                     fontWeight: "500"
-                  }}
-                >
+                  }}>
                   <strong>{price.toLocaleString()} VNĐ</strong>
                 </p>
                 <div className="product-size">
                   <p style={{
                     color: "#f28123", letterSpacing: "0.15px",
                     fontSize: "20px",
-                    lineHeight: "32px", // Corrected property name
+                    lineHeight: "32px",
                     fontWeight: "500"
                   }}>
                     <span>Chọn kích cỡ:</span>
@@ -215,7 +241,7 @@ function Product() {
                       <Button
                         key={item.size}
                         type={selectedSize === item.size ? "primary" : "default"}
-                        onClick={() => handleSizeClick(item.size, item.price)} // Truyền size và giá
+                        onClick={() => handleSizeClick(item.size, item.price)}
                         style={{ marginRight: "10px" }}
                       >
                         {item.size}
@@ -224,32 +250,33 @@ function Product() {
                   </div>
                 </div>
                 <div className="product-toppings" style={{ marginTop: "20px" }}>
-                  <div style={{ marginTop: "10px", overflow: "hidden" }}>
-                    <table style={{ width: "50%", borderCollapse: "collapse" }}>
-                      <tbody>
-                        {['Cù năng', 'Trân châu', 'Flan', 'Khoai dẻo', 'Khoai cứng', 'Thạch trân châu', 'Rau Cau'].map((topping, index) => (
-                          <tr key={index}>
-                            <td style={{ padding: "4px", fontSize: "14px" }}>{topping}</td>
-                            <td style={{ padding: "2px", textAlign: "center" }}>
-                              <input
-                                type="number"
-                                defaultValue={0}
-                                style={{
-                                  width: "60px", // Increased width to accommodate larger numbers
-                                  height: "25px", // Set a height to ensure it's visible
-                                  textAlign: "center",
-                                  margin: "0",
-                                  padding: "2px",
-                                  fontSize: "14px" // Adjust font size for better readability
-                                }}
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <p>Chọn topping:</p>
+                  <div>
+                    {toppings.map((topping) => (
+                      <div key={topping.name}>
+                        <label>
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={0}
+                            onChange={(e) => handleToppingChange(topping.name, Number(e.target.value))}
+                            style={{ width: "50px" }}
+                          />
+                          {topping.name} (+{topping.price.toLocaleString()} VNĐ)
+                        </label>
+                      </div>
+                    ))}
                   </div>
                 </div>
+                <div style={{ marginTop: "20px" }}>
+                  <Input
+                    placeholder="Ghi chú của bạn"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    style={{ width: "100%", padding: "10px", borderRadius: "4px" }}
+                  />
+                </div>
+
                 <div className="product-form" style={{ marginTop: "20px" }}>
                   <Button
                     type="primary"
@@ -257,10 +284,8 @@ function Product() {
                     style={{
                       backgroundColor: "#f28123",
                       border: "none",
-                      width: "200px", // Set a specific width for the button
-                      padding: "10px 20px", // Optional: Adjust padding for a better look
-                      textAlign: "center" // Ensure text is centered
                     }}
+                    onClick={handleAddToCart}
                   >
                     Thêm vào giỏ hàng
                   </Button>
@@ -268,40 +293,8 @@ function Product() {
               </div>
             </Col>
           </Row>
-
-        </div>
-      </div >
-
-      <div className="more-products mb-150">
-        <div className="container">
-          <Row gutter={[16, 16]}>
-            <Col span={24} style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h3>
-                <span className="orange-text">Đề xuất</span> sản phẩm
-              </h3>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]}>
-            {featuredProducts.map((product, index) => (
-              <Col key={index} lg={8} md={12} sm={24}>
-                <Card
-                  hoverable
-                  cover={<img alt={product.name} src={product.img} />}
-                  actions={[
-                    <Button type="primary" icon={<ShoppingCartOutlined />}>
-                      Add to Cart
-                    </Button>,
-                  ]}
-                >
-                  <Meta title={product.name} description={`Per Kg: $${product.price}`} />
-                </Card>
-              </Col>
-            ))}
-          </Row>
         </div>
       </div>
-
       <Footer />
     </>
   );
