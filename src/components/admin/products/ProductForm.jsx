@@ -7,7 +7,6 @@ import { MdOutlineCategory } from "react-icons/md";
 import ProductService from "../../../services/productService";
 import ToppingService from "../../../services/toppingService";
 import ProductVariantForm from "./ProductVariantForm";
-import VariantT from "./ProductVariantForm";
 
 export class ProductForm extends Component {
   formRef = React.createRef();
@@ -120,7 +119,7 @@ export class ProductForm extends Component {
   };
 
   render() {
-    const { product, onDeleteProductImage, sizes, products } = this.props;
+    const { product, onDeleteProductImage, sizes } = this.props;
     return (
       <Form
         ref={this.formRef}
@@ -148,9 +147,11 @@ export class ProductForm extends Component {
       >
         <Row gutter={24}>
           <Col md={12}>
-            <Form.Item label="Product Id" name="id">
-              <Input readOnly />
-            </Form.Item>
+            {product.id && (
+              <Form.Item label="Product Id" name="id">
+                <Input readOnly />
+              </Form.Item>
+            )}
 
             <Form.Item
               label="Product Name"
