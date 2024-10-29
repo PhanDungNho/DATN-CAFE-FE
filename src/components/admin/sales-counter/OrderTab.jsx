@@ -12,7 +12,9 @@ import {
 const { Option } = Select;
 
 const OrderTab = ({
+
   orders,
+  handlePaymentMethodChange,
   activeTab,
   setActiveTab,
   addNewOrder,
@@ -105,16 +107,16 @@ const OrderTab = ({
                 </p>
               </div>
             )}
-
-            <Form.Item name="paymentMethod" label="Hình thức thanh toán">
-              <Select
-                defaultValue="CASH"
-                onChange={(value) => setPaymentMethod(value)}
-              >
-                <Option value="CASH">Tiền mặt</Option>
-                <Option value="ONLINE">Ví Momo</Option>
-              </Select>
-            </Form.Item>
+<Form.Item name="paymentMethod" label="Hình thức thanh toán">
+    {console.log("Current Payment Method for tab:", index, orders[index].paymentMethod)} {/* Log giá trị */}
+    <Select
+        value={orders[index].paymentMethod} // Giá trị từ orders
+        onChange={(value) => handlePaymentMethodChange(value, index)}
+    >
+        <Option value="CASH">Tiền mặt</Option>
+        <Option value="ONLINE">Ví Momo</Option>
+    </Select>
+</Form.Item>
 
             <Button
               type="primary"
