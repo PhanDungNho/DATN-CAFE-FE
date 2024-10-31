@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { FaLock } from "react-icons/fa";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-import { GoogleOutlined } from "@ant-design/icons";
+import { GoogleOutlined , HomeOutlined} from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -160,22 +160,45 @@ const Register = () => {
                   </Button>
                 </div>
                 <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
+                
                 <Form.Item>
-                  <Button
-                    type="default"
-                    className="btn-block btn-form btn-gg"
-                    icon={<GoogleOutlined />}
-                    style={{
-                      backgroundColor: "red",
-                      color: "white",
-                      borderColor: "red",
-                    }}
-                  >
-                    Đăng ký với Google
-                  </Button>
-                </Form.Item>
+  <Row gutter={16}>
+    <Col span={18}> {/* Nút Google chiếm 18 phần (tương đương 8 phần trong tổng 24 phần) */}
+      <Button
+        type="default"
+        className="btn-block btn-form btn-gg"
+        icon={<GoogleOutlined />}
+        style={{
+          backgroundColor: "red",
+          color: "white",
+          borderColor: "red",
+          width: "100%", // Làm cho nút chiếm toàn bộ chiều rộng
+        }}
+      >
+        Đăng ký với Google
+      </Button>
+    </Col>
+    <Col span={4}> {/* Nút Home chiếm 6 phần (tương đương 2 phần trong tổng 24 phần) */}
+      <Button
+        type="default"
+        icon={<HomeOutlined />}
+        onClick={() => navigate("/")} // Chuyển hướng về trang chủ khi nhấn nút
+        style={{
+          backgroundColor: "#1890ff", // Màu nền cho nút
+          color: "white",
+          borderColor: "#1890ff",
+          width: "100%",
+          marginLeft: "20px"
+          // Làm cho nút chiếm toàn bộ chiều rộng
+        }}
+      >
+      </Button>
+    </Col>
+  </Row>
+</Form.Item>
               </Form>
-            </Card>
+             
+            </Card> 
           </Col>
         </Row>
       </div>
