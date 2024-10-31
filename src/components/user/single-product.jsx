@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
-import { getProduct } from "../../redux/actions/productAction"; // Hành động lấy sản phẩm
+import { getProduct } from "../../redux/actions/productAction";
+import { insertCartDetail } from "../../redux/actions/cartDetailAction";
 
 import { Row, Col, Image, Button, Card, Input } from "antd";
-import { ShoppingCartOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  ShoppingCartOutlined,
+  LeftOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import Header from "./Header";
 import Footer from "./Footer";
-import ProductService from "../../services/productService"; 
+import ProductService from "../../services/productService";
 const { Meta } = Card;
 
 function Product() {
@@ -28,14 +33,17 @@ function Product() {
 
   // Kiểm tra nếu product tồn tại thì lấy giá trị thumbnails và sizes, nếu không trả về mảng rỗng
   const thumbnails = product?.images?.map((image) => image.filename) || [];
-  const sizes = product?.productVariant?.map((variant) => ({
-    size: variant.size.name,
-    price: variant.price,
-  })) || [];
-  const toppings = product?.productTopping?.map((topping) => ({
-    name: topping.topping.name,
-    price: topping.topping.price,
-  })) || [];
+  const sizes =
+    product?.productVariant?.map((variant) => ({
+      size: variant.size.name,
+      price: variant.price,
+    })) || [];
+  const toppings =
+    product?.productTopping?.map((topping) => ({
+      id: topping.topping.id,
+      name: topping.topping.name,
+      price: topping.topping.price,
+    })) || [];
 
   // Thiết lập size đầu tiên nếu chưa được chọn
   useEffect(() => {
@@ -50,10 +58,10 @@ function Product() {
     setPrice(price);
   };
 
-  const handleToppingChange = (toppingName, value) => {
+  const handleToppingChange = (toppingId, toppingName, value) => {
     setSelectedToppings((prev) => ({
       ...prev,
-      [toppingName]: value,
+      [toppingId]: { id: toppingId, name: toppingName, quantity: value },
     }));
   };
 
@@ -87,39 +95,59 @@ function Product() {
     );
   };
   const handleAddToCart = () => {
+    const username = JSON.parse(localStorage.getItem("user"));
+
+    // console.log(username);
+
+    if (!username) {
+      console.error("User is not logged in");
+      return;
+    }
+
     // Tìm productVariantId tương ứng với selectedSize
-    const selectedVariant = product.productVariant.find(variant => variant.size.name === selectedSize);
-    const productVariantId = selectedVariant ? selectedVariant.id : null; // Lấy id của variant tương ứng
-  
-    const selectedSizeObject = sizes.find(size => size.size === selectedSize);
-    
-    const toppingsArray = Object.entries(selectedToppings).flatMap(([name, quantity]) => 
-      quantity > 0 ? [{ name, quantity }] : []
+    const selectedVariant = product.productVariant.find(
+      (variant) => variant.size.name === selectedSize
     );
-  
-    const toppingPrice = toppingsArray.reduce((total, topping) => {
-      const toppingInfo = toppings.find(t => t.name === topping.name);
-      return total + (toppingInfo.price * topping.quantity);
+    const productVariantId = selectedVariant ? selectedVariant.id : null;
+
+    const selectedSizeObject = sizes.find((size) => size.size === selectedSize);
+    const sizeId = selectedVariant ? selectedVariant.sizeId : null;
+
+    const cartDetailToppings = Object.values(selectedToppings)
+      .filter((topping) => topping.quantity > 0)
+      .map((topping) => ({
+        topping: { id: topping.id },
+        quantity: topping.quantity,
+      }));
+
+    console.log("Toppings: ", cartDetailToppings);
+
+    const toppingPrice = cartDetailToppings.reduce((total, item) => {
+      const toppingInfo = toppings.find((t) => t.id === item.topping.id);
+      return total + toppingInfo.price * item.quantity;
     }, 0);
-  
+
     const amount = price + toppingPrice;
-  
+
     const cartItem = {
+      username: username.username,
       productVariantId,
       active: true,
       size: selectedSizeObject,
       productId: product.id,
-      sizeId: selectedSizeObject?.id,
+      sizeId: sizeId,
       price: selectedSizeObject?.price,
       productName: product.name,
-      quantity: 1, // hoặc giá trị mà người dùng chọn
-      toppings: toppingsArray,
+      quantity: 1,
+      cartDetailToppings: cartDetailToppings,
       toppingPrice,
       amount,
       note,
     };
-  
+
     console.log(cartItem);
+
+    dispatch(insertCartDetail(cartItem));
   };
 
   return (
@@ -129,19 +157,23 @@ function Product() {
         <div className="container">
           <Row gutter={[16, 16]}>
             <Col md={12}>
-              <div style={{ position: "relative", backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px" }}>
+              <div
+                style={{
+                  position: "relative",
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderRadius: "8px",
+                }}
+              >
                 <Image
-
-                src={ProductService.getProductImageUrl(thumbnails[mainImageIndex])}
-               
+                  src={ProductService.getProductImageUrl(
+                    thumbnails[mainImageIndex]
+                  )}
                   alt="Product"
                   style={{
                     borderRadius: "8px",
-                    width: "100%",
+                    width: "450px",
                     maxHeight: "450px",
                     objectFit: "cover",
-                    marginBottom: "10px",
-                    marginLeft: "50px",
                   }}
                 />
                 <Button
@@ -183,9 +215,15 @@ function Product() {
                 />
                 <div style={{ display: "flex", margin: "10px 10px" }}>
                   {thumbnails
-                    .slice(currentThumbnailIndex, currentThumbnailIndex + thumbnailsPerPage)
+                    .slice(
+                      currentThumbnailIndex,
+                      currentThumbnailIndex + thumbnailsPerPage
+                    )
                     .map((imgSrc, index) => (
-                      <div key={index} style={{ flex: "0 0 auto", marginRight: "8px" }}>
+                      <div
+                        key={index}
+                        style={{ flex: "0 0 auto", marginRight: "8px" }}
+                      >
                         <Image
                           src={ProductService.getProductImageUrl(imgSrc)}
                           alt={`Product thumbnail ${index + 1}`}
@@ -199,9 +237,15 @@ function Product() {
                             border: "1px solid rgba(0, 0, 0, 0.1)",
                             boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
                           }}
-                          onClick={() => handleThumbnailClick(currentThumbnailIndex + index)}
-                          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-                          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                          onClick={() =>
+                            handleThumbnailClick(currentThumbnailIndex + index)
+                          }
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
                           preview={false}
                         />
                       </div>
@@ -219,28 +263,36 @@ function Product() {
             <Col md={12}>
               <div className="product-content" style={{ marginLeft: "80px" }}>
                 <h3 style={{ color: "#f28123" }}>{product?.name}</h3>
-                <p className="product-pricing" style={{
+                <p
+                  className="product-pricing"
+                  style={{
                     letterSpacing: "0.15px",
                     fontSize: "20px",
                     lineHeight: "32px",
-                    fontWeight: "500"
-                  }}>
+                    fontWeight: "500",
+                  }}
+                >
                   <strong>{price.toLocaleString()} VNĐ</strong>
                 </p>
                 <div className="product-size">
-                  <p style={{
-                    color: "#f28123", letterSpacing: "0.15px",
-                    fontSize: "20px",
-                    lineHeight: "32px",
-                    fontWeight: "500"
-                  }}>
+                  <p
+                    style={{
+                      color: "#f28123",
+                      letterSpacing: "0.15px",
+                      fontSize: "20px",
+                      lineHeight: "32px",
+                      fontWeight: "500",
+                    }}
+                  >
                     <span>Chọn kích cỡ:</span>
                   </p>
                   <div className="size-options">
                     {sizes.map((item) => (
                       <Button
                         key={item.size}
-                        type={selectedSize === item.size ? "primary" : "default"}
+                        type={
+                          selectedSize === item.size ? "primary" : "default"
+                        }
                         onClick={() => handleSizeClick(item.size, item.price)}
                         style={{ marginRight: "10px" }}
                       >
@@ -259,7 +311,13 @@ function Product() {
                             type="number"
                             min="0"
                             defaultValue={0}
-                            onChange={(e) => handleToppingChange(topping.name, Number(e.target.value))}
+                            onChange={(e) =>
+                              handleToppingChange(
+                                topping.id,
+                                topping.name,
+                                Number(e.target.value)
+                              )
+                            }
                             style={{ width: "50px" }}
                           />
                           {topping.name} (+{topping.price.toLocaleString()} VNĐ)
@@ -273,7 +331,11 @@ function Product() {
                     placeholder="Ghi chú của bạn"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    style={{ width: "100%", padding: "10px", borderRadius: "4px" }}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                    }}
                   />
                 </div>
 

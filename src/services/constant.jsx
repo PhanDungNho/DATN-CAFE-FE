@@ -12,4 +12,5 @@ export const API_GOOGLE_LOGIN = "http://localhost:8081/api/v1/auth/google";
 export const GG_CLIENT_ID="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com"
 export const API_INVOICE = "http://localhost:8081/api/v1/orders";
 export const API_AUTHORITY = "http://localhost:8081/api/v1/authorities";
+export const API_CARTDETAIL = "http://localhost:8081/api/v1/cartDetails";
 

@@ -1,46 +1,46 @@
-.site-layout-background{
-    background-color: #fff !important;
+.site-layout-background {
+  background-color: #fff !important;
 }
 
-.ant-layout{
-    min-height: 100vh;
+.ant-layout {
+  min-height: 100vh;
 }
 
-.ant-layout-header span.ant-btn-icon svg{
-    width: 25px;
-    height: 25px;
+.ant-layout-header span.ant-btn-icon svg {
+  width: 25px;
+  height: 25px;
 }
 
 .logo h2 {
-    color: #fff;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    font-weight: bold;
-    font-size: 26px;
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-weight: bold;
+  font-size: 26px;
 }
 
 .content-panel {
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    min-height: 90vh;
-    padding: 10px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  min-height: 90vh;
+  padding: 10px;
 }
 
 .ant-divider {
-    margin: 0;
-    margin-bottom: 10px;
+  margin: 0;
+  margin-bottom: 10px;
 }
 
 .layoutForm {
-    padding: 15px;
+  padding: 15px;
 }
 
-.ant-layout-header{
-    z-index: 1000;
+.ant-layout-header {
+  z-index: 1000;
 }
 
-.ant-btn{
-    outline: none;
+.ant-btn {
+  outline: none;
 }
 
 /* .ant-table  {
@@ -48,9 +48,34 @@
 }  */
 
 .upload-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.ant-btn:focus {
+  outline: none;
+}
+
+.ant-drawer-content-wrapper {
+  min-width: 500px;
+}
+
+.custom-delete-button {
+  background-color: transparent;
+  border: none;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-shadow: none !important;
+}
+
+.custom-delete-button:hover {
+  color: red !important;
+  box-shadow: none !important;
+}
+
+.custom-delete-button:focus {
+  color: red;
+}

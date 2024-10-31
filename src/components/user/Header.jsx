@@ -1,39 +1,125 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   UserOutlined,
-  ShoppingCartOutlined,
-  SearchOutlined,
   LoginOutlined,
   UserAddOutlined,
   KeyOutlined,
   IdcardOutlined,
   ShoppingOutlined,
   LogoutOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
+import { Button, Drawer, Space, Table } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { getCartDetailsByUsername } from "../../redux/actions/cartDetailAction";
+import { ImBin } from "react-icons/im";
+import { FaShoppingCart } from "react-icons/fa";
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  // const [data, setData] = useState([]);
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const columns = [
+    {
+      title: "Product",
+      dataIndex: "productVariant",
+      key: "productVariant",
+    },
+    {
+      title: "Size",
+      dataIndex: "size",
+      key: "size",
+    },
+    {
+      title: "Topping",
+      dataIndex: "toppings",
+      key: "toppings",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+      title: "Subtotal",
+      dataIndex: "subtotal",
+      key: "subtotal",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            className="custom-delete-button"
+            variant="filled"
+            style={{ border: "none" }}
+          >
+            <ImBin />
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  const data = [
+    {
+      key: "1",
+      productVariant: "Tra oi",
+      size: "L",
+      toppings: "Topping C",
+      price: 900000.0,
+    },
+    {
+      key: "2",
+      productVariant: "Tra oi",
+      size: "L",
+      toppings: "Topping C",
+      price: 900000.0,
+    },
+    {
+      key: "3",
+      productVariant: "Tra oi",
+      size: "L",
+      toppings: "Topping C",
+      price: 900000.0,
+    },
+  ];
 
   useEffect(() => {
     // Giả sử thông tin người dùng được lưu trong localStorage
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (user && user.username) {
-      setIsLoggedIn(true);  // Đã đăng nhập
-      setUsername(user.username); // Lưu username
-    }
+      setIsLoggedIn(true);
+      setUsername(user.username);
 
+      // Gọi action để lấy dữ liệu giỏ hàng
+      dispatch(getCartDetailsByUsername(user.username))
+        .then((cartDetails) => {
+          // setData(cartDetails);
+        })
+        .catch((error) => {
+          console.error("Error fetching cart details:", error);
+        });
+    }
+ 
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
 
     const handleScroll = () => {
-      if (!stickerRef.current) return; // Safeguard if the ref is not attached
-      const stickerPosition = stickerRef.current.offsetTop; // Get the top offset of the sticker
+      if (!stickerRef.current) return;
+      const stickerPosition = stickerRef.current.offsetTop;
 
       const scrollTop = window.scrollY;
 
@@ -47,16 +133,20 @@ function Header() {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
-      clearTimeout(timer); // Clear the timeout
-      window.removeEventListener("scroll", handleScroll); // Remove scroll listener
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Xóa thông tin đăng nhập
-    setIsLoggedIn(false); // Đặt lại trạng thái đăng nhập
-    setUsername(""); // Xóa tên người dùng
-    window.location.href = "/login"; // Chuyển hướng về trang đăng nhập
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setUsername("");
+    window.location.href = "/login";
   };
+
+
+
   return (
     <>
       {isLoading && (
@@ -89,7 +179,7 @@ function Header() {
                       <a href="/about">About</a>
                     </li>
                     <li>
-                      <a href="">Pages</a>
+                      <a href="#">Pages</a>
                       {/* <ul className="sub-menu">
                   <li>
                     <a href="about.html">About</a>
@@ -129,15 +219,23 @@ function Header() {
                         </a>
                       </li>
                       <li>
-                        <a className="shopping-cart" href="/cart">
+                        <a className="shopping-cart" onClick={showDrawer}>
                           <i className="fas fa-shopping-cart" />
                         </a>
                       </li>
                       <div className="header-icons">
                         {/* Icon user */}
-                        <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
+                        <a
+                          className="user-icon"
+                          href="#"
+                          style={{ marginLeft: 0 }}
+                        >
                           <UserOutlined style={{ fontSize: "20px" }} />
-                          {isLoggedIn ? <span>{username}</span> : <span>Account</span>}
+                          {isLoggedIn ? (
+                            <span>{username}</span>
+                          ) : (
+                            <span>Account</span>
+                          )}
                         </a>
 
                         {/* Dropdown menu cho user */}
@@ -145,35 +243,54 @@ function Header() {
                           {!isLoggedIn ? (
                             <>
                               <a href="/login">
-                                <LoginOutlined style={{ marginRight: "8px" }} /> Đăng nhập
+                                <LoginOutlined style={{ marginRight: "8px" }} />{" "}
+                                Đăng nhập
                               </a>
                               <a href="/register">
-                                <UserAddOutlined style={{ marginRight: "8px" }} /> Đăng ký
+                                <UserAddOutlined
+                                  style={{ marginRight: "8px" }}
+                                />{" "}
+                                Đăng ký
                               </a>
                               <a href="/forgotpassword">
-                                <KeyOutlined style={{ marginRight: "8px" }} /> Quên mật khẩu
+                                <KeyOutlined style={{ marginRight: "8px" }} />{" "}
+                                Quên mật khẩu
                               </a>
                             </>
                           ) : (
                             <>
                               <a href="/manager/*">
-                                <IdcardOutlined style={{ marginRight: "8px" }} /> Tài khoản
+                                <IdcardOutlined
+                                  style={{ marginRight: "8px" }}
+                                />{" "}
+                                Tài khoản
                               </a>
                               <a href="/manager/*">
-                                <ShoppingOutlined style={{ marginRight: "8px" }} /> Đơn hàng
+                                <ShoppingOutlined
+                                  style={{ marginRight: "8px" }}
+                                />{" "}
+                                Đơn hàng
                               </a>
                               {/* Hiện admin nếu user có vai trò admin */}
-                              {isLoggedIn && JSON.parse(localStorage.getItem("user"))?.roles.includes("ROLE_ADMIN") && (
-                                <a href="/admin">
-                                  <TeamOutlined style={{ marginRight: "8px" }} /> Admin
-                                </a>
-                              )}
+                              {isLoggedIn &&
+                                JSON.parse(
+                                  localStorage.getItem("user")
+                                )?.roles.includes("ROLE_ADMIN") && (
+                                  <a href="/admin">
+                                    <TeamOutlined
+                                      style={{ marginRight: "8px" }}
+                                    />{" "}
+                                    Admin
+                                  </a>
+                                )}
                               <a href="/" onClick={handleLogout}>
-                                <LogoutOutlined style={{ marginRight: "8px" }} /> Đăng xuất
+                                <LogoutOutlined
+                                  style={{ marginRight: "8px" }}
+                                />{" "}
+                                Đăng xuất
                               </a>
                             </>
                           )}
-
                         </div>
                       </div>
                     </li>
@@ -184,6 +301,43 @@ function Header() {
                 </a>
                 <div className="mobile-menu" />
                 {/* menu end */}
+                <Drawer title="Shopping cart" onClose={onClose} open={open}>
+                  <Table columns={columns} dataSource={data} />
+
+                  {/* Đặt container cho nút */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      marginTop: "16px",
+                    }}
+                  >
+                    <Button
+                      icon={<FaShoppingCart />}
+                      type="primary"
+                      style={{
+                        height: "45px",
+                        backgroundColor: "#ff8c00",
+                        borderColor: "#ff8c00",
+                        color: "#fff",
+                        borderRadius: "20px",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#000";
+                        e.currentTarget.style.color = "#ff8c00";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#ff8c00";
+                        e.currentTarget.style.color = "#fff";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      Check out
+                    </Button>
+                  </div>
+                </Drawer>
               </div>
             </div>
           </div>

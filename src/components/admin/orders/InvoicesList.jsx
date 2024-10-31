@@ -11,7 +11,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     width: 100,
     align: "center",
     sorter: (b, a) => Number(b.id) - Number(a.id),
-    showSorterTooltip: false, 
+    showSorterTooltip: false,
   },
   {
     title: "Cashier",
@@ -24,8 +24,8 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   },
   {
     title: "Time",
-    dataIndex: "createtime",
-    key: "createdtime",
+    dataIndex: "createdTime",
+    key: "createdTime",
     align: "center",
     render: (text) => {
       return moment(text).format("HH:mm:ss DD-MM-YYYY");
@@ -33,27 +33,27 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   },
   {
     title: "Total Amount",
-    dataIndex: "totalalount",
-    key: "totalalount",
+    dataIndex: "totalAmount",
+    key: "totalAmount",
     align: "center",
     render: (text) => (text ? text.toLocaleString() : "0"),
   },
   {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
+    title: "Order Status",
+    dataIndex: "orderStatus",
+    key: "orderStatus",
     align: "center",
   },
   {
     title: "Order Type",
-    dataIndex: "ordertype",
-    key: "ordertype",
+    dataIndex: "orderType",
+    key: "orderType",
     align: "center",
   },
   {
     title: "Payment Method",
-    dataIndex: "paymentmethod",
-    key: "paymentmethod",
+    dataIndex: "paymentMethod",
+    key: "paymentMethod",
     align: "center",
   },
   {
@@ -74,23 +74,28 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     align: "left",
     render: (_, record) => {
       const statusOptions = {
-        PENDING: [
-          { value: "PENDING", label: "Chờ thanh toán" },
-          { value: "ORDERED", label: "Đã đặt hàng" },
-          { value: "CANCELED", label: "Hủy" },
+        UNCONFIRMED: [
+          { value: "UNCONFIRMED", label: "Chưa xác nhận" },
+          { value: "PROCESSING", label: "Đang xử lý" },
+          { value: "CANCELLED", label: "Hủy" },
         ],
-        ORDERED: [
-          { value: "ORDERED", label: "Đã đặt hàng" },
-          { value: "IN_DELIVERY", label: "Đang giao" },
-          { value: "CANCELED", label: "Hủy" },
+        PROCESSING: [
+          { value: "PROCESSING", label: "Đang xử lý" },
+          { value: "DELIVERING", label: "Đang giao hàng" },
+          { value: "CANCELLED", label: "Hủy" },
         ],
-        IN_DELIVERY: [
-          { value: "IN_DELIVERY", label: "Đang giao" },
+        DELIVERING: [
+          { value: "DELIVERING", label: "Đang giao hàng" },
+          { value: "DELIVERED", label: "Đã giao" },
+        ],
+        DELIVERED: [
+          { value: "DELIVERED", label: "Đã giao" },
           { value: "COMPLETED", label: "Hoàn thành" },
         ],
         COMPLETED: [{ value: "COMPLETED", label: "Hoàn thành" }],
-        CANCELED: [{ value: "CANCELED", label: "Hủy" }],
+        CANCELLED: [{ value: "CANCELLED", label: "Hủy" }],
       };
+
       return (
         <Space size="middle">
           <Select
@@ -287,7 +292,7 @@ const InvoicesList = ({
         key={invoices.id + invoices.createtime}
         width="90%"
       >
-        {selectedOrder ? (  
+        {selectedOrder ? (
           <>
             <p style={{ fontWeight: "800", fontSize: 18 }}>
               Order ID: {selectedOrder.id}
