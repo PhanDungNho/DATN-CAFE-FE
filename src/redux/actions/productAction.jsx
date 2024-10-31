@@ -30,7 +30,7 @@ export const insertProduct = (product, navigate) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Thêm thành công",
+        payload: "Insert successfully!",
       });
 
       navigate("/admin/products/list");
@@ -67,11 +67,6 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
   try {
     console.log("Update Product");
 
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
     const response = await services.updateProduct(id, product);
     console.log("API update Response:", response);
 
@@ -88,7 +83,7 @@ export const updateProduct = (id, product, navigate) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật thành công",
+        payload: "Update successfully!",
       });
 
       navigate("/admin/products/list");

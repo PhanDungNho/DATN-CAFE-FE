@@ -55,6 +55,27 @@
 }
 
 .ant-btn:focus {
-    outline: none;
+  outline: none;
 }
 
+.ant-drawer-content-wrapper {
+  min-width: 500px;
+}
+
+.custom-delete-button {
+  background-color: transparent;
+  border: none;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-shadow: none !important;
+}
+
+.custom-delete-button:hover {
+  color: red !important;
+  box-shadow: none !important;
+}
+
+.custom-delete-button:focus {
+  color: red;
+}
