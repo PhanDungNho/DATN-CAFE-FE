@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Col, Card, Row, Select, InputNumber, Button } from "antd";
+import { Col, Card, Row, Select, InputNumber, Button, Collapse } from "antd";
 import ProductService from "../../../services/productService";
 
 const { Option } = Select;
-
+const { Panel } = Collapse;
 const ProductItem = ({
   products,
   selectedVariants,
@@ -12,22 +12,33 @@ const ProductItem = ({
   handleAddToCart,
   selectedToppings,
 }) => {
-  // State để lưu trữ danh mục đã chọn
+  // State để lưu trữ danh mục đã chọn và trạng thái mở/đóng toppings
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [expandedToppings, setExpandedToppings] = useState({}); // Lưu trạng thái mở/đóng cho từng sản phẩm
 
   // Lấy danh sách các category duy nhất từ sản phẩm
-  const categories = [...new Set(products.map(product => product.category.name))];
+  const categories = [
+    ...new Set(products.map((product) => product.category.name)),
+  ];
 
   // Lọc sản phẩm theo danh mục đã chọn
   const filteredProducts = selectedCategory
-    ? products.filter(product => product.category.name === selectedCategory)
+    ? products.filter((product) => product.category.name === selectedCategory)
     : products;
+
+  // Hàm để toggle trạng thái mở/đóng của topping
+  const toggleToppings = (productId) => {
+    setExpandedToppings((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
 
   return (
     <div>
       {/* Nút để chọn danh mục */}
       <div style={{ marginBottom: "16px" }}>
-        {categories.map(category => (
+        {categories.map((category) => (
           <Button
             key={category}
             onClick={() => setSelectedCategory(category)}
@@ -65,7 +76,6 @@ const ProductItem = ({
            width: 3.2rem !important;
           `}
         </style>
-
         {filteredProducts
           .filter((product) => product.productVariants.length > 0)
           .map((product) => (
@@ -75,7 +85,9 @@ const ProductItem = ({
                 cover={
                   <img
                     alt={product.name}
-                    src={ProductService.getProductImageUrl(product.images[0].fileName)}
+                    src={ProductService.getProductImageUrl(
+                      product.images[0].fileName
+                    )}
                     style={{ objectFit: "cover" }}
                   />
                 }
@@ -87,7 +99,9 @@ const ProductItem = ({
                       id="sizeSelect"
                       style={{ width: "100%" }}
                       value={selectedVariants[product.id]}
-                      onChange={(value) => handleSelectVariant(product.id, value)}
+                      onChange={(value) =>
+                        handleSelectVariant(product.id, value)
+                      }
                     >
                       {product.productVariants.map((variant) => (
                         <Option value={variant.id} key={variant.id}>
@@ -111,38 +125,101 @@ const ProductItem = ({
                   </Col>
 
                   <Col span={24}>
-                    {product.productToppings.map((topping) => (
-                      <Row
-                        key={topping.topping.id}
-                        style={{
-                          alignItems: "center",
-                          marginBottom: "8px",
-                          padding: "2px 11px",
-                        }}
-                      >
-                        <Col span={18}>
-                          <span>{topping .topping.name}</span>
-                        </Col>
-                        <Col span={6}>
-                          <InputNumber
-                            min={0}
-                            value={
-                              selectedToppings[product.id]?.[topping.topping.id] || 0
-                            }
-                            onChange={(value) =>
-                              handleToppingChange(product.id, topping.topping.id, value)
-                            }
-                          />
-                        </Col>
-                      </Row>
-                    ))}
+                    <Collapse style={{backgroundColor:"white"}} bordered={false}>
+                      <style>
+                        {`
+:where(.css-dev-only-do-not-override-11lehqq).ant-collapse>.ant-collapse-item >.ant-collapse-header {
+                  padding: 8px 16px;
+                // background-color:red
+}
+                  :where(.css-dev-only-do-not-override-11lehqq).ant-collapse .ant-collapse-content>.ant-collapse-content-box {
+                  padding: 0      
+                  }
+                  .ant-row css-dev-only-do-not-override-11lehqq {
+                  padding: 0}
+`}
+                      </style>
+                      <Panel header="Chọn topping" key="1">
+                        {product.productToppings.map((topping) => (
+                          <Row
+                            key={topping.topping.id}
+                            style={{
+                              alignItems: "center",
+                              // marginBottom: "8px",
+                              padding: "2px 11px",
+                            }}
+                          >
+                            <Col span={18}>
+                              <span>{topping.topping.name}</span>
+                            </Col>
+                            <Col span={6}>
+                              <InputNumber
+                                min={0}
+                                value={
+                                  selectedToppings[product.id]?.[
+                                    topping.topping.id
+                                  ] || 0
+                                }
+                                onChange={(value) =>
+                                  handleToppingChange(
+                                    product.id,
+                                    topping.topping.id,
+                                    value
+                                  )
+                                }
+                              />
+                            </Col>
+                          </Row>
+                        ))}
+                      </Panel>
+                    </Collapse>
                   </Col>
+
+                  {/* Hiển thị topping chỉ khi expanded */}
+                  {expandedToppings[product.id] && (
+                    <Col span={24}>
+                      {product.productToppings.map((topping) => (
+                        <Row
+                          key={topping.topping.id}
+                          style={{
+                            alignItems: "center",
+                            marginBottom: "8px",
+                            padding: "2px 11px",
+                          }}
+                        >
+                          <Col span={18}>
+                            <span>{topping.topping.name}</span>
+                          </Col>
+                          <Col span={6}>
+                            <InputNumber
+                              min={0}
+                              value={
+                                selectedToppings[product.id]?.[
+                                  topping.topping.id
+                                ] || 0
+                              }
+                              onChange={(value) =>
+                                handleToppingChange(
+                                  product.id,
+                                  topping.topping.id,
+                                  value
+                                )
+                              }
+                            />
+                          </Col>
+                        </Row>
+                      ))}
+                    </Col>
+                  )}
 
                   <Col span={24}>
                     <Button
                       type="primary"
                       onClick={() =>
-                        handleAddToCart(selectedVariants[product.id], product.id)
+                        handleAddToCart(
+                          selectedVariants[product.id],
+                          product.id
+                        )
                       }
                       disabled={!selectedVariants[product.id]}
                     >
