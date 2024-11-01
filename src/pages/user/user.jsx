@@ -1,5 +1,5 @@
-import React from "react";
-import { Layout } from "antd";
+import React, { useEffect } from "react";
+import { Layout, message } from "antd";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Index from "../../components/user/index";
 import Login from "../../components/user/login";
@@ -27,10 +27,28 @@ import PaymentResult from "../../components/user/PaymentResult";
 import GoogleCallback from "../../services/GoogleAuthService";
 import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
 import About from "../../components/user/about";
+import { useDispatch, useSelector } from "react-redux";
+import { setError, setMessage } from "../../redux/actions/commonAction.js";
 
 
 function User() {
   const navigate = useNavigate();
+
+  const msg = useSelector((state) => state.commonReducer.message);
+  const err = useSelector((state) => state.commonReducer.error);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (msg) {
+      dispatch(setMessage(""));
+      message.success(msg);
+    }
+
+    if (err) {
+      dispatch(setError(""));
+      message.error(err);
+    }
+  }, [msg, err]);
 
   const handleOtherMenuClick = (path) => {
     // Điều hướng đến các route chính

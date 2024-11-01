@@ -110,15 +110,6 @@ function DashboardPage() {
     if (location.pathname === "/admin/invoices") {
       return "10";
     }
-    if (location.pathname === "/admin/productvariants/add") {
-      return "12a";
-    }
-    if (location.pathname === "/admin/productvariants/update") {
-      return "12a";
-    }
-    if (location.pathname === "/admin/productvariants/list") {
-      return "12b";
-    }
 
     return "1"; // Mặc định là Home
   };
@@ -199,25 +190,6 @@ function DashboardPage() {
                   icon: <MdFormatListBulleted />,
                   label: "List Products",
                   onClick: () => navigate("/admin/products/list"),
-                },
-              ],
-            },
-            {
-              key: "12",
-              icon: <ProductOutlined />,
-              label: "Product Variant",
-              children: [
-                {
-                  key: "12a",
-                  icon: <PlusOutlined />,
-                  label: "Add Product Variant",
-                  onClick: () => navigate("/admin/productvariants/add"),
-                },
-                {
-                  key: "12b",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Product Variant",
-                  onClick: () => navigate("/admin/productvariants/list"),
                 },
               ],
             },
