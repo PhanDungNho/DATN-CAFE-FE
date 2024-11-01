@@ -11,7 +11,7 @@ import  invoiceReducer  from "./reducers/invoiceReducer";
 import  accountReducer  from "./reducers/accountReducer";
 import  decentralizationReducer  from "./reducers/authorityReducer";
 import productVariantReducer from "./reducers/productVariantReducer";
-import CartDetailReducer from "./reducers/cartDetailReducer";
+import cartDetailReducer from "./reducers/cartDetailReducer";
 
 
 const rootReducer = combineReducers({
@@ -26,7 +26,7 @@ const rootReducer = combineReducers({
     toppingReducer: toppingReducer,
     accountReducer: accountReducer,
     decentralizationReducer: decentralizationReducer,
-    CartDetailReducer: CartDetailReducer,
+    cartDetailReducer: cartDetailReducer,
 });
 
 export default rootReducer;

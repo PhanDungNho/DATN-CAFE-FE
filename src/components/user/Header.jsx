@@ -8,13 +8,15 @@ import {
   ShoppingOutlined,
   LogoutOutlined,
   TeamOutlined,
-  ShoppingCartOutlined,
 } from "@ant-design/icons";
-import { Button, Drawer, Space, Table } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import { Badge, Button, Drawer, Image, Space, Table, Tag } from "antd";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { getCartDetailsByUsername } from "../../redux/actions/cartDetailAction";
 import { ImBin } from "react-icons/im";
 import { FaShoppingCart } from "react-icons/fa";
+import withRouter from "../../helpers/withRouter";
+import ProductService from "../../services/productService";
+
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
@@ -22,7 +24,32 @@ function Header() {
   const [username, setUsername] = useState("");
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  // const [data, setData] = useState([]);
+  const [data, setData] = useState([]);
+  const cartDetails = useSelector(
+    (state) => state.cartDetailReducer.cartDetails
+  );
+
+  const totalItemsCount =
+    cartDetails?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const colors = [
+    "magenta",
+    "red",
+    "volcano",
+    "orange",
+    "gold",
+    "lime",
+    "green",
+    "cyan",
+    "blue",
+    "geekblue",
+    "purple",
+  ];
+
+  useEffect(() => {
+    setData(cartDetails || []);
+    setIsLoading(false);
+  }, [cartDetails]);
 
   const showDrawer = () => {
     setOpen(true);
@@ -34,28 +61,49 @@ function Header() {
 
   const columns = [
     {
+      title: "STT",
+      key: "stt",
+      render: (text, record, index) => index + 1,
+    },
+    {
       title: "Product",
       dataIndex: "productVariant",
       key: "productVariant",
-    },
-    {
-      title: "Size",
-      dataIndex: "size",
-      key: "size",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image
+            src={ProductService.getProductImageUrl(record.images[0].fileName)}
+            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 5 }}
+          />
+          <div>
+            <div>{record.productVariant.product.name}</div>
+            <div>{record.productVariant.size.name}</div>
+          </div>
+        </div>
+      ),
     },
     {
       title: "Topping",
-      dataIndex: "toppings",
+      dataIndex: "cartDetailToppings",
       key: "toppings",
+      render: (toppings) =>
+        toppings && toppings.length > 0
+          ? toppings.map((topping) => (
+              <div key={topping.topping.id}>
+                <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
+                  {topping.topping.name} ({topping.topping.price}) x {topping.quantity}
+                </Tag>
+              </div>
+            ))
+          : "",
     },
     {
       title: "Price",
-      dataIndex: "price",
+      dataIndex: ["productVariant", "price"],
       key: "price",
     },
     {
       title: "Subtotal",
-      dataIndex: "subtotal",
       key: "subtotal",
       render: (_, record) => (
         <Space size="middle">
@@ -71,48 +119,16 @@ function Header() {
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      productVariant: "Tra oi",
-      size: "L",
-      toppings: "Topping C",
-      price: 900000.0,
-    },
-    {
-      key: "2",
-      productVariant: "Tra oi",
-      size: "L",
-      toppings: "Topping C",
-      price: 900000.0,
-    },
-    {
-      key: "3",
-      productVariant: "Tra oi",
-      size: "L",
-      toppings: "Topping C",
-      price: 900000.0,
-    },
-  ];
-
   useEffect(() => {
-    // Giả sử thông tin người dùng được lưu trong localStorage
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (user && user.username) {
       setIsLoggedIn(true);
       setUsername(user.username);
 
-      // Gọi action để lấy dữ liệu giỏ hàng
-      dispatch(getCartDetailsByUsername(user.username))
-        .then((cartDetails) => {
-          // setData(cartDetails);
-        })
-        .catch((error) => {
-          console.error("Error fetching cart details:", error);
-        });
+      dispatch(getCartDetailsByUsername(user.username));
     }
- 
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -136,7 +152,7 @@ function Header() {
       clearTimeout(timer);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [dispatch, getCartDetailsByUsername]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -144,8 +160,6 @@ function Header() {
     setUsername("");
     window.location.href = "/login";
   };
-
-
 
   return (
     <>
@@ -180,26 +194,6 @@ function Header() {
                     </li>
                     <li>
                       <a href="#">Pages</a>
-                      {/* <ul className="sub-menu">
-                  <li>
-                    <a href="about.html">About</a>
-                  </li>
-                  <li>
-                    <a href="cart.html">Cart</a>
-                  </li>
-                  <li>
-                    <a href="checkout.html">Check Out</a>
-                  </li>
-                  <li>
-                    <a href="contact.html">Contact</a>
-                  </li>
-                  <li>
-                    <a href="news.html">News</a>
-                  </li>
-                  <li>
-                    <a href="shop.html">Shop</a>
-                  </li>
-                </ul> */}
                     </li>
                     <li>
                       <a href="/shop">Products</a>
@@ -219,8 +213,20 @@ function Header() {
                         </a>
                       </li>
                       <li>
-                        <a className="shopping-cart" onClick={showDrawer}>
-                          <i className="fas fa-shopping-cart" />
+                        <a
+                          className="shopping-cart"
+                          onClick={showDrawer}
+                        >
+                          <Badge
+                            size="small"
+                            count={totalItemsCount}
+                            offset={[15]}
+                          >
+                            <i
+                              className="fas fa-shopping-cart"
+                              style={{ color: "#ffff" }}
+                            />
+                          </Badge>
                         </a>
                       </li>
                       <div className="header-icons">
@@ -302,8 +308,11 @@ function Header() {
                 <div className="mobile-menu" />
                 {/* menu end */}
                 <Drawer title="Shopping cart" onClose={onClose} open={open}>
-                  <Table columns={columns} dataSource={data} />
-
+                  <Table
+                    columns={columns}
+                    dataSource={data}
+                    pagination={{ pageSize: 5 }}
+                  />
                   {/* Đặt container cho nút */}
                   <div
                     style={{
@@ -347,4 +356,13 @@ function Header() {
   );
 }
 
-export default Header;
+const mapStateToProps = (state) => ({
+  cartDetail: state.cartDetailReducer.cartDetail,
+  cartDetails: state.cartDetailReducer.cartDetails,
+});
+
+const mapDispatchToProps = {
+  getCartDetailsByUsername,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Header));

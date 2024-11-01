@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
 import { getProduct } from "../../redux/actions/productAction";
-import { insertCartDetail } from "../../redux/actions/cartDetailAction";
+import {
+  getCartDetailsByUsername,
+  insertCartDetail,
+} from "../../redux/actions/cartDetailAction";
 
 import { Row, Col, Image, Button, Card, Input } from "antd";
 import {
@@ -13,6 +16,7 @@ import {
 import Header from "./Header";
 import Footer from "./Footer";
 import ProductService from "../../services/productService";
+import withRouter from "../../helpers/withRouter";
 const { Meta } = Card;
 
 function Product() {
@@ -23,6 +27,9 @@ function Product() {
   const [price, setPrice] = useState(50000);
   const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0);
 
+  const cartDetails = useSelector(
+    (state) => state.cartDetailReducer.cartDetails
+  );
   const { id } = useParams();
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);
@@ -31,7 +38,6 @@ function Product() {
     dispatch(getProduct(id)); // Gọi hàm để lấy sản phẩm theo ID
   }, [dispatch, id]);
 
-  // Kiểm tra nếu product tồn tại thì lấy giá trị thumbnails và sizes, nếu không trả về mảng rỗng
   const thumbnails = product?.images?.map((image) => image.filename) || [];
   const sizes =
     product?.productVariant?.map((variant) => ({
@@ -94,6 +100,7 @@ function Product() {
       prevIndex > 0 ? prevIndex - 1 : prevIndex
     );
   };
+
   const handleAddToCart = () => {
     const username = JSON.parse(localStorage.getItem("user"));
 
@@ -147,12 +154,31 @@ function Product() {
 
     console.log(cartItem);
 
-    dispatch(insertCartDetail(cartItem));
+    dispatch(insertCartDetail(cartItem))
+      .then(() => {
+        // Sau khi thêm thành công, gọi lại danh sách giỏ hàng
+        dispatch(getCartDetailsByUsername(username.username));
+      })
+      .catch((error) => {
+        console.error("Error adding item to cart:", error);
+      });
   };
 
   return (
     <>
       <Header />
+      <div className="breadcrumb-section breadcrumb-bg">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8 offset-lg-2 text-center">
+              <div className="breadcrumb-text">
+                <p>Fresh adn Organic</p>
+                <h1>404 - Not Found</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="product mt-150 mb-150">
         <div className="container">
           <Row gutter={[16, 16]}>
@@ -362,4 +388,17 @@ function Product() {
   );
 }
 
-export default Product;
+const mapStateToProps = (state) => ({
+  cartDetail: state.cartDetailReducer.cartDetail,
+  cartDetails: state.cartDetailReducer.cartDetails,
+});
+
+const mapDispatchToProps = {
+  insertCartDetail,
+  getCartDetailsByUsername,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(Product));
