@@ -26,8 +26,6 @@ import PaymentService from "../../services/PaymentService";
 import PaymentResult from "../../components/user/PaymentResult";
 import GoogleCallback from "../../services/GoogleAuthService";
 import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
- 
-
 import About from "../../components/user/about";
 
 

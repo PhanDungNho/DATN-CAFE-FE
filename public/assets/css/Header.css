@@ -1,0 +1,20 @@
+/* Style cho dropdown sản phẩm */
+.product-dropdown {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 100;
+  }
+  
+  .product-item {
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  
+  .product-item:hover {
+    background-color: #f2f2f2;
+  }

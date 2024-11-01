@@ -3104,7 +3104,7 @@ table.order-details tbody td {
 /* Dropdown mặc định ẩn */
 .user-dropdown {
   text-align: left;
-  display: none; /* Ẩn mặc định */
+  display: none; 
   position: absolute;
   top: 50px; /* Đặt dropdown dưới icon */
   right: 0;
@@ -3263,3 +3263,4 @@ table.order-details tbody td {
   border-radius: 3px; /* Bo góc cho nhãn */
   z-index: 10; /* Đảm bảo nhãn hiển thị trên cùng */
 }
+
