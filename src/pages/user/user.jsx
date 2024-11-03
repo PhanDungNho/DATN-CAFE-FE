@@ -11,7 +11,7 @@ import Shop from "../../components/user/shop";
 import Product from "../../components/user/single-product";
 import NotFound from "../../components/user/404";
 import ManagerUser from "../../components/user/manageruser";
-import UpdateAddress from "../../components/user/updateaddress";
+import UpdateAddress from "../../components/user/address/updateaddress";
 import UpdateProfile from "../../components/user/updateprofile";
 import AllOrder from "../../components/user/allorders";
 import WaitOrder from "../../components/user/waitorders";
