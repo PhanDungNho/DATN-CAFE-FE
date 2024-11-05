@@ -21,13 +21,13 @@ const items2 = [
     key: "orders",
     icon: React.createElement(LaptopOutlined),
     label: "Đơn hàng",
-    children: [
-      { label: "Tất cả", key: "orders/all" },
-      { label: "Chờ xác nhận", key: "orders/pending" },
-      { label: "Vận chuyển", key: "orders/shipping" },
-      { label: "Hoàn thành", key: "orders/completed" },
-      { label: "Đã hủy", key: "orders/canceled" },
-    ],
+    // children: [
+    //   { label: "Tất cả", key: "orders" },
+    //   { label: "Chờ xác nhận", key: "orders/pending" },
+    //   { label: "Vận chuyển", key: "orders/shipping" },
+    //   { label: "Hoàn thành", key: "orders/completed" },
+    //   { label: "Đã hủy", key: "orders/canceled" },
+    // ],
   },
 ];
 

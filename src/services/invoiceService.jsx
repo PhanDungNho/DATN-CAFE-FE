@@ -54,5 +54,14 @@ export default class invoiceService {
       }
     });
   }
+ 
+
+getInvoicesByCustomer = async  (customerId) => {
+  return await axios.get(API_INVOICE+"/"+customerId+"/getByUser", {
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+    },
+  });
+};
 
 }

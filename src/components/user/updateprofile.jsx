@@ -48,52 +48,55 @@ const UpdateProfile = () => {
 
   const onFinish = async (values) => {
     try {
-        const token = localStorage.getItem("token");
-        const formData = new FormData();
-        formData.append("fullName", values.name);
-        formData.append("email", values.email);
-        formData.append("phone", values.phone);
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("fullName", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone);
 
-        if (values.password) {
-            formData.append("password", values.password);
+      if (values.password) {
+        formData.append("password", values.password);
+      }
+
+      // Gửi tệp mới nếu có
+      if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
+        formData.append("imageFile", imageFileList[0].originFileObj);
+      }
+
+      const response = await axios.put(
+        "http://localhost:8081/api/profile/update",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
+      );
 
-        // Gửi tệp mới nếu có
-        if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
-            formData.append("imageFile", imageFileList[0].originFileObj);
-        }
-
-        const response = await axios.put(
-            "http://localhost:8081/api/profile/update",
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            }
-        );
-
-        message.success(response.data);
+      message.success(response.data);
     } catch (error) {
-        console.error("Error details:", error);
+      console.error("Error details:", error);
 
-        // Kiểm tra xem có phản hồi từ backend
-        const errorResponse = error.response?.data;
+      // Kiểm tra xem có phản hồi từ backend
+      const errorResponse = error.response?.data;
 
-        // Kiểm tra cấu trúc phản hồi để lấy thông báo
-        const errorMessage = errorResponse && typeof errorResponse === 'object' && errorResponse.message
-            ? errorResponse.message // Lấy thông điệp từ đối tượng
-            : "Failed to update information. Please try again."; // Thông báo lỗi chung
+      // Kiểm tra cấu trúc phản hồi để lấy thông báo
+      const errorMessage =
+        errorResponse &&
+        typeof errorResponse === "object" &&
+        errorResponse.message
+          ? errorResponse.message // Lấy thông điệp từ đối tượng
+          : "Failed to update information. Please try again."; // Thông báo lỗi chung
 
-        // Hiển thị thông báo lỗi cho người dùng
-        if (errorMessage === "Email đã tồn tại.") {
-            message.error("Email already exists."); // Thông báo cụ thể cho trường hợp email đã tồn tại
-        } else {
-            message.error(errorMessage); // Thông báo lỗi chung
-        }
+      // Hiển thị thông báo lỗi cho người dùng
+      if (errorMessage === "Email đã tồn tại.") {
+        message.error("Email already exists."); // Thông báo cụ thể cho trường hợp email đã tồn tại
+      } else {
+        message.error(errorMessage); // Thông báo lỗi chung
+      }
     }
-};
+  };
 
   return (
     <div style={{ maxWidth: "100%", padding: "20px" }}>
@@ -129,7 +132,10 @@ const UpdateProfile = () => {
           name="phone"
           rules={[
             { required: true, message: "Please enter phone number!" },
-            { pattern: new RegExp(/^[0-9]{10}$/), message: "Phone number must have 10 digits!" },
+            {
+              pattern: new RegExp(/^[0-9]{10}$/),
+              message: "Phone number must have 10 digits!",
+            },
           ]}
         >
           <Input placeholder="Enter phone number" />
@@ -138,7 +144,9 @@ const UpdateProfile = () => {
         <Form.Item
           label="New Password"
           name="password"
-          rules={[{ min: 6, message: "Password must be at least 6 characters!" }]}
+          rules={[
+            { min: 6, message: "Password must be at least 6 characters!" },
+          ]}
         >
           <Input.Password placeholder="Enter new password (optional)" />
         </Form.Item>
@@ -154,31 +162,25 @@ const UpdateProfile = () => {
             return e && e.fileList ? e.fileList : [];
           }}
         >
-    <Upload
-  name="imageFile"
-  listType="picture"
-  maxCount={1} // Giới hạn 1 ảnh
-  defaultFileList={imageFileList} // Hiển thị ảnh hiện tại
-  accept="image/jpeg,image/png,image/jpg,image/gif" // Chỉ cho phép các định dạng ảnh
-  beforeUpload={(file) => {
-    const isImage = file.type.startsWith("image/");
-    if (!isImage) {
-      message.error("Only image files are allowed!"); // Thông báo nếu không phải ảnh
-    }
-    return isImage; // Trả về false để ngăn upload tự động, chỉ chấp nhận ảnh
-  }}
-  onChange={(info) => {
-    setImageFileList(info.fileList.slice(-1)); // Giữ lại chỉ một hình ảnh mới nhất
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} has been uploaded successfully.`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} upload failed.`);
-    }
-  }}
->
-  <Button icon={<UploadOutlined />}>Choose Image</Button>
-</Upload>
-
+         <Upload
+            name="imageFile"
+            listType="picture"
+            maxCount={1} // Giới hạn 1 ảnh
+            defaultFileList={imageFileList} // Hiển thị ảnh hiện tại
+            accept=".jpg,.jpeg,.png,.gif" // Chỉ cho phép các định dạng ảnh
+            beforeUpload={() => false} // Ngăn chặn upload tự động
+            onChange={(info) => {
+              // Giữ lại chỉ một hình ảnh mới nhất
+              setImageFileList(info.fileList.slice(-1));
+              if (info.file.status === "done") {
+                message.success(`${info.file.name} has been uploaded successfully.`);
+              } else if (info.file.status === "error") {
+                message.error(`${info.file.name} upload failed.`);
+              }
+            }}
+          >
+            <Button icon={<UploadOutlined />}>Choose Image</Button>
+          </Upload>
         </Form.Item>
 
         <Form.Item>

@@ -14,10 +14,10 @@ export const getInvoices = () => async (dispatch) => {
   try {
     console.log("get all invoices");
 
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
+    // dispatch({
+    //   type: COMMON_LOADING_SET,
+    //   payload: true,
+    // });
 
     const response = await service.getInvoices();
     console.log(response);
@@ -92,10 +92,10 @@ export const updateOrderActive = (id, active) => async (dispatch) => {
   console.log("update active order");
 
   try {
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
+    // dispatch({
+    //   type: COMMON_LOADING_SET,
+    //   payload: true,
+    // });
 
     const response = await service.updateOrderActive(id, active);
     console.log(response);
