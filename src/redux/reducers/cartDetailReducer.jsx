@@ -1,4 +1,4 @@
-import { CARTDETAIL_SET, CARTDETAILS_SET } from "../actions/actionType";
+import { CARTDETAIL_DELETE, CARTDETAIL_SET, CARTDETAILS_SET } from "../actions/actionType";
 
 const initialState = {
   cartDetail: {},
@@ -11,6 +11,13 @@ const CartDetailReducer = (state = initialState, { type, payload }) => {
       return { ...state, cartDetail: payload };
     case CARTDETAILS_SET:
       return { ...state, cartDetails: payload };
+      case CARTDETAIL_DELETE:
+      return {
+        ...state,
+        cartDetails: state.cartDetails.filter(
+          (item) => item.id !== payload
+        ),
+      };
     default:
       return state;
   }

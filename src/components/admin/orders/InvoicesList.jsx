@@ -112,7 +112,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
               updateOrderActive(record.id, checked);
             }}
           />
-          {record.paymentmethod === "ONLINE" && (
+          {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {
                 showModal(record);

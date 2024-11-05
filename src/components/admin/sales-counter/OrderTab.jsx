@@ -1,18 +1,9 @@
 import React from "react";
-import {
-  Card,
-  Table,
-  Tabs,
-  Form,
-  Input,
-  Select,
-  Button,
-} from "antd";
+import { Card, Table, Tabs, Form, Input, Select, Button } from "antd";
 
 const { Option } = Select;
 
 const OrderTab = ({
-
   orders,
   handlePaymentMethodChange,
   activeTab,
@@ -40,16 +31,15 @@ const OrderTab = ({
         }
       }}
     >
- 
       {orders.map((customer, index) => (
-        <Tabs.TabPane 
+        <Tabs.TabPane
           tab={customer.customerName}
           key={index}
           closable={orders.length > 1}
         >
           <Card title={`Giỏ hàng của ${customer.customerName}`}>
-          <style>
-  {`
+            <style>
+              {`
   .ant-table-tbody {
     vertical-align: top;
   }
@@ -59,7 +49,7 @@ const OrderTab = ({
   }
 
   `}
-</style>
+            </style>
             {customer.cart.length === 0 ? (
               <p>Giỏ hàng đang trống</p>
             ) : (
@@ -107,16 +97,21 @@ const OrderTab = ({
                 </p>
               </div>
             )}
-<Form.Item name="paymentMethod" label="Hình thức thanh toán">
-    {console.log("Current Payment Method for tab:", index, orders[index].paymentMethod)} {/* Log giá trị */}
-    <Select
-        value={orders[index].paymentMethod} // Giá trị từ orders
-        onChange={(value) => handlePaymentMethodChange(value, index)}
-    >
-        <Option value="CASH">Tiền mặt</Option>
-        <Option value="ONLINE">Ví Momo</Option>
-    </Select>
-</Form.Item>
+            <Form.Item name="paymentMethod" label="Hình thức thanh toán">
+              {console.log(
+                "Current Payment Method for tab:",
+                index,
+                orders[index].paymentMethod
+              )}{" "}
+              {/* Log giá trị */}
+              <Select
+                value={orders[index].paymentMethod} // Giá trị từ orders
+                onChange={(value) => handlePaymentMethodChange(value, index)}
+              >
+                <Option value="CASH">Tiền mặt</Option>
+                <Option value="ONLINE">Ví Momo</Option>
+              </Select>
+            </Form.Item>
 
             <Button
               type="primary"
@@ -124,8 +119,7 @@ const OrderTab = ({
               block
               disabled={
                 orders[index].cart.length === 0 ||
-                (orders[index].customerPhone &&
-                  !orders[index].customerName)
+                (orders[index].customerPhone && !orders[index].customerName)
               }
             >
               Thanh toán

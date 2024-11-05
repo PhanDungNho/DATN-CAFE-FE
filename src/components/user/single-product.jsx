@@ -30,6 +30,7 @@ function Product() {
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
   );
+  
   const { id } = useParams();
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);

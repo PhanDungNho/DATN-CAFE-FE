@@ -1,5 +1,6 @@
 import CartDetailService from "../../services/cartDetailService";
 import {
+  CARTDETAIL_DELETE,
   CARTDETAIL_SET,
   CARTDETAILS_SET,
   COMMON_ERROR_SET,
@@ -59,6 +60,57 @@ export const getCartDetailsByUsername = (username) => async (dispatch) => {
       dispatch({
         type: COMMON_ERROR_SET,
         payload: response.message,
+      });
+    }
+  } catch (error) {
+    console.log("Error: ", error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+};
+
+export const deleteCartDetail = (id) => async (dispatch) => {
+  try {
+    console.log("Delete cart detail with: ", id);
+    const response = await service.deleteCartDetail(id);
+    console.log("API response delete: ", response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: CARTDETAIL_DELETE,
+        payload: id,
+      });
+
+      dispatch({
+        type: COMMON_MESSAGE_SET,
+        payload: "Delete successfully!",
+      });
+    }
+  } catch (error) {
+    console.log("Error: ", error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+};
+
+export const removeCartDetail = (id) => async (dispatch) => {
+  try {
+    console.log("Delete cart detail with: ", id);
+    const response = await service.deleteCartDetail(id);
+    console.log("API response delete: ", response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: CARTDETAIL_DELETE,
+        payload: id,
       });
     }
   } catch (error) {

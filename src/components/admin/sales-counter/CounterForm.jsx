@@ -317,7 +317,7 @@ const CounterForm = () => {
             if (paymentStatus === "success") {
               message.success("Thanh toán thành công!");
               handleSuccess(order, index); // Đóng form bán hàng
-              // removeCustomer(index.toString()); 
+              removeCustomer(index.toString()); 
             } else {
               message.error("Thanh toán thất bại hoặc bị hủy.");
             }

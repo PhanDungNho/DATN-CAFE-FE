@@ -17,4 +17,12 @@ export default class CartDetailService {
       },
     });
   }
+
+  deleteCartDetail(id) {
+    return axios.delete(API_CARTDETAIL + "/" + id, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+  }
 }

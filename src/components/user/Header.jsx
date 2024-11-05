@@ -9,13 +9,26 @@ import {
   LogoutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Badge, Button, Drawer, Image, Space, Table, Tag } from "antd";
+import {
+  Badge,
+  Button,
+  Drawer,
+  Image,
+  Popconfirm,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { getCartDetailsByUsername } from "../../redux/actions/cartDetailAction";
+import {
+  deleteCartDetail,
+  getCartDetailsByUsername,
+} from "../../redux/actions/cartDetailAction";
 import { ImBin } from "react-icons/im";
 import { FaShoppingCart } from "react-icons/fa";
 import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +38,7 @@ function Header() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
   );
@@ -45,11 +59,6 @@ function Header() {
     "geekblue",
     "purple",
   ];
-
-  useEffect(() => {
-    setData(cartDetails || []);
-    setIsLoading(false);
-  }, [cartDetails]);
 
   const showDrawer = () => {
     setOpen(true);
@@ -91,7 +100,8 @@ function Header() {
           ? toppings.map((topping) => (
               <div key={topping.topping.id}>
                 <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
-                  {topping.topping.name} ({topping.topping.price}) x {topping.quantity}
+                  {topping.topping.name} ({topping.topping.price}) x{" "}
+                  {topping.quantity}
                 </Tag>
               </div>
             ))
@@ -107,13 +117,20 @@ function Header() {
       key: "subtotal",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            className="custom-delete-button"
-            variant="filled"
-            style={{ border: "none" }}
+          <Popconfirm
+            title="Are you sure to delete this item?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
           >
-            <ImBin />
-          </Button>
+            <Button
+              className="custom-delete-button"
+              variant="filled"
+              style={{ border: "none" }}
+            >
+              <ImBin />
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -154,11 +171,34 @@ function Header() {
     };
   }, [dispatch, getCartDetailsByUsername]);
 
+  useEffect(() => {
+    if (cartDetails && cartDetails.length > 0) {
+      const dataWithKeys = cartDetails.map((item) => ({
+        ...item,
+        key: item.id,
+      }));
+      setData(dataWithKeys);
+    } else {
+      setData([]);
+    }
+    setIsLoading(false);
+  }, [cartDetails]);
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setUsername("");
     window.location.href = "/login";
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteCartDetail(id))
+      .then(() => {
+        dispatch(getCartDetailsByUsername(username));
+      })
+      .catch((error) => {
+        console.error("Error adding item to cart:", error);
+      });
   };
 
   return (
@@ -213,14 +253,11 @@ function Header() {
                         </a>
                       </li>
                       <li>
-                        <a
-                          className="shopping-cart"
-                          onClick={showDrawer}
-                        >
+                        <a className="shopping-cart" onClick={showDrawer}>
                           <Badge
                             size="small"
                             count={totalItemsCount}
-                            offset={[15]}
+                            offset={[10, -3]}
                           >
                             <i
                               className="fas fa-shopping-cart"
@@ -342,6 +379,7 @@ function Header() {
                         e.currentTarget.style.color = "#fff";
                         e.currentTarget.style.transform = "scale(1)";
                       }}
+                      onClick={() => navigate("/cart")}
                     >
                       Check out
                     </Button>
@@ -363,6 +401,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getCartDetailsByUsername,
+  deleteCartDetail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Header));

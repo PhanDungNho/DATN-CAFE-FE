@@ -79,3 +79,14 @@
 .custom-delete-button:focus {
   color: red;
 }
+
+.custom-radio-group-paymentMethod .ant-radio-button-wrapper {
+  width: 80px;
+  border-radius: 0; 
+  margin-right: 10px;
+  text-align: center;
+}
+
+.custom-radio-group-paymentMethod .ant-radio-button-wrapper:last-child {
+  margin-right: 0; 
+}
