@@ -12,6 +12,7 @@ import  accountReducer  from "./reducers/accountReducer";
 import  decentralizationReducer  from "./reducers/authorityReducer";
 import productVariantReducer from "./reducers/productVariantReducer";
 import cartDetailReducer from "./reducers/cartDetailReducer";
+import addressReducer from "./reducers/addressReducer";
 
 
 const rootReducer = combineReducers({
@@ -27,6 +28,8 @@ const rootReducer = combineReducers({
     accountReducer: accountReducer,
     decentralizationReducer: decentralizationReducer,
     cartDetailReducer: cartDetailReducer,
+    addressReducer:addressReducer,
+
 });
 
 export default rootReducer;
