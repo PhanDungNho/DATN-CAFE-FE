@@ -37,9 +37,9 @@ const OrderTab = ({
           key={index}
           closable={orders.length > 1}
         >
-          <Card title={`Giỏ hàng của ${customer.customerName}`}>
-            <style>
-              {`
+          <Card title={`Giỏ hàng  ${customer.customerName}`}>
+          <style>
+  {`
   .ant-table-tbody {
     vertical-align: top;
   }
@@ -81,6 +81,7 @@ const OrderTab = ({
           >
             <Form.Item name="phoneNumber">
               <Input
+              id="phoneNumber"
                 placeholder="Số điện thoại khách hàng"
                 value={phoneNumberInput}
                 onChange={(e) => handlePhoneNumberChange(e, index)}

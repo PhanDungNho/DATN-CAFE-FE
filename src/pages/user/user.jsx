@@ -13,7 +13,7 @@ import NotFound from "../../components/user/404";
 import ManagerUser from "../../components/user/manageruser";
 import UpdateAddress from "../../components/user/address/updateaddress";
 import UpdateProfile from "../../components/user/updateprofile";
-import AllOrder from "../../components/user/allorders";
+ 
 import WaitOrder from "../../components/user/waitorders";
 import TransOrder from "../../components/user/transorders";
 import SuccessOrder from "../../components/user/successorders";
@@ -31,6 +31,7 @@ import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
 import About from "../../components/user/about";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setMessage } from "../../redux/actions/commonAction.js";
+import Allorder from "../../components/user/orders/allorders.jsx";
 
 
 function User() {
@@ -88,11 +89,11 @@ function User() {
           <Route path="" element={<UpdateAddress />} />
           <Route path="address" element={<UpdateAddress />} />
           <Route path="info" element={<UpdateProfile />} />
-          <Route path="orders/all" element={<AllOrder />} />
-          <Route path="orders/pending" element={<WaitOrder />} />
+          <Route path="orders" element={<Allorder />} />
+          {/* <Route path="orders/pending" element={<WaitOrder />} />
           <Route path="orders/shipping" element={<TransOrder />} />
           <Route path="orders/completed" element={<SuccessOrder />} />
-          <Route path="orders/canceled" element={<CancelOrder />} />
+          <Route path="orders/canceled" element={<CancelOrder />} /> */}
         </Route>
       </Routes>
     </Layout>

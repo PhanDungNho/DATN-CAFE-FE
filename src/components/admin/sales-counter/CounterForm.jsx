@@ -35,6 +35,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const CounterForm = () => {
+ 
   const [activeTab, setActiveTab] = useState("0");
   // const [ords, setOrds] = useState([]);
   const [products, setProducts] = useState([]);
@@ -43,7 +44,7 @@ const CounterForm = () => {
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH" },
+    { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH",  },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
@@ -206,11 +207,11 @@ const CounterForm = () => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
         message.success("Đã nhập đúng số điện thoại!");
-        updatedOrders[index].customerName = foundAccount.fullname;
+        // updatedOrders[index].customerName = foundAccount.fullName;
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
       } else {
-        updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
+        // updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
       }
       return updatedOrders;
@@ -344,26 +345,23 @@ const CounterForm = () => {
     const newOrders = [...orders];
   
     // Xóa giỏ hàng của đơn hàng đã thanh toán
-    newOrders[index].cart = [];
+    newOrders[index].cart = []; // Giỏ hàng sẽ được làm sạch
   
-    // Reset thông tin khách hàng
-    newOrders[index].customerName = "";
-    newOrders[index].customerPhone = "";
-    newOrders[index].customerId = "";
+    // Làm sạch số điện thoại và ID khách hàng
+    newOrders[index].customerPhone = ""; // Reset số điện thoại
+    newOrders[index].customerId = ""; // Reset ID nếu cần
   
-    // Reset input số điện thoại
+    // Reset input số điện thoại trong trạng thái
     setPhoneNumberInput("");
+
   
-    // Cập nhật trạng thái đơn hàng và đóng tab hiện tại
+    // Cập nhật trạng thái đơn hàng mà không xóa tab
     setOrders(newOrders);
   
     // Cập nhật Local Storage
     localStorage.setItem("orders", JSON.stringify(newOrders));
   
-    // Đóng tab hiện tại
-    removeCustomer(index.toString()); // Gọi hàm xóa tab
-  
-
+    // Không gọi removeCustomer để giữ nguyên tab
   };
 
 
@@ -380,7 +378,8 @@ const CounterForm = () => {
     }
   
     // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
-    const newOrder = { cart: [], customerName: newCustomerName, paymentMethod: "CASH" };
+    const newOrder = { cart: [], customerName: newCustomerName, paymentMethod: "CASH",   customerPhone: "", // Reset số điện thoại
+      customerId: "", };
     setOrders([...orders, newOrder]);
     
     console.log("New order added:", newOrder); // log giá trị của đơn hàng mới
