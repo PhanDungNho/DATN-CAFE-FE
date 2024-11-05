@@ -1,3 +1,4 @@
+import { Modal } from "antd";
 import addressService from "../../services/addressService";
 import {
   ADDRESSES_SET,
@@ -10,6 +11,7 @@ import {
   COMMON_ERROR_SET,
   COMMON_LOADING_SET,
   COMMON_MESSAGE_SET,
+  ADDRESS_UPDATE_ISDEFAULT
 } from "./actionType";
 
 // Thêm địa chỉ
@@ -37,20 +39,50 @@ export const insertAddress = (address) => async (dispatch) => {
   }
 };
 
-export const deleteAddress = (id) => async (dispatch) => {
+export const deleteAddress = (id) => async (dispatch, getState) => {
+  const service = new addressService();
+  
   try {
     dispatch({ type: COMMON_LOADING_SET, payload: true });
-    const response = await addressService.deleteAddress(id);
-    if (response.status === 200) {
+
+    // Get the current addresses from the state
+    const addresses = getState().addressReducer.addresses;
+    const addressToDelete = addresses.find(address => address.id === id);
+    
+    // Check if the address is the default address
+    if (addressToDelete && addressToDelete.isDefault) {
+      // If it's the default address, show a warning
+      Modal.warning({
+        title: "Cannot Delete Default Address",
+        content: "You cannot delete an address that is set as default.",
+      });
+      return; // Exit the function early
+    }
+
+    const response = await service.deleteAddress(id); // Now just passing id
+
+    // Handle successful deletion with status 204
+    if (response.status === 204) {
       dispatch({ type: ADDRESS_DELETE, payload: id });
       dispatch({ type: COMMON_MESSAGE_SET, payload: "Address deleted successfully" });
+    } else {
+      // If response status is unexpected, handle it as an error
+      const errorMessage = response.message || "Unexpected response from server";
+      dispatch({ type: COMMON_ERROR_SET, payload: errorMessage });
+      console.error("Delete address error:", errorMessage);
     }
   } catch (error) {
+    // Log the error message and dispatch it to the error handler
+    console.error("Error in deleteAddress action:", error);
     dispatch({ type: COMMON_ERROR_SET, payload: error.message });
   } finally {
+    // Always set loading to false at the end of the operation
     dispatch({ type: COMMON_LOADING_SET, payload: false });
   }
 };
+
+
+
 
 
 // Cập nhật địa chỉ
@@ -83,7 +115,7 @@ export const updateAddressActive = (id, active) => async (dispatch) => {
 
   try {
     dispatch({ type: COMMON_LOADING_SET, payload: true });
-    
+
     const response = await service.toggleActive(id);
     if (response.status === 200) {
       dispatch({ type: ADDRESS_UPDATE_ACTIVE, payload: { id, active } });
@@ -220,5 +252,38 @@ export const clearAddressState = () => (dispatch) => {
 };
 
 
-  
-  
+// Action to set an address as default
+export const setIsDefault = (id) => async (dispatch, getState) => {
+  const service = new addressService();
+  const addresses = getState().addressReducer.addresses; // Get the current addresses from the state
+  const currentDefaultAddress = addresses.find(address => address.isDefault); // Find the current default address
+
+  try {
+    dispatch({ type: COMMON_LOADING_SET, payload: true });
+
+    if (currentDefaultAddress && currentDefaultAddress.id !== id) {
+      // If there's a different default address, unset it first
+      await service.setIsDefault(currentDefaultAddress.id, false); // Call service to unset the current default
+      dispatch({ type: ADDRESS_UPDATE_ISDEFAULT, payload: { id: currentDefaultAddress.id, isDefault: false } });
+    }
+
+    const response = await service.setIsDefault(id); // Set the new default address
+
+    if (response.status === 200) {
+      dispatch({ type: ADDRESS_UPDATE_ISDEFAULT, payload: { id, isDefault: true } });
+      dispatch({ type: COMMON_MESSAGE_SET, payload: "Địa chỉ đã được đặt là mặc định thành công" });
+    } else {
+      dispatch({ type: COMMON_ERROR_SET, payload: response.message });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response?.data?.message || error.message,
+    });
+  } finally {
+    dispatch({ type: COMMON_LOADING_SET, payload: false });
+  }
+};
+
+
+

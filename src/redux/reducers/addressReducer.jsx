@@ -53,11 +53,11 @@ const addressReducer = (state = initialState, { type, payload }) => {
             : address
         ),
       };
-    case ADDRESS_DELETE:
-      return {
-        ...state,
-        addresses: state.addresses.filter((address) => address.id !== payload),
-      };
+      case ADDRESS_DELETE:
+        return {
+            ...state,
+            addresses: state.addresses.filter((address) => address.id !== payload),
+        };
     default:
       return state;
   }

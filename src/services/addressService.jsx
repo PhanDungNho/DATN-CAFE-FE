@@ -66,7 +66,8 @@ export default class addressService {
 
   deleteAddress = async (id) => {
     return await axios.delete(`${API_ADDRESS}/${id}`, {
-      headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") },
     });
-  };
+};
+
 }

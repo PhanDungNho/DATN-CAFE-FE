@@ -1,10 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Input, Button, Select, Table, Modal, Switch, Tag, Spin } from "antd";
-import { getAddressByUsername, insertAddress, updateAddress, updateAddressActive, findAddressByNameContainsIgnoreCase, deleteAddress } from "../../../redux/actions/addressAction"; // import thêm deleteAddress
+import {
+    getAddressByUsername,
+    insertAddress,
+    updateAddress,
+    findAddressByNameContainsIgnoreCase,
+    deleteAddress,
+    setIsDefault
+} from "../../../redux/actions/addressAction";
 import { ADDRESS_APPEND, ADDRESS_UPDATE } from "../../../redux/actions/actionType";
 
 const { Option } = Select;
+
+// Helper function to map address to DTO
+export const mapAddressToDto = (address) => {
+    return {
+        id: address.id,
+        active: address.active !== undefined ? address.active : true,
+        cityCode: address.cityCode,
+        districtCode: address.districtCode,
+        fullAddress: address.fullAddress,
+        isDefault: address.isDefault,
+        street: address.street,
+        wardCode: address.wardCode,
+        account: address.account ? address.account.username : null,
+    };
+};
 
 const UpdateAddress = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,16 +44,15 @@ const UpdateAddress = () => {
     }, [username, dispatch, searchTerm]);
 
     const onFinish = (values) => {
+        const addressDto = mapAddressToDto({ ...currentAddress, ...values });
+        if (!currentAddress) {
+            addressDto.account = username;
+            addressDto.active = true;
+        }
         if (currentAddress) {
-            dispatch({
-                type: ADDRESS_UPDATE,
-                payload: { ...currentAddress, ...values },
-            });
+            dispatch(updateAddress(currentAddress.id, addressDto));
         } else {
-            dispatch({
-                type: ADDRESS_APPEND,
-                payload: { ...values, active: true, isDefault: false },
-            });
+            dispatch(insertAddress(addressDto));
         }
         handleCancel();
     };
@@ -46,22 +67,37 @@ const UpdateAddress = () => {
         setIsModalVisible(true);
     };
 
-    const handleToggleActive = (id, currentActiveStatus) => {
-        dispatch(updateAddressActive(id, !currentActiveStatus));
-    };
-
-    const handleSetDefault = (id) => {
-        addresses.forEach((address) => {
-            dispatch({
-                type: ADDRESS_UPDATE,
-                payload: { ...address, isDefault: address.id === id },
-            });
-        });
+    const handleSetIsDefault = (id) => {
+        dispatch(setIsDefault(id));
     };
 
     const handleDelete = (id) => {
-        dispatch(deleteAddress(id));
+        const addressToDelete = addresses.find(address => address.id === id);
+
+        if (addressToDelete && addressToDelete.isDefault) {
+            Modal.warning({
+                title: "Cannot Delete Default Address",
+                content: "You cannot delete an address that is set as default.",
+            });
+            return; // Prevent deletion of default address
+        }
+
+        Modal.confirm({
+            title: "Are you sure you want to delete this address?",
+            content: "This action cannot be undone.",
+            onOk() {
+                if (id) {
+                    dispatch(deleteAddress(id));
+                } else {
+                    console.error("Attempted to delete an address without a valid ID");
+                }
+            },
+            onCancel() {
+                // Optionally handle cancel action
+            }
+        });
     };
+
 
 
     const handleSearchChange = (e) => {
@@ -89,39 +125,31 @@ const UpdateAddress = () => {
             width: "60%",
         },
         {
-            title: "Active",
-            key: "active",
-            render: (_, record) => (
-                <Tag color={record.active ? "green" : "red"}>
-                    {record.active ? "Active" : "Inactive"}
-                </Tag>
-            ),
-        },
-        {
             title: "Action",
             key: "action",
             render: (_, record) => (
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <Switch
-                        checked={record.active}
-                        onChange={() => handleToggleActive(record.id)}
-                    />
+
                     <Button onClick={() => handleEdit(record)} type="primary">
                         Edit Address
                     </Button>
                     <Button
-                        onClick={() => handleSetDefault(record.id)}
+                        onClick={() => handleSetIsDefault(record.id)}
                         type="default"
                         style={{
-                            backgroundColor: record.isDefault ? "red" : "#F28123",
+                            backgroundColor: record.isDefault ? "red" : "#F28123", // Red if default
                             color: "white",
                             border: "none",
                         }}
-                        disabled={record.isDefault}
+                        disabled={record.isDefault} // Disable the button if it's already default
                     >
                         Set as default
                     </Button>
-                    <Button onClick={() => handleDelete(record.id)} type="danger">
+                    <Button
+                        onClick={() => handleDelete(record.id)}
+                        type="danger"
+                        disabled={record.isDefault} // Disable delete if it's the default address
+                    >
                         Delete Address
                     </Button>
                 </div>
@@ -155,7 +183,7 @@ const UpdateAddress = () => {
 
             <Modal
                 title={currentAddress ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
-                visible={isModalVisible}
+                open={isModalVisible} // Use open instead of visible
                 onCancel={handleCancel}
                 footer={null}
             >
@@ -167,38 +195,38 @@ const UpdateAddress = () => {
                 >
                     <Form.Item
                         label="Tỉnh/Thành phố"
-                        name="province"
+                        name="cityCode"
                         rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố!" }]}
                     >
                         <Select placeholder="Chọn Tỉnh/Thành phố">
-                            <Option value="An Giang">An Giang</Option>
-                            <Option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</Option>
-                            <Option value="Bình Dương">Bình Dương</Option>
-                            <Option value="Bình Phước">Bình Phước</Option>
-                            <Option value="Bình Thuận">Bình Thuận</Option>
-                            <Option value="Bình Định">Bình Định</Option>
+                            <Option value={1}>An Giang</Option>
+                            <Option value={2}>Bà Rịa - Vũng Tàu</Option>
+                            <Option value={3}>Bình Dương</Option>
+                            <Option value={4}>Bình Phước</Option>
+                            <Option value={5}>Bình Thuận</Option>
+                            <Option value={6}>Bình Định</Option>
                         </Select>
                     </Form.Item>
 
                     <Form.Item
                         label="Quận/Huyện"
-                        name="district"
+                        name="districtCode"
                         rules={[{ required: true, message: "Vui lòng chọn quận/huyện!" }]}
                     >
                         <Select placeholder="Chọn Quận/Huyện">
-                            <Option value="District1">Quận 1</Option>
-                            <Option value="District2">Quận 2</Option>
+                            <Option value={1}>Quận 1</Option>
+                            <Option value={2}>Quận 2</Option>
                         </Select>
                     </Form.Item>
 
                     <Form.Item
                         label="Phường/Xã"
-                        name="ward"
+                        name="wardCode"
                         rules={[{ required: true, message: "Vui lòng chọn phường/xã!" }]}
                     >
                         <Select placeholder="Chọn Phường/Xã">
-                            <Option value="Ward1">Phường 1</Option>
-                            <Option value="Ward2">Phường 2</Option>
+                            <Option value={1}>Phường 1</Option>
+                            <Option value={2}>Phường 2</Option>
                         </Select>
                     </Form.Item>
 
