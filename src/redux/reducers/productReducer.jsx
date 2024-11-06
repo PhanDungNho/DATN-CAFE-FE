@@ -4,6 +4,7 @@ import {
   PRODUCT_UPDATE_ACTIVE,
   PRODUCT_APPEND,
   PRODUCT_STATE_CLEAR,
+  PRODUCT_UPDATE_ORDERING,
 } from "../actions/actionType";
 
 export const initialState = {
@@ -35,6 +36,11 @@ const productReducer = (state = initialState, { type, payload }) => {
       };
     case PRODUCT_STATE_CLEAR:
       return { product: {}, products: [] };
+    case PRODUCT_UPDATE_ORDERING: 
+      return {
+        ...state,
+        products: payload, 
+      };
 
     default:
       return state;

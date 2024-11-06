@@ -5,7 +5,7 @@ export default class ProductService {
   insertProduct(product) {
     const formData = new FormData();
 
-    const baseSlug = this.createSlug(product.name);
+    const baseSlug = this.createSlug(product.name + Date.now() + Math.random());
 
     // Append product fields to FormData
     formData.append("name", product.name);
@@ -28,8 +28,8 @@ export default class ProductService {
 
     // Append product toppings
     product.productToppings.forEach((topping, index) => {
-      formData.append(`productToppings[${index}].toppingId`, topping.toppingId); // Sử dụng topping.toppingId thay vì topping.id
-      formData.append(`productToppings[${index}].productId`, product.id);
+      formData.append(`productToppings[${index}].toppingId`, topping.toppingId);
+      formData.append(`productToppings[${index}].productId`, product.id || "");
     });
 
     console.log("insert nè", [...formData]);
@@ -67,7 +67,7 @@ export default class ProductService {
   updateProduct = async (id, product) => {
     const formData = new FormData();
 
-    const baseSlug = this.createSlug(product.name);
+    const baseSlug = this.createSlug(product.name + Date.now() + Math.random());
 
     // Append product fields to FormData
     formData.append("name", product.name);
@@ -196,4 +196,12 @@ export default class ProductService {
     );
     return response;
   }
+
+  updateProductOrdering = async (newData) => {
+    return await axios.patch(API_PRODUCT + "/update-ordering", newData, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 }

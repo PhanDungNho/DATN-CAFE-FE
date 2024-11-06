@@ -34,7 +34,6 @@ class ListInvoices extends Component {
   componentDidMount = () => {
     this.props.getInvoices();
     console.log("did mount invoices");
-    
   };
 
   handleDateRangeChange = (dates, dateStrings) => {
@@ -49,32 +48,16 @@ class ListInvoices extends Component {
   };
 
   render() {
-    const { invoices, invoice, isLoading } = this.props;
-    const { navigate } = this.props.router;
+    const { invoices, isLoading } = this.props;
     const { query, dateRange } = this.state;
     const { RangePicker } = DatePicker;
 
     if (isLoading) {
-      return (
-        <>
-          <ContentHeader
-            navigate={navigate}
-            title="List Orders"
-            className="site-page-header"
-          ></ContentHeader>
-          <Skeleton active />
-        </>
-      );
+      return <></>;
     }
 
     return (
       <>
-        <ContentHeader
-          navigate={navigate}
-          title="List Orders"
-          className="site-page-header"
-        ></ContentHeader>
-
         <Row style={{ marginBottom: 10 }}>
           <Col md={9}>
             <Form layout="inline" name="searchForm" initialValues={{ query }}>

@@ -3,15 +3,16 @@ import { Button, Modal, Select, Space, Switch, Table, Tag } from "antd";
 import moment from "moment";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
+
 const columns = (updateOrderActive, updateOrder, showModal) => [
   {
-    title: "Order ID",
+    title: "ID",
     dataIndex: "id",
     key: "id",
     width: 100,
     align: "center",
     sorter: (b, a) => Number(b.id) - Number(a.id),
-    showSorterTooltip: false, 
+    showSorterTooltip: false,
   },
   {
     title: "Cashier",
@@ -24,73 +25,108 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   },
   {
     title: "Time",
-    dataIndex: "createtime",
-    key: "createdtime",
+    dataIndex: "createdTime",
+    key: "createdTime",
     align: "center",
-    render: (text) => {
-      return moment(text).format("HH:mm:ss DD-MM-YYYY");
-    },
+    render: (text) => moment(text).format("HH:mm:ss DD-MM-YYYY"),
   },
   {
     title: "Total Amount",
-    dataIndex: "totalalount",
-    key: "totalalount",
+    dataIndex: "totalAmount",
+    key: "totalAmount",
     align: "center",
     render: (text) => (text ? text.toLocaleString() : "0"),
   },
   {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-    align: "center",
-  },
-  {
     title: "Order Type",
-    dataIndex: "ordertype",
-    key: "ordertype",
+    dataIndex: "orderType",
+    key: "orderType",
     align: "center",
   },
   {
-    title: "Payment Method",
-    dataIndex: "paymentmethod",
-    key: "paymentmethod",
+    title: "Method",
+    dataIndex: "paymentMethod",
+    key: "paymentMethod",
     align: "center",
+  },
+  {
+    title: "Payment",
+    key: "paymentStatus",
+    // width: 150,
+    align: "left",
+    render: (_, record) => {
+    
+      return record.paymentStatus === "PAID" ? (
+        <Tag color="green">PAID</Tag>
+      ) : (
+        <Tag color="volcano">UNPAID</Tag>
+      );
+    },
+  },
+  {
+    title: "Order Status",
+    key: "orderStatus",
+    align: "center",
+    render: (_, record) => {
+      const statusOptions = {
+        UNCONFIRMED: [
+          { value: "UNCONFIRMED", label: "UNCONFIRMED" },
+          { value: "PROCESSING", label: "" },
+          { value: "CANCELLED", label: "CANCELLED" },
+        ],
+        PROCESSING: [
+          { value: "PROCESSING", label: "PROCESSING" },
+          { value: "DELIVERING", label: "DELIVERING" },
+          { value: "CANCELLED", label: "CANCELLED" },
+        ],
+        DELIVERING: [
+          { value: "DELIVERING", label: "DELIVERING" },
+          { value: "DELIVERED", label: "DELIVERED" },
+        ],
+        DELIVERED: [
+          { value: "DELIVERED", label: "DELIVERED" },
+          { value: "COMPLETED", label: "COMPLETED" },
+        ],
+        COMPLETED: [{ value: "COMPLETED", label: "COMPLETED" }],
+        CANCELLED: [{ value: "CANCELLED", label: "CANCELLED" }],
+      };
+
+      return (
+        <Select
+          defaultValue={record.orderStatus}
+          style={{ width: 150 }}
+          options={statusOptions[record.orderStatus]}
+          onChange={(value) => {
+            updateOrder(record.id, { status: value });
+          }}
+        />
+      );
+    },
   },
   {
     title: "Active",
     dataIndex: "active",
     key: "active",
     width: 80,
-    render: (_, { active }) => {
-      let color = active ? "green" : "volcano";
-      let statusText = active ? "Active" : "Inactive";
-      return <Tag color={color}>{statusText}</Tag>;
+    align: "center",
+    render: (_, record) => {
+      return (
+        
+        <Switch
+          checked={record.active}
+          onChange={(checked) => {
+            updateOrderActive(record.id, checked);
+          }}
+        />
+      );
     },
   },
   {
-    title: "Action",
-    key: "action",
-    width: 150,
-    align: "left",
+    title: "",
+    dataIndex: "createdTime",
+    key: "createdTime",
+    align: "center",
     render: (_, record) => {
-      const statusOptions = {
-        PENDING: [
-          { value: "PENDING", label: "Chờ thanh toán" },
-          { value: "ORDERED", label: "Đã đặt hàng" },
-          { value: "CANCELED", label: "Hủy" },
-        ],
-        ORDERED: [
-          { value: "ORDERED", label: "Đã đặt hàng" },
-          { value: "IN_DELIVERY", label: "Đang giao" },
-          { value: "CANCELED", label: "Hủy" },
-        ],
-        IN_DELIVERY: [
-          { value: "IN_DELIVERY", label: "Đang giao" },
-          { value: "COMPLETED", label: "Hoàn thành" },
-        ],
-        COMPLETED: [{ value: "COMPLETED", label: "Hoàn thành" }],
-        CANCELED: [{ value: "CANCELED", label: "Hủy" }],
-      };
       return (
         <Space size="middle">
           <Select
@@ -107,7 +143,8 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
               updateOrderActive(record.id, checked);
             }}
           />
-          {record.paymentmethod === "ONLINE" && (
+          
+          {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {
                 showModal(record);
@@ -212,6 +249,7 @@ const InvoicesList = ({
     return (
       <>
         <Table
+     
           columns={expandColumns}
           dataSource={expandDataSource}
           pagination={false}
@@ -267,11 +305,11 @@ const InvoicesList = ({
         onChange={handleTableChange}
         size="small"
         bordered
+      
         locale={{ emptyText: "Không có dữ liệu" }}
         expandable={{
           expandedRowRender,
           defaultExpandedRowKeys: ["0"],
-          // Customizing expand/collapse icons to use eye and eyeline icons
           expandIcon: ({ expanded, onExpand, record }) =>
             expanded ? (
               <EyeInvisibleOutlined onClick={(e) => onExpand(record, e)} />
@@ -287,13 +325,14 @@ const InvoicesList = ({
         key={invoices.id + invoices.createtime}
         width="90%"
       >
-        {selectedOrder ? (  
+        {selectedOrder ? (
           <>
             <p style={{ fontWeight: "800", fontSize: 18 }}>
               Order ID: {selectedOrder.id}
             </p>
             {selectedOrder.transactions.length > 0 ? (
               <Table
+            
                 dataSource={selectedOrder.transactions.map(
                   (transaction, index) => ({
                     key: index,

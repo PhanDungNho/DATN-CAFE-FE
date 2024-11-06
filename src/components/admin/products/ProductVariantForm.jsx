@@ -1,324 +1,161 @@
-import React, { Component } from "react";
-import { Button, Form, Input, Popconfirm, Table, Select } from "antd";
+import React, { forwardRef, useImperativeHandle } from "react";
+import { Table, Select, Button, InputNumber } from "antd";
 
-const EditableContext = React.createContext(null);
+const ProductVariantForm = forwardRef((props, ref) => {
+  const { sizes, productVariants } = props;
+  const [dataSource, setDataSource] = React.useState(
+    productVariants.length > 0
+      ? productVariants.map((variant) => ({
+          id: variant.id || 0,
+          key: variant.id,
+          sizeId: variant.sizeId,
+          price: variant.price,
+          active: variant.active,
+        }))
+      : [
+          {
+            key: "0",
+            id: 0,
+            sizeId: 1,
+            price: 0,
+            active: true,
+          },
+        ]
+  );
 
-class EditableRow extends Component {
-  variantFormRef = React.createRef();
+  useImperativeHandle(ref, () => ({
+    getFieldsValue: () => dataSource,
+  }));
 
-  render() {
-    const { ...props } = this.props;
-    return (
-      <Form ref={this.variantFormRef} component={false}>
-        <EditableContext.Provider value={this.variantFormRef.current}>
-          <tr {...props} />
-        </EditableContext.Provider>
-      </Form>
-    );
-  }
-}
-
-class EditableCell extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      editing: false,
+  const handleAdd = () => {
+    const newData = {
+      id: 0,
+      key: Date.now() + Math.random(),
+      sizeId: sizes[0]?.id || 1,
+      price: 0,
+      sizes: {
+        id: sizes[0].id,
+        name: sizes[0].name,
+      },
+      active: true,
     };
-    this.inputRef = React.createRef();
-  }
+    console.log(newData);
+    setDataSource((prev) => [...prev, newData]);
+  };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.editing && !prevState.editing) {
-      this.inputRef.current?.focus();
-    }
-  }
+  const handleDelete = (key) => {
+    setDataSource((prev) => prev.filter((item) => item.key !== key));
+  };
 
-  toggleEdit = () => {
-    const { dataIndex, record } = this.props;
-    this.setState({ editing: !this.state.editing }, () => {
-      if (this.state.editing && this.form) {
-        this.form.setFieldsValue({
-          [dataIndex]: record[dataIndex] ? record[dataIndex].id : undefined,
-        });
+  const handleSave = (row) => {
+    setDataSource((prev) => {
+      const index = prev.findIndex((item) => row.key === item.key);
+      if (index > -1) {
+        const newData = [...prev];
+        newData.splice(index, 1, { ...newData[index], ...row });
+        return newData;
+      } else {
+        return [...prev, row];
       }
     });
   };
 
-  save = async () => {
-    if (!this.form) {
-      console.error("Form is not available");
-      return;
-    }
-
-    try {
-      const values = await this.form.validateFields();
-      this.toggleEdit();
-      this.props.handleSave({
-        ...this.props.record,
-        ...values,
-      });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-
-  render() {
-    const {
-      title,
-      editable,
-      children,
-      dataIndex,
-      record,
-      sizes,
-      size,
-      handleSave,
-      ...restProps
-    } = this.props;
-    const { editing } = this.state;
-    this.form = this.context;
-
-    let childNode = children;
-
-    if (editable) {
-      childNode = editing ? (
-        <Form.Item
-          style={{ margin: 0 }}
-          name={dataIndex}
-          rules={[
-            {
-              required: true,
-              message: `${title} is required.`,
-            },
-          ]}
+  const columns = [
+    {
+      title: "Size",
+      dataIndex: "sizeId",
+      width: "35%", // Chiều rộng 30%
+      render: (text, record) => (
+        <Select
+          defaultValue={record.sizeId}
+          style={{ width: "100%" }}
+          onChange={(value) => handleSave({ ...record, sizeId: value })}
         >
-          {dataIndex === "active" ? (
-            <Select
-              ref={this.inputRef}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  this.save();
-                }
-              }}
-              onBlur={this.save}
-              placeholder="Select Status"
-            >
-              <Select.Option value={true}>Visible</Select.Option>
-              <Select.Option value={false}>In-Visible</Select.Option>
-            </Select>
-          ) : dataIndex === "sizeId" ? (
-            <Select
-              ref={this.inputRef}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  this.save();
-                }
-              }}
-              onBlur={this.save}
-              placeholder="Select Size"
-            >
-              {sizes.map((size) => (
-                <Select.Option value={size.id} key={size.id}>
-                  {size.name}
-                </Select.Option>
-              ))}
-            </Select>
-          ) : (
-            <Input
-              ref={this.inputRef}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  this.save();
-                }
-              }}
-              onBlur={this.save}
-            />
-          )}
-        </Form.Item>
-      ) : (
-        <div
-          className="editable-cell-value-wrap"
-          style={{ paddingInlineEnd: 24 }}
-          onClick={this.toggleEdit}
-        >
-          {children}
-        </div>
-      );
-    }
-
-    return <td {...restProps}>{childNode}</td>;
-  }
-}
-
-EditableCell.contextType = EditableContext;
-
-class ProductVariantForm extends Component {
-  constructor(props) {
-    super(props);
-
-    const defaultSize =
-      props.sizes && props.sizes.length > 0
-        ? props.sizes[0]
-        : { id: 1, name: "S", sizeId: 1 };
-
-    // const productVariants =
-    //   (props.products && props.products.productVariants) || [];
-
-    this.state = {
-      dataSource:
-        props.productVariants.length > 0
-          ? props.productVariants.map((variant) => ({
-              id: variant.id || 0,
-              key: variant.id,
-              size: variant.size || defaultSize,
-              sizeId: variant.sizeId,
-              price: variant.price,
-              active: variant.active,
-            }))
-          : [
-              {
-                id: 0,
-                key: "0",
-                size: defaultSize,
-                sizeId: "1",
-                price: 0,
-                active: true,
-              },
-            ],
-      count: props.productVariants.length || 1,
-    };
-  }
-
-  getFieldsValue = () => {
-    return this.state.dataSource;
-  };
-
-  handleDelete = (key) => {
-    const newData = this.state.dataSource.filter((item) => item.key !== key);
-    this.setState({ dataSource: newData });
-  };
-
-  handleAdd = () => {
-    const { count, dataSource } = this.state;
-    const newData = {
-      key: count.toString(),
-      size: { id: this.props.sizes[0].id, name: this.props.sizes[0].name },
-      price: 0,
-      active: true,
-    };
-    this.setState({
-      dataSource: [...dataSource, newData],
-      count: count + 1,
-    });
-  };
-
-  handleSave = (row) => {
-    const newData = [...this.state.dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-
-    const selectedSize = this.props.sizes.find(
-      (size) => size.id === row.sizeId
-    );
-    const sizeName = selectedSize ? selectedSize.name : item.size.name;
-
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-      id: row.id === undefined ? 0 : row.id,
-      size: {
-        id: row.sizeId,
-        name: sizeName,
-      },
-      price: row.price,
-      sizeId: row.sizeId,
-      active: row.active === true,
-    });
-
-    this.setState({ dataSource: newData });
-  };
-
-  render() {
-    const { dataSource } = this.state;
-    console.log("ProductVariantForm: ", dataSource);
-
-    const defaultColumns = [
-      {
-        title: "Size",
-        editable: true,
-        width: "30%",
-        name: "sizeId",
-        dataIndex: "sizeId",
-        render: (_, record) => {
-          return record.size ? record.size.name : "No size";
-        },
-      },
-      {
-        title: "Price",
-        dataIndex: "price",
-        editable: true,
-        width: "30%",
-      },
-      {
-        title: "Active",
-        dataIndex: "active",
-        editable: true,
-        width: "30%",
-        render: (text) => (text ? "Visible" : "In-Visible"),
-      },
-      {
-        title: "Operation",
-        dataIndex: "operation",
-        render: (_, record) =>
-          dataSource.length >= 1 ? (
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => this.handleDelete(record.key)}
-            >
-              <a>Delete</a>
-            </Popconfirm>
-          ) : null,
-      },
-    ];
-
-    const components = {
-      body: {
-        row: EditableRow,
-        cell: EditableCell,
-      },
-    };
-
-    const columns = defaultColumns.map((col) => ({
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex === "size" ? "sizeId" : col.dataIndex,
-        title: col.title,
-        handleSave: this.handleSave,
-        sizes: this.props.sizes,
-      }),
-    }));
-
-    return (
-      <div>
-        <Button
-          onClick={this.handleAdd}
-          type="primary"
-          style={{ marginBottom: 10 }}
-        >
-          Add a Variant
-        </Button>
-
-        <Table
-          components={components}
-          rowClassName={() => "editable-row"}
-          bordered
-          dataSource={dataSource}
-          columns={columns}
+          {sizes.map((size) => (
+            <Select.Option key={size.id} value={size.id}>
+              {size.name}
+            </Select.Option>
+          ))}
+        </Select>
+      ),
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      width: "35%", // Chiều rộng 30%
+      render: (text, record) => (
+        <InputNumber
+          min={0}
+          value={record.price}
+          addonBefore={"VND"}
+          formatter={(value) => {
+            if (!value) return "";
+            return ` ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          }}
+          parser={(value) => value.replace(/VND\s?|(,*)/g, "")}
+          onChange={(value) => handleSave({ ...record, price: value })}
+          style={{ width: "100%" }}
         />
-      </div>
-    );
-  }
-}
+      ),
+    },
+
+    {
+      title: "Active",
+      dataIndex: "active",
+      width: "15%",
+      render: (text, record) => (
+        <Select
+          defaultValue={record.active ? true : false}
+          style={{ width: "100%" }}
+          onChange={(value) => handleSave({ ...record, active: value })}
+        >
+          <Select.Option key="Visible" value={true}>
+            Visible
+          </Select.Option>
+          <Select.Option key="In-Visible" value={false}>
+            In-Visible
+          </Select.Option>
+        </Select>
+      ),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      width: "15%",
+      render: (_, record) => {
+        if (record.id === 0) {
+          return (
+            <Button
+              onClick={() => handleDelete(record.key)}
+              type="link"
+              danger
+              style={{ width: "100%" }}
+              key={record.key}
+            >
+              Delete
+            </Button>
+          );
+        }
+        return null;
+      },
+    },
+  ];
+
+  return (
+    <>
+      <Button onClick={handleAdd} type="dashed" style={{ marginBottom: 16 }}>
+        Add Variant
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        pagination={false}
+        rowClassName="editable-row"
+        rowKey="key"
+        bordered
+      />
+    </>
+  );
+});
 
 export default ProductVariantForm;

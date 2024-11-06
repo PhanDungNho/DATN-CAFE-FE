@@ -1,12 +1,19 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const PaymentResult = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Lấy giá trị của 'resultCode' từ query string
   const queryParams = new URLSearchParams(location.search);
   const result = queryParams.get('resultCode');
+  const orderInfo = queryParams.get('orderInfo');
+
+  let orderId = null;
+  if (orderInfo) {
+    orderId = orderInfo.split(": ")[1].trim();
+  }
 
   // Kiểm tra giá trị resultCode và đưa ra thông báo tương ứng
   let message = '';
@@ -14,6 +21,7 @@ const PaymentResult = () => {
   let headingStyle = {};
   let buttonStyle = {};
   let buttonText = '';
+
   const styles = {
     container: {
       display: 'flex',
@@ -60,68 +68,73 @@ const PaymentResult = () => {
       borderRadius: '5px',
       fontSize: '1rem',
       cursor: 'pointer',
+    },
+    closeButton: {
+      marginTop: '20px',
+      padding: '10px 20px',
+      backgroundColor: '#888',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      fontSize: '1rem',
+      cursor: 'pointer',
     }
   };
+
   switch (result) {
-    case '1':
-      message = 'Đã thanh toán thành công!';
+    case '9000':
+      message = 'Giao dịch đã được xác nhận thành công.';
       message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
       headingStyle = styles.headingSuccess;
- 
+      if (orderId) {
+        localStorage.setItem(`payment_status_${orderId}`, "success");
+      }
       break;
-      case '9000':
-        message = 'Giao dịch đã được xác nhận thành công.';
-        message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
-        headingStyle = styles.headingSuccess;
-   
-        break;
-        case '0':
-            message = 'Thanh toán thành công.';
-            message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
-            headingStyle = styles.headingSuccess;
-       
-            break;
+    case '0':
+      message = 'Thanh toán thành công.';
+      message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
+      headingStyle = styles.headingSuccess;
+      if (orderId) {
+        localStorage.setItem(`payment_status_${orderId}`, "success");
+      }
+      break;
     case '1006':
       message = 'Giao dịch bị từ chối bởi người dùng.';
-      message2 = '';
       headingStyle = styles.headingFailure;
       buttonStyle = styles.failureButton;
-      buttonText = 'Thử lại';
+      buttonText = 'Đóng';
       break;
     case '1001':
-        message = 'Thanh toán thất bại!';
-        message2 = 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.';
-        headingStyle = styles.headingFailure;
+      message = 'Thanh toán thất bại!';
+      message2 = 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.';
+      headingStyle = styles.headingFailure;
       break;
-      case '1005':
-        message = 'Giao dịch thất bại do url hoặc QR code đã hết hạn.';
-        message2 = 'Vui lòng gửi lại một yêu cầu thanh toán khác.';
-        headingStyle = styles.headingFailure;
+    case '1005':
+      message = 'Giao dịch thất bại do url hoặc QR code đã hết hạn.';
+      message2 = 'Vui lòng gửi lại một yêu cầu thanh toán khác.';
+      headingStyle = styles.headingFailure;
       break;
     default:
       message = 'Thanh toán thất bại!';
-      message2 = 'Đã có lỗi xảy ra, xin vui lòng thử lại.';
+      message2 = 'Đã có lỗi xảy ra, xin vui lòng Đóng.';
       headingStyle = styles.headingFailure;
       buttonStyle = styles.failureButton;
-      buttonText = 'Thử lại';
+      buttonText = 'Đóng';
       break;
   }
 
-  
+  // Hàm xử lý nút Đóng
+  const handleClose = () => {
+    window.close();
+  };
 
   return (
     <div style={styles.container}>
       <div style={styles.messageBox}>
         <h1 style={headingStyle}>{message}</h1>
-        <p style={styles.paragraph}>
-        {message2}
-        </p>
-        {/* <button
-          style={buttonStyle}
-          onClick={() => window.location.href = '/'}
-        >
-          {buttonText}
-        </button> */}
+        <p style={styles.paragraph}>{message2}</p>
+        {/* Nút Đóng */}
+        <button style={styles.closeButton} onClick={handleClose}>Đóng</button>
       </div>
     </div>
   );

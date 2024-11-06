@@ -98,6 +98,18 @@ export default class AccountService {
     });
   };
 
+  findAccountByNameContainsIgnoreCaseAdmin = async (query) => {
+    return await axios.get(API_ACCOUNT + "/findadmin", {
+      params: {
+        query: query,
+      },
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+  };
+
+
   findAccountByPhoneContainsIgnoreCase = async (query) => {
     return await axios.get(API_ACCOUNT + "/find/phone", {
       params: {

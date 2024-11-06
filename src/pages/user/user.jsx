@@ -1,5 +1,5 @@
-import React from "react";
-import { Layout } from "antd";
+import React, { useEffect } from "react";
+import { Layout, message } from "antd";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Index from "../../components/user/index";
 import Login from "../../components/user/login";
@@ -11,9 +11,9 @@ import Shop from "../../components/user/shop";
 import Product from "../../components/user/single-product";
 import NotFound from "../../components/user/404";
 import ManagerUser from "../../components/user/manageruser";
-import UpdateAddress from "../../components/user/updateaddress";
+import UpdateAddress from "../../components/user/address/updateaddress";
 import UpdateProfile from "../../components/user/updateprofile";
-import AllOrder from "../../components/user/allorders";
+ 
 import WaitOrder from "../../components/user/waitorders";
 import TransOrder from "../../components/user/transorders";
 import SuccessOrder from "../../components/user/successorders";
@@ -29,10 +29,29 @@ import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
  
 
 import About from "../../components/user/about";
+import { useDispatch, useSelector } from "react-redux";
+import { setError, setMessage } from "../../redux/actions/commonAction.js";
+import Allorder from "../../components/user/orders/allorders.jsx";
 
 
 function User() {
   const navigate = useNavigate();
+
+  const msg = useSelector((state) => state.commonReducer.message);
+  const err = useSelector((state) => state.commonReducer.error);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (msg) {
+      dispatch(setMessage(""));
+      message.success(msg);
+    }
+
+    if (err) {
+      dispatch(setError(""));
+      message.error(err);
+    }
+  }, [msg, err]);
 
   const handleOtherMenuClick = (path) => {
     // Điều hướng đến các route chính
@@ -70,11 +89,11 @@ function User() {
           <Route path="" element={<UpdateAddress />} />
           <Route path="address" element={<UpdateAddress />} />
           <Route path="info" element={<UpdateProfile />} />
-          <Route path="orders/all" element={<AllOrder />} />
-          <Route path="orders/pending" element={<WaitOrder />} />
+          <Route path="orders" element={<Allorder />} />
+          {/* <Route path="orders/pending" element={<WaitOrder />} />
           <Route path="orders/shipping" element={<TransOrder />} />
           <Route path="orders/completed" element={<SuccessOrder />} />
-          <Route path="orders/canceled" element={<CancelOrder />} />
+          <Route path="orders/canceled" element={<CancelOrder />} /> */}
         </Route>
       </Routes>
     </Layout>

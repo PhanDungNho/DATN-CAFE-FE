@@ -12,4 +12,12 @@ export const API_GOOGLE_LOGIN = "http://localhost:8081/api/v1/auth/google";
 export const GG_CLIENT_ID="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com"
 export const API_INVOICE = "http://localhost:8081/api/v1/orders";
 export const API_AUTHORITY = "http://localhost:8081/api/v1/authorities";
+export const API_CARTDETAIL = "http://localhost:8081/api/v1/cartDetails";
+export const API_ADDRESS = "http://localhost:8081/api/v1/address";
+export const API_GHN_PROVINCE = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+export const API_GHN_DISTRICT = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+export const API_GHN_WARD = "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
+export const API_GHN_AVAILABLE_SERVICES = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
+export const API_GHN_FEE = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+
 

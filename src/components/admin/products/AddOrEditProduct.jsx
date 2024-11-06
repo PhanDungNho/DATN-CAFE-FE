@@ -46,7 +46,7 @@ class AddOrEditProduct extends Component {
 
     const productToppings = values.toppingId.map((id) => ({
       toppingId: id,
-      productId: values.id,
+      productId: values.id || "",
     }));
 
     const productData = {
