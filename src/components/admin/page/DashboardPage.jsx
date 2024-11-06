@@ -252,6 +252,14 @@ function DashboardPage() {
               onClick: () => navigate("/admin/invoices"),
             },
             {
+              key: "13",
+              icon: <ReconciliationOutlined />,
+              label: "Statistics",
+              onClick: () => navigate("/admin/statistics/list"),
+            },
+            
+            
+            {
               key: "11",
               icon: <MdLogout />,
               label: "Logout",

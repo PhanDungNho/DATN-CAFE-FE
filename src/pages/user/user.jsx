@@ -48,7 +48,7 @@ function User() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/shop" element={<Shop />} />
-        <Route path="/single-product" element={<Product />} />
+        <Route path="/single-product/:id" element={<Product />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/VerifyOtp" element={<OtpRegister />} />
