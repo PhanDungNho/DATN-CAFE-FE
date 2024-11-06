@@ -8,16 +8,20 @@ import {
   ShoppingOutlined,
   LogoutOutlined,
   TeamOutlined,
+  AudioOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import ProductService from "../../services/productService";
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate để điều hướng
-import { Badge, Button, Drawer, Image, Space, Table, Tag } from "antd";
+import { Badge, Button, Drawer, Image, Modal, Space, Table, Tag } from "antd";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCartDetailsByUsername } from "../../redux/actions/cartDetailAction";
 import { ImBin } from "react-icons/im";
 import { FaShoppingCart } from "react-icons/fa";
 import withRouter from "../../helpers/withRouter";
+
+
 
 // Custom hook để debounce
 function useDebounce(value, delay) {
@@ -45,17 +49,46 @@ function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
   const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
-
+  const [selectedImage, setSelectedImage] = useState(null); // Lưu trữ hình ảnh đã chọn
+  const [searchResult, setSearchResult] = useState(null);   // Lưu trữ kết quả tìm kiếm
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
   );
+  const [isImageSearchVisible, setIsImageSearchVisible] = useState(false);
 
+  const handleImageSearchClick = () => {
+    setIsImageSearchVisible(true);
+  };
   const totalItemsCount =
     cartDetails?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        setSelectedImage(URL.createObjectURL(file));
+        
+        performImageSearch(file);
+      }
+    };
+    const performImageSearch = async (imageFile) => {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+  
+      try {
+          const response = await axios.post('http://localhost:8081/api/v1/image/find', formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          });
+          const result = response.data;
+          setSearchResult(result); // Lưu kết quả tìm kiếm
+      } catch (error) {
+          console.error('Lỗi khi tìm kiếm hình ảnh:', error);
+      }
+  };
   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
   useEffect(() => {
     if (debouncedSearchQuery.trim() === '') {
@@ -295,6 +328,27 @@ function Header() {
     .search-item:hover h3 {
       color: #FFC107; /* Change text color on hover */
     }
+      .search-input {
+  width: 60%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.search-input-container {
+  position: relative;
+  display: inline-block;
+}
+
+.search-input-icons {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+  color: #0073e6;
+}
   `}
       </style>
 
@@ -328,14 +382,56 @@ function Header() {
                     <li>
                       <input
                         type="text"
-                        placeholder="Tìm sản phẩm theo tên..."
+                        placeholder="Find products by name..."
                         value={searchQuery}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown} // Thêm sự kiện onKeyDown
                         onFocus={() => setShowDropdown(true)}
                         className="search-input"
-                        style={{ display: "inline-block", marginLeft: 150 }}
+                        style={{ display: "inline-block", marginLeft: 150, paddingRight: 50, // Để chừa không gian cho icon
+                          position: "relative", }}
                       />
+                      <div style={{ position: "relative", display: "inline-block", marginLeft: -50 }}>
+                          <AudioOutlined style={{ fontSize: '20px', margin: '0 8px', color: '#0073e6', cursor: 'pointer' }} />
+                          <CameraOutlined style={{ fontSize: '20px', color: '#0073e6', cursor: 'pointer' }} 
+                          onClick={handleImageSearchClick}
+                          />
+                          <Modal
+                        title="Tìm kiếm mọi hình ảnh bằng Ống kính"
+                        visible={isImageSearchVisible}
+                        onCancel={() => setIsImageSearchVisible(false)}
+                        footer={null}
+                      >
+                        <div style={{ textAlign: 'center' }}>
+                          <p>Kéo hình ảnh vào đây hoặc <a href="#">tải tệp lên</a></p>
+                          <input type="file" accept="image/*" style={{ display: 'none' }} id="image-upload" onChange={handleImageUpload} />
+                          <label htmlFor="image-upload" style={{ cursor: 'pointer' }}>
+                            <div style={{ border: '1px dashed #ccc', padding: '20px', borderRadius: '8px' }}>
+                              <img src="/path/to/icon.png" alt="Upload Icon" style={{ width: '50px', marginBottom: '10px' }} />
+                              <span>Chọn hình ảnh</span>
+                            </div>
+                          </label>
+
+                          {selectedImage && (
+                            <div style={{ marginTop: '20px' }}>
+                              <img src={selectedImage} alt="Selected" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px' }} />
+                            </div>
+                          )}
+
+                          <div style={{ marginTop: '20px' }}>
+                            <input type="text" placeholder="Dán đường liên kết của hình ảnh" style={{ width: '80%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                            <Button type="primary" style={{ marginLeft: '10px' }}>Tìm kiếm</Button>
+                          </div>
+
+                          {searchResult && (
+                            <div style={{ marginTop: '20px' }}>
+                              <h3>Kết quả tìm kiếm:</h3>
+                              <pre>{JSON.stringify(searchResult, null, 2)}</pre>
+                            </div>
+                          )}
+                        </div>
+                      </Modal>
+                      </div>
                       {showDropdown && products.length > 0 && (
                         <div className="search-dropdown" style={{ marginLeft: 150 }}>
                           {products.map((product) => (
@@ -351,11 +447,7 @@ function Header() {
                         </div>
                       )}
                     </li>
-                    <li>
-                      <a className="shopping-cart" href="/cart">
-                        <i className="fas fa-shopping-cart" />
-                      </a>
-                    </li>
+                    
                     <li>
                       <a
                         className="shopping-cart"
@@ -375,76 +467,6 @@ function Header() {
                     </li>
                     <div className="header-icons">
                       {/* Icon user */}
-                      <a
-                        className="user-icon"
-                        href="#"
-                        style={{ marginLeft: 0 }}
-                      >
-                        <UserOutlined style={{ fontSize: "20px" }} />
-                        {isLoggedIn ? (
-                          <span>{username}</span>
-                        ) : (
-                          <span>Account</span>
-                        )}
-                      </a>
-
-                      {/* Dropdown menu cho user */}
-                      <div className="sub-menu user-dropdown">
-                        {!isLoggedIn ? (
-                          <>
-                            <a href="/login">
-                              <LoginOutlined style={{ marginRight: "8px" }} />{" "}
-                              Đăng nhập
-                            </a>
-                            <a href="/register">
-                              <UserAddOutlined
-                                style={{ marginRight: "8px" }}
-                              />{" "}
-                              Đăng ký
-                            </a>
-                            <a href="/forgotpassword">
-                              <KeyOutlined style={{ marginRight: "8px" }} />{" "}
-                              Quên mật khẩu
-                            </a>
-                          </>
-                        ) : (
-                          <>
-                            <a href="/manager/*">
-                              <IdcardOutlined
-                                style={{ marginRight: "8px" }}
-                              />{" "}
-                              Tài khoản
-                            </a>
-                            <a href="/manager/*">
-                              <ShoppingOutlined
-                                style={{ marginRight: "8px" }}
-                              />{" "}
-                              Đơn hàng
-                            </a>
-                            {/* Hiện admin nếu user có vai trò admin */}
-                            {isLoggedIn &&
-                              JSON.parse(
-                                localStorage.getItem("user")
-                              )?.roles.includes("ROLE_ADMIN") && (
-                                <a href="/admin">
-                                  <TeamOutlined
-                                    style={{ marginRight: "8px" }}
-                                  />{" "}
-                                  Admin
-                                </a>
-                              )}
-                            <a href="/" onClick={handleLogout}>
-                              <LogoutOutlined
-                                style={{ marginRight: "8px" }}
-                              />{" "}
-                              Đăng xuất
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="header-icons">
-                      {/* Icon user */}
                       <a className="user-icon" href="#" style={{ marginLeft: 0 }}>
                         <UserOutlined style={{ fontSize: "20px" }} />
                         {isLoggedIn ? <span>{username}</span> : <span>Account</span>}
@@ -455,22 +477,22 @@ function Header() {
                         {!isLoggedIn ? (
                           <>
                             <a href="/login">
-                              <LoginOutlined style={{ marginRight: "8px" }} /> Đăng nhập
+                              <LoginOutlined style={{ marginRight: "8px" }} /> Login
                             </a>
                             <a href="/register">
-                              <UserAddOutlined style={{ marginRight: "8px" }} /> Đăng ký
+                              <UserAddOutlined style={{ marginRight: "8px" }} /> Register
                             </a>
                             <a href="/forgotpassword">
-                              <KeyOutlined style={{ marginRight: "8px" }} /> Quên mật khẩu
+                              <KeyOutlined style={{ marginRight: "8px" }} /> Forgot Password
                             </a>
                           </>
                         ) : (
                           <>
                             <a href="/manager/*">
-                              <IdcardOutlined style={{ marginRight: "8px" }} /> Tài khoản
+                              <IdcardOutlined style={{ marginRight: "8px" }} /> Account
                             </a>
                             <a href="/manager/*">
-                              <ShoppingOutlined style={{ marginRight: "8px" }} /> Đơn hàng
+                              <ShoppingOutlined style={{ marginRight: "8px" }} /> Order
                             </a>
                             {/* Hiện admin nếu user có vai trò admin */}
                             {isLoggedIn && JSON.parse(localStorage.getItem("user"))?.roles.includes("ROLE_ADMIN") && (
@@ -479,7 +501,7 @@ function Header() {
                               </a>
                             )}
                             <a href="/" onClick={handleLogout}>
-                              <LogoutOutlined style={{ marginRight: "8px" }} /> Đăng xuất
+                              <LogoutOutlined style={{ marginRight: "8px" }} /> Log Out
                             </a>
                           </>
                         )}

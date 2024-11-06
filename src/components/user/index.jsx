@@ -128,10 +128,10 @@ function Index() {
           <Row justify="center" style={{ marginTop: '50px' }}>
             <Col span={16} style={{ textAlign: 'center' }}>
               <Title level={2} style={{ fontFamily: 'Arial, sans-serif', fontWeight: '600', color: '#333', paddingTop: '10px' }}>
-                <span className="orange-text">Sản phẩm</span> nổi bật
+                <span className="orange-text">Products</span> outstanding
               </Title>
               <Paragraph style={{ fontFamily: 'Arial, sans-serif', color: '#555', lineHeight: '1.6' }}>
-                Mỗi ly trà là một cuộc hành trình qua thời gian và không gian, gợi nhớ về truyền thống và sự thanh khiết của thiên nhiên.
+              Each cup of tea is a journey through time and space, reminiscent of tradition and the purity of nature.
               </Paragraph>
             </Col>
           </Row>
@@ -219,7 +219,7 @@ function Index() {
                 ))
               ) : (
                 <Col span={24} style={{ textAlign: 'center' }}>
-                  <Paragraph>Không có sản phẩm nào để hiển thị.</Paragraph>
+                  <Paragraph>There are no products to display.</Paragraph>
                 </Col>
               )}
             </Row>
@@ -256,10 +256,10 @@ function Index() {
           <Row justify="center" style={{ marginTop: '50px' }}>
             <Col span={24} style={{ textAlign: 'center' }}>
               <Title level={2} style={{ fontFamily: 'Arial, sans-serif', fontWeight: '600', color: '#333', paddingTop: '10px' }}>
-                <span className="orange-text">Sản phẩm</span> top bán chạy
+                <span className="orange-text">Products</span> best seller
               </Title>
               <Paragraph style={{ fontFamily: 'Arial, sans-serif', color: '#555', lineHeight: '1.6' }}>
-                Mỗi ly trà là một cuộc hành trình qua thời gian và không gian, gợi nhớ về truyền thống và sự thanh khiết của thiên nhiên.
+              Each cup of tea is a journey through time and space, reminiscent of tradition and the purity of nature.
               </Paragraph>
             </Col>
           </Row>
@@ -343,7 +343,7 @@ function Index() {
               ))
             ) : (
               <Col span={24} style={{ textAlign: 'center' }}>
-                <Paragraph>Không có sản phẩm nào để hiển thị.</Paragraph>
+                <Paragraph>There are no products to display.</Paragraph>
               </Col>
             )}
             </Row>
@@ -415,7 +415,7 @@ function Index() {
                     <Title level={3} style={{ fontWeight: '600' }}>
                       Free Shipping
                     </Title>
-                    <Paragraph style={{}}>Free Ship đơn trên 150.000 </Paragraph>
+                    <Paragraph style={{}}>Free Ship</Paragraph>
                   </Col>
                 </Row>
               </Card>
