@@ -26,7 +26,7 @@ import PaymentService from "../../services/PaymentService";
 import PaymentResult from "../../components/user/PaymentResult";
 import GoogleCallback from "../../services/GoogleAuthService";
 import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
- 
+import Bill from "../../components/user/bill.jsx";
 
 import About from "../../components/user/about";
 
@@ -62,7 +62,7 @@ function User() {
         <Route path="/google-callback" element={<GoogleCallback />} />
 
         <Route path="/About" element={<About />} />
-
+        <Route path="/bill" element={<Bill />} />
         
 
         {/* Route cho ManagerUser với đường dẫn /manager */}

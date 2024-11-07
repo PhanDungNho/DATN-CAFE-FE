@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Form, Input, Button, Upload, message } from "antd";
+import { Form, Input, Button, Upload, Modal, message, Slider } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import AvatarEditor from "react-avatar-editor";
 
 const UpdateProfile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [imageFileList, setImageFileList] = useState([]); // Biến trạng thái lưu tệp hình ảnh
+  const [imageFileList, setImageFileList] = useState([]);
+  const [croppingImage, setCroppingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [zoom, setZoom] = useState(1.2); // Trạng thái để lưu mức thu phóng
+  const editorRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token"); // Lấy JWT token từ localStorage
+        const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:8081/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -22,22 +27,21 @@ const UpdateProfile = () => {
           name: profileData.fullName,
           email: profileData.email,
           phone: profileData.phone,
-          password: "", // Để trống mật khẩu ban đầu
+          password: "",
         });
 
-        // Hiển thị ảnh hiện tại nếu có
         if (profileData.image) {
           setImageFileList([
             {
-              uid: "-1", // ID giả lập cho ảnh hiện tại
-              name: profileData.image, // Tên tệp ảnh
+              uid: "-1",
+              name: profileData.image,
               status: "done",
-              url: `http://localhost:8081/uploads/${profileData.image}`, // Đường dẫn tới ảnh trên server
+              url: `http://localhost:8081/uploads/${profileData.image}`,
             },
           ]);
         }
       } catch (error) {
-        message.error("Cannot load account data."); // Thông báo lỗi
+        message.error("Cannot load account data.");
       } finally {
         setLoading(false);
       }
@@ -48,52 +52,67 @@ const UpdateProfile = () => {
 
   const onFinish = async (values) => {
     try {
-        const token = localStorage.getItem("token");
-        const formData = new FormData();
-        formData.append("fullName", values.name);
-        formData.append("email", values.email);
-        formData.append("phone", values.phone);
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("fullName", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone);
 
-        if (values.password) {
-            formData.append("password", values.password);
+      if (values.password) {
+        formData.append("password", values.password);
+      }
+
+      if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
+        formData.append("imageFile", imageFileList[0].originFileObj);
+      }
+
+      const response = await axios.put(
+        "http://localhost:8081/api/profile/update",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
+      );
 
-        // Gửi tệp mới nếu có
-        if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
-            formData.append("imageFile", imageFileList[0].originFileObj);
-        }
-
-        const response = await axios.put(
-            "http://localhost:8081/api/profile/update",
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            }
-        );
-
-        message.success(response.data);
+      message.success(response.data);
     } catch (error) {
-        console.error("Error details:", error);
-
-        // Kiểm tra xem có phản hồi từ backend
-        const errorResponse = error.response?.data;
-
-        // Kiểm tra cấu trúc phản hồi để lấy thông báo
-        const errorMessage = errorResponse && typeof errorResponse === 'object' && errorResponse.message
-            ? errorResponse.message // Lấy thông điệp từ đối tượng
-            : "Failed to update information. Please try again."; // Thông báo lỗi chung
-
-        // Hiển thị thông báo lỗi cho người dùng
-        if (errorMessage === "Email đã tồn tại.") {
-            message.error("Email already exists."); // Thông báo cụ thể cho trường hợp email đã tồn tại
-        } else {
-            message.error(errorMessage); // Thông báo lỗi chung
-        }
+      const errorMessage =
+        error.response?.data?.message || "Failed to update information.";
+      message.error(errorMessage);
     }
-};
+  };
+
+  const handleImageUpload = ({ file }) => {
+    setSelectedImage(file);
+    setCroppingImage(true);
+  };
+
+  const handleCrop = () => {
+    if (editorRef.current) {
+      const canvas = editorRef.current.getImageScaledToCanvas();
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], selectedImage.name, {
+          type: selectedImage.type,
+          lastModified: Date.now(),
+        });
+
+        setImageFileList([
+          {
+            uid: "-1",
+            name: croppedFile.name,
+            status: "done",
+            originFileObj: croppedFile,
+            url: URL.createObjectURL(croppedFile),
+          },
+        ]);
+      });
+    }
+    setCroppingImage(false);
+    setSelectedImage(null);
+  };
 
   return (
     <div style={{ maxWidth: "100%", padding: "20px" }}>
@@ -129,7 +148,10 @@ const UpdateProfile = () => {
           name="phone"
           rules={[
             { required: true, message: "Please enter phone number!" },
-            { pattern: new RegExp(/^[0-9]{10}$/), message: "Phone number must have 10 digits!" },
+            {
+              pattern: new RegExp(/^[0-9]{10}$/),
+              message: "Phone number must have 10 digits!",
+            },
           ]}
         >
           <Input placeholder="Enter phone number" />
@@ -143,42 +165,16 @@ const UpdateProfile = () => {
           <Input.Password placeholder="Enter new password (optional)" />
         </Form.Item>
 
-        <Form.Item
-          label="Select Profile Picture (optional)"
-          name="imageFile"
-          valuePropName="fileList"
-          getValueFromEvent={(e) => {
-            if (Array.isArray(e)) {
-              return e;
-            }
-            return e && e.fileList ? e.fileList : [];
-          }}
-        >
-    <Upload
-  name="imageFile"
-  listType="picture"
-  maxCount={1} // Giới hạn 1 ảnh
-  defaultFileList={imageFileList} // Hiển thị ảnh hiện tại
-  accept="image/jpeg,image/png,image/jpg,image/gif" // Chỉ cho phép các định dạng ảnh
-  beforeUpload={(file) => {
-    const isImage = file.type.startsWith("image/");
-    if (!isImage) {
-      message.error("Only image files are allowed!"); // Thông báo nếu không phải ảnh
-    }
-    return isImage; // Trả về false để ngăn upload tự động, chỉ chấp nhận ảnh
-  }}
-  onChange={(info) => {
-    setImageFileList(info.fileList.slice(-1)); // Giữ lại chỉ một hình ảnh mới nhất
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} has been uploaded successfully.`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} upload failed.`);
-    }
-  }}
->
-  <Button icon={<UploadOutlined />}>Choose Image</Button>
-</Upload>
-
+        <Form.Item label="Select Profile Picture (optional)">
+          <Upload
+            listType="picture"
+            maxCount={1}
+            accept=".jpg,.jpeg,.png,.gif"
+            beforeUpload={() => false}
+            onChange={handleImageUpload}
+          >
+            <Button icon={<UploadOutlined />}>Choose Image</Button>
+          </Upload>
         </Form.Item>
 
         <Form.Item>
@@ -187,6 +183,38 @@ const UpdateProfile = () => {
           </Button>
         </Form.Item>
       </Form>
+
+      {/* Crop Image Modal */}
+      <Modal
+        visible={croppingImage}
+        onCancel={() => setCroppingImage(false)}
+        onOk={handleCrop}
+        title="Cắt ảnh đại diện"
+      >
+        {selectedImage && (
+          <AvatarEditor
+            ref={editorRef}
+            image={selectedImage}
+            width={400} // Tăng chiều rộng cho avatar
+            height={400} // Điều chỉnh chiều cao để phù hợp với chiều rộng mới
+            border={20} // Điều chỉnh đường viền để kiểm soát khoảng trống quanh ảnh
+            scale={zoom} // Sử dụng trạng thái zoom để điều chỉnh thu phóng
+            rotate={0}
+          />
+        )}
+
+        {/* Thanh trượt để thu phóng */}
+        <div style={{ marginTop: 20 }}>
+          <span>Thu phóng:</span>
+          <Slider
+            min={0}
+            max={3}
+            step={0.1}
+            value={zoom}
+            onChange={(value) => setZoom(value)} // Cập nhật giá trị zoom
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
