@@ -82,7 +82,7 @@ const ProductVariantForm = forwardRef((props, ref) => {
     {
       title: "Price",
       dataIndex: "price",
-      width: "35%", // Chiều rộng 30%
+      width: "35%",
       render: (text, record) => (
         <InputNumber
           min={0}

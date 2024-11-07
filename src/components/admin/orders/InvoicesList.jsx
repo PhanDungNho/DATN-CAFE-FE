@@ -55,7 +55,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     // width: 150,
     align: "left",
     render: (_, record) => {
-    
       return record.paymentStatus === "PAID" ? (
         <Tag color="green">PAID</Tag>
       ) : (
@@ -111,7 +110,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     align: "center",
     render: (_, record) => {
       return (
-        
         <Switch
           checked={record.active}
           onChange={(checked) => {
@@ -129,21 +127,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     render: (_, record) => {
       return (
         <Space size="middle">
-          <Select
-            defaultValue={record.status}
-            style={{ width: 150 }}
-            options={statusOptions[record.status]}
-            onChange={(value) => {
-              updateOrder(record.id, { status: value });
-            }}
-          />
-          <Switch
-            checked={record.active}
-            onChange={(checked) => {
-              updateOrderActive(record.id, checked);
-            }}
-          />
-          
           {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {
@@ -249,7 +232,6 @@ const InvoicesList = ({
     return (
       <>
         <Table
-     
           columns={expandColumns}
           dataSource={expandDataSource}
           pagination={false}
@@ -305,7 +287,6 @@ const InvoicesList = ({
         onChange={handleTableChange}
         size="small"
         bordered
-      
         locale={{ emptyText: "Không có dữ liệu" }}
         expandable={{
           expandedRowRender,
@@ -332,7 +313,6 @@ const InvoicesList = ({
             </p>
             {selectedOrder.transactions.length > 0 ? (
               <Table
-            
                 dataSource={selectedOrder.transactions.map(
                   (transaction, index) => ({
                     key: index,

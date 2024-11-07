@@ -13,9 +13,8 @@ import {
   message,
   Card,
   Tag,
-  Space,
-  Popconfirm,
   Radio,
+  Modal,
 } from "antd";
 import { ShoppingCartOutlined, ShopOutlined } from "@ant-design/icons";
 import Header from "./Header";
@@ -23,35 +22,30 @@ import Footer from "./Footer";
 import { useDispatch, useSelector } from "react-redux";
 import ProductService from "../../services/productService";
 import {
+  clearSelectedItems,
   deleteCartDetail,
   getCartDetailsByUsername,
   removeCartDetail,
 } from "../../redux/actions/cartDetailAction";
-import { ImBin } from "react-icons/im";
+import { deleteOrderById } from "../../redux/actions/invoiceAction";
 import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "../../hooks/useLocalStorage";
-import OrderService from "../../services/orderService";
-import AccountService from "../../services/accountService";
-import ToppingService from "../../services/toppingService";
 import PaymentService from "../../services/PaymentService";
+import OrderService from "../../services/orderService";
+import {
+  getAddressByUsername,
+  setIsDefaultCart,
+} from "../../redux/actions/addressAction";
+import { GoPlus } from "react-icons/go";
 
 const { Content } = Layout;
 const { Title } = Typography;
 
 const Cart = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("0");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
-  // const [orders, setOrders] = useLocalStorage("orders", [
-  //   { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH" },
-  // ]);
-
-  const productService = new ProductService();
-  const accountService = new AccountService();
-  const toppingService = new ToppingService();
   const orderService = new OrderService();
   const paymentService = new PaymentService();
 
@@ -59,42 +53,25 @@ const Cart = () => {
     (state) => state.cartDetailReducer.cartDetails
   );
 
-  const [data, setData] = useState(cartDetails);
+  const selectedItems = useSelector(
+    (state) => state.cartDetailReducer.selectedItems
+  );
+
+  const selectedItemsArray = Object.values(selectedItems);
+
+  const [data, setData] = useState(selectedItemsArray);
+  const [address, setAddress] = useState([]);
+  const addresses = useSelector((state) => state.addressReducer.addresses);
 
   // State for selected row keys
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
-  // State for total calculations
-  const [totalCart, setTotalCart] = useState(0);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [grandTotal, setGrandTotal] = useState(0);
 
-  // Effect to recalculate totals whenever selectedRowKeys or cartItems change
   useEffect(() => {
-    const selectedItems = data.filter((item) =>
-      selectedRowKeys.includes(item.key)
-    );
-
-    const newTotalCart = selectedItems.reduce((acc, item) => {
-      const itemTotal = item.quantity * item.productVariant.price;
-
-      const toppingTotal = item.cartDetailToppings.reduce(
-        (toppingAcc, topping) =>
-          toppingAcc + topping.quantity * topping.topping.price,
-        0
-      );
-
-      return acc + itemTotal + toppingTotal;
-    }, 0);
-
-    const newGrandTotal = newTotalCart > 0 ? newTotalCart : 0;
-    setTotalCart(newTotalCart);
-    setGrandTotal(newGrandTotal);
-    setSelectedItems(selectedItems);
-
-    console.log("selectedItems", selectedItems);
-    console.log("newGrandTotal", newGrandTotal);
-    console.log("newTotalCart", newTotalCart);
-  }, [selectedRowKeys, data]);
+    const total = calculateTotalAmount(selectedItems);
+    setGrandTotal(total);
+  }, [selectedItems]);
 
   useEffect(() => {
     if (cartDetails && cartDetails.length > 0) {
@@ -108,37 +85,18 @@ const Cart = () => {
     }
   }, [cartDetails]);
 
-  const handleRemove = (id) => {
-    // Xóa item khỏi selectedItems
-    const updatedSelectedItems = selectedItems.filter((item) => item.id !== id);
-    setSelectedItems(updatedSelectedItems);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.username) {
+      dispatch(getAddressByUsername(user.username));
+    }
+  }, [dispatch]);
 
-    // Cập nhật selectedRowKeys để bỏ chọn mục bị xóa
-    const updatedSelectedRowKeys = selectedRowKeys.filter((key) => key !== id);
-    setSelectedRowKeys(updatedSelectedRowKeys);
-
-    // Nếu cần, có thể cập nhật lại total cart và grand total
-    const newTotalCart = updatedSelectedItems.reduce((acc, item) => {
-      const itemTotal = item.quantity * item.productVariant.price;
-
-      const toppingTotal = item.cartDetailToppings.reduce(
-        (toppingAcc, topping) =>
-          toppingAcc + topping.quantity * topping.topping.price,
-        0
-      );
-
-      return acc + itemTotal + toppingTotal;
-    }, 0);
-
-    const newGrandTotal = newTotalCart > 0 ? newTotalCart : 0;
-    setTotalCart(newTotalCart);
-    setGrandTotal(newGrandTotal);
-
-    console.log("Item removed:", id);
-    console.log("Updated selectedItems:", updatedSelectedItems);
-    console.log("Updated total cart:", newTotalCart);
-    console.log("Updated grand total:", newGrandTotal);
-  };
+  useEffect(() => {
+    if (addresses) {
+      setAddress(addresses);
+    }
+  }, [addresses]);
 
   // Hàm xử lý khi thay đổi số lượng
   const handleQuantityChange = (value, key) => {
@@ -150,20 +108,6 @@ const Cart = () => {
       return item;
     });
     setData(newCart);
-  };
-
-  // Hàm xử lý xóa sản phẩm
-  // const handleRemove = (key) => {
-  //   const newCart = data.filter((item) => item.key !== key);
-  //   data(newCart);
-  //   message.success("Đã xóa sản phẩm khỏi giỏ hàng!");
-  //   // Also remove from selected if it was selected
-  //   setSelectedRowKeys((prevKeys) => prevKeys.filter((k) => k !== key));
-  // };
-
-  // Hàm xử lý khi chọn các sản phẩm
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
   };
 
   const calculateTotalPrice = (item) => {
@@ -179,16 +123,6 @@ const Cart = () => {
   const onChangePaymentMethod = ({ target: { value } }) => {
     console.log("Payment method: ", value);
     setPaymentMethod(value);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-    selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE,
-    ],
   };
 
   const options = [
@@ -214,80 +148,6 @@ const Cart = () => {
     "blue",
     "geekblue",
     "purple",
-  ];
-
-  const columns = [
-    {
-      title: "STT",
-      key: "stt",
-      width: "10%",
-      render: (text, record, index) => index + 1,
-    },
-    {
-      title: "Product",
-      dataIndex: "productVariant",
-      width: "38%",
-      key: "productVariant",
-      render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Image
-            src={ProductService.getProductImageUrl(record.images[0].fileName)}
-            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 5 }}
-          />
-          <div>
-            <div>{record.productVariant.product.name}</div>
-            <div>{record.productVariant.size.name}</div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Topping",
-      dataIndex: "cartDetailToppings",
-      width: "28%",
-      key: "toppings",
-      render: (toppings) =>
-        toppings && toppings.length > 0
-          ? toppings.map((topping) => (
-              <div key={topping.topping.id}>
-                <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
-                  {topping.topping.name} ({topping.topping.price}) x{" "}
-                  {topping.quantity}
-                </Tag>
-              </div>
-            ))
-          : "",
-    },
-    {
-      title: "Price",
-      dataIndex: ["productVariant", "price"],
-      width: "18%",
-      key: "price",
-      render: (price) => <span>{price.toLocaleString()} VND</span>,
-    },
-    {
-      title: "Remove",
-      width: "18%",
-      key: "Remove",
-      render: (_, record) => (
-        <Space size="middle">
-          <Popconfirm
-            title="Are you sure to delete this item?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              className="custom-delete-button"
-              variant="filled"
-              style={{ border: "none" }}
-            >
-              <ImBin />
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
   ];
 
   const columnsSelectedItems = [
@@ -350,23 +210,6 @@ const Cart = () => {
         return <span>{totalPrice.toLocaleString()} VND</span>;
       },
     },
-    {
-      title: "Remove",
-      width: "18%",
-      key: "Remove",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            className="custom-delete-button"
-            variant="filled"
-            style={{ border: "none" }}
-            onClick={() => handleRemove(record.id)}
-          >
-            <ImBin />
-          </Button>
-        </Space>
-      ),
-    },
   ];
 
   const handleDelete = (id) => {
@@ -406,14 +249,33 @@ const Cart = () => {
     message.info("Chuyển hướng đến trang sản phẩm...");
   };
 
+  const calculateTotalAmount = (cartItems) => {
+    return selectedItemsArray.reduce((total, item) => {
+      // Tính tổng giá sản phẩm với số lượng
+      let itemTotal = item.productVariant.price * item.quantity;
+
+      // Tính tổng giá của các topping nếu có
+      if (item.cartDetailToppings && item.cartDetailToppings.length > 0) {
+        const toppingsTotal = item.cartDetailToppings.reduce((sum, topping) => {
+          return sum + topping.topping.price * topping.quantity;
+        }, 0);
+
+        // Cộng giá topping vào tổng giá của sản phẩm
+        itemTotal += toppingsTotal;
+      }
+
+      // Cộng giá của sản phẩm (bao gồm topping) vào tổng giá trị đơn hàng
+      return total + itemTotal;
+    }, 0);
+  };
+
   const handleFinish = async (values) => {
     // Lấy phương thức thanh toán từ orders cho tab hiện tại
-    // const currentPaymentMethod = orders[index].paymentMethod;
     const currentPaymentMethod = paymentMethod;
 
-    console.log("Payment selectedItems", selectedItems);
+    console.log("Payment selectedItems", selectedItemsArray);
 
-    const cartItems = selectedItems.map((item) => ({
+    const cartItems = selectedItemsArray.map((item) => ({
       productVariant: { id: item.productVariant.id },
       quantity: item.quantity,
       momentPrice: item.productVariant.price,
@@ -432,22 +294,37 @@ const Cart = () => {
 
     console.log("CartItems", cartItems);
 
+    const fullAddress = addresses
+      .filter((address) => address.isDefault)
+      .map((address) => ({
+        fullName: address.account.fullName,
+        phone: address.account.phone,
+        street: address.street,
+        cityCode: address.cityCode,
+        districtCode: address.districtCode,
+        wardCode: address.wardCode,
+        fullAddress: address.fullAddress,
+      }));
+
+    console.log("Full address is default: ", fullAddress);
+
+    const stringFullAddress = `${fullAddress[0].fullName}, ${fullAddress[0].phone}, ${fullAddress[0].fullAddress}, ${fullAddress[0].street}, ${fullAddress[0].districtCode}, ${fullAddress[0].wardCode}, ${fullAddress[0].cityCode}`;
+    console.log("String full address: ", stringFullAddress);
+
     const order = {
       cashierId: JSON.parse(localStorage.getItem("user")).username,
       totalAmount: grandTotal,
-      phone: selectedItems.customerPhone || "", // || phoneNumberInput
+      phone: selectedItemsArray.customerPhone || "", // || phoneNumberInput
       orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
       paymentMethod: currentPaymentMethod,
       paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
       shippingFee: 0,
       orderType: 0,
-      fullAddress: null,
-      customerId: selectedItems.customerId || "test1",
+      fullAddress: stringFullAddress,
+      customerId: selectedItemsArray.customerId || "test1",
       orderDetails: cartItems,
     };
-
-    // console.log("Order", order);
 
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
@@ -455,8 +332,7 @@ const Cart = () => {
       const orderResponse = await orderService.insertOrder(order);
       console.log("Order response:", orderResponse.data);
       order.id = orderResponse.data.id;
-      console.log("Order created:", orderResponse);
-
+      console.log("Order created:", order);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
         await handleOnlinePayment(order, grandTotal);
@@ -470,11 +346,12 @@ const Cart = () => {
   };
 
   // // Hàm xử lý thanh toán online
-  const handleOnlinePayment = async (order, totalAmount) => {
+  const handleOnlinePayment = async (order, totalAmount, index) => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`
+        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        "d"
       );
 
       if (response && response.data && response.data.payUrl) {
@@ -501,14 +378,15 @@ const Cart = () => {
             );
 
             if (paymentStatus === "success") {
-              handleSuccess(order); // Đóng form bán hàng
-              // removeCustomer(index.toString());
+              handleSuccess(order, index); // Đóng form bán hàng
             } else {
+              dispatch(deleteOrderById(order.id));
               message.error("Thanh toán thất bại hoặc bị hủy.");
             }
             console.log("first");
             console.log(order.id);
             console.log(order);
+            console.log(index);
           }
         }, 1000); // Kiểm tra mỗi giây
       } else {
@@ -523,21 +401,51 @@ const Cart = () => {
   // // Hàm xử lý thành công
   const handleSuccess = async () => {
     message.success("Thanh toán thành công!");
-    const selectedItemsIds = selectedItems.map((item) => item.id);
+    const selectedItemsIds = selectedItemsArray.map((item) => item.id);
 
     try {
       for (const id of selectedItemsIds) {
-        await dispatch(removeCartDetail(id)); // Xóa từng mục một
+        await dispatch(removeCartDetail(id));
       }
 
       const username = JSON.parse(localStorage.getItem("user"));
       dispatch(getCartDetailsByUsername(username.username));
 
-      setSelectedItems([]);
+      dispatch(clearSelectedItems());
       setSelectedRowKeys([]);
     } catch (error) {
       console.error("Error removing items after payment:", error);
     }
+  };
+
+  useEffect(() => {
+    const defaultAddress = addresses.find((address) => address.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress(defaultAddress.id);
+    }
+  }, [addresses]);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const onAddressChange = (e) => {
+    setSelectedAddress(e.target.value);
+    console.log("Onchange address: ", e.target.value);
+  };
+
+  const handleOk = () => {
+    dispatch(setIsDefaultCart(selectedAddress));
+    console.log("Address saved:", selectedAddress);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    const defaultAddress = addresses.find((address) => address.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress(defaultAddress.id);
+    }
+    setIsModalOpen(false);
   };
 
   return (
@@ -564,7 +472,7 @@ const Cart = () => {
           padding: "50px",
           marginTop: "20px",
           background: "#f9f9f9",
-          minHeight: "calc(100vh - 64px - 100px)", // Adjust minHeight based on Header and Footer heights
+          minHeight: "calc(100vh - 64px - 100px)",
         }}
       >
         <Breadcrumb style={{ marginBottom: "20px" }}>
@@ -576,71 +484,7 @@ const Cart = () => {
           </Breadcrumb.Item>
         </Breadcrumb>
         <Row gutter={[24, 24]}>
-          <Col xs={24} lg={24}>
-            <Card
-              bordered={false}
-              style={{
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                background: "#fff",
-              }}
-            >
-              <Table
-                rowSelection={rowSelection}
-                columns={columns}
-                dataSource={data}
-                bordered={false}
-                scroll={{ y: 400 }}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} lg={24} style={{ marginTop: 50 }}>
-            <Card
-              bordered={false}
-              style={{
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                background: "#fff",
-              }}
-            >
-              <Title
-                level={4}
-                style={{
-                  fontSize: "16px",
-                  color: "#333",
-                }}
-              >
-                <CiLocationOn
-                  style={{ color: "red", fontSize: 20, marginBottom: 5 }}
-                />{" "}
-                Address
-              </Title>
-              <div
-                style={{
-                  paddingLeft: 20,
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ fontWeight: "bold", marginRight: 20 }}>
-                  Phan Dũng Nhớ (+84) 387023626
-                </span>
-                <span style={{ marginRight: 20 }}>
-                  Khóm 6, Phường 1, Ngã Năm, Sóc Trăng
-                </span>
-                <span>
-                  <Button
-                    color="default"
-                    size={"small"}
-                    type="link"
-                    onClick={() => navigate("/manager/address")}
-                  >
-                    Change Address
-                  </Button>
-                </span>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} lg={24}>
+          <Col xs={24} lg={16}>
             <Card
               bordered={false}
               style={{
@@ -649,50 +493,163 @@ const Cart = () => {
               }}
             >
               <div>
-                {/*
-                <Title level={4} style={{ fontSize: "16px", color: "#333" }}>
-                  Tổng tiền giỏ hàng:{" "}
-                  <span>{totalCart.toLocaleString()} VNĐ</span>
-                </Title>
-                <Title level={4} style={{ fontSize: "16px", color: "#333" }}>
-                  Phí giao hàng:{" "}
-                  <span>
-                    {totalCart > 0 ? shippingFee.toLocaleString() : "0 VNĐ"}
-                  </span>
-                </Title>
-               */}
                 <Title level={4} style={{ fontSize: "16px", color: "#333" }}>
                   Order Summary
                 </Title>
                 <Table
                   columns={columnsSelectedItems}
-                  dataSource={selectedItems}
+                  dataSource={selectedItemsArray}
                   pagination={false}
                   scroll={{ y: 400 }}
                 />
-                {selectedRowKeys.length > 0 && (
-                  <div style={{ marginTop: "10px", color: "#888" }}>
-                    You have selected {selectedRowKeys.length} products
-                  </div>
-                )}
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={24}>
+          <Col xs={24} lg={8}>
             <Card
               bordered={false}
               style={{
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 background: "#fff",
+                marginBottom: "16px",
+                borderRadius: "8px",
               }}
             >
               <Title
                 level={4}
                 style={{
-                  marginBottom: 10,
+                  fontSize: "16px",
                   color: "#333",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
+                <CiLocationOn
+                  style={{ color: "red", fontSize: 20, marginRight: 8 }}
+                />{" "}
+                Address
+              </Title>
+              <div
+                style={{
+                  paddingLeft: 20,
+                  display: "flex",
+                  flexDirection: "column",
+                  flexWrap: "wrap",
+                }}
+              >
+                {addresses
+                  .filter((address) => address.isDefault)
+                  .map((address) => (
+                    <div
+                      key={address.id}
+                      style={{
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Row>
+                        <span style={{ fontWeight: "bold", marginRight: 20 }}>
+                          {address.account.fullName} (+84){" "}
+                          {address.account.phone}
+                        </span>
+                      </Row>
+                      <Row>
+                        <span style={{ marginRight: 20 }}>
+                          {address.fullAddress}, District {address.districtCode}
+                          , City {address.cityCode}
+                        </span>
+                        <span>
+                          <Button
+                            color="default"
+                            size={"small"}
+                            type="link"
+                            onClick={showModal}
+                            style={{
+                              padding: 0,
+                              color: "#1890ff",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            Change Address
+                          </Button>
+                          <Modal
+                            title="Address"
+                            open={isModalOpen}
+                            onOk={handleOk}
+                            onCancel={handleCancel}
+                          >
+                            <Radio.Group
+                              onChange={onAddressChange}
+                              value={selectedAddress}
+                            >
+                              {addresses.map((address) => (
+                                <div
+                                  key={address.id}
+                                  style={{
+                                    padding: "10px",
+                                    marginBottom: "10px",
+                                    border: "1px solid #e0e0e0",
+                                    borderRadius: "5px",
+                                    backgroundColor: "#f9f9f9",
+                                    transition: "background-color 0.3s",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#e6f7ff";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#f9f9f9";
+                                  }}
+                                >
+                                  <Radio value={address.id}>
+                                    <span
+                                      style={{
+                                        fontWeight: "bold",
+                                        marginRight: "20px",
+                                      }}
+                                    >
+                                      {address.account.fullName} (+84){" "}
+                                      {address.account.phone}
+                                    </span>
+                                    <span
+                                      style={{
+                                        color: "#555",
+                                        marginRight: "20px",
+                                      }}
+                                    >
+                                      {address.fullAddress}, District{" "}
+                                      {address.districtCode}, City{" "}
+                                      {address.cityCode}
+                                    </span>
+                                  </Radio>
+                                </div>
+                              ))}
+                            </Radio.Group>
+                            <Divider />
+                            <Button
+                              onClick={() => navigate("/manager/address")}
+                              type="dashed"
+                              style={{ marginBottom: 16 }}
+                            >
+                              <GoPlus /> New address
+                            </Button>
+                          </Modal>
+                        </span>{" "}
+                      </Row>
+                    </div>
+                  ))}
+              </div>
+            </Card>
+            <Card
+              bordered={false}
+              style={{
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                background: "#fff",
+                borderRadius: "8px",
+              }}
+            >
+              <Title level={4} style={{ marginBottom: 10, color: "#333" }}>
                 <Row style={{ fontSize: 16 }}>
                   Payment Method:
                   <Row style={{ marginLeft: 10 }}>
@@ -701,6 +658,8 @@ const Cart = () => {
                       onChange={onChangePaymentMethod}
                       value={paymentMethod}
                       optionType="button"
+                      buttonStyle="solid"
+                      style={{ marginLeft: 10 }}
                       className="custom-radio-group-paymentMethod"
                     />
                   </Row>{" "}
@@ -727,7 +686,7 @@ const Cart = () => {
                 <Button
                   type="primary"
                   onClick={(value) => handleFinish(value)}
-                  disabled={selectedRowKeys.length === 0}
+                  disabled={selectedItemsArray.length === 0}
                 >
                   Thanh toán
                 </Button>
