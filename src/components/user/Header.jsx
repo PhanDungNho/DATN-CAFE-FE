@@ -23,12 +23,13 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import {
   deleteCartDetail,
   getCartDetailsByUsername,
+  setSelectedItems,
 } from "../../redux/actions/cartDetailAction";
 import { ImBin } from "react-icons/im";
 import { FaShoppingCart } from "react-icons/fa";
 import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +46,10 @@ function Header() {
 
   const totalItemsCount =
     cartDetails?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [totalCart, setTotalCart] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
 
   const colors = [
     "magenta",
@@ -113,8 +118,8 @@ function Header() {
       key: "price",
     },
     {
-      title: "Subtotal",
-      key: "subtotal",
+      title: "Remove",
+      key: "remove",
       render: (_, record) => (
         <Space size="middle">
           <Popconfirm
@@ -197,12 +202,65 @@ function Header() {
         dispatch(getCartDetailsByUsername(username));
       })
       .catch((error) => {
-        console.error("Error adding item to cart:", error);
+        console.error("Error deleting item from cart:", error);
       });
+  };
+
+  const handleCheckout = () => {
+    const selectedItems = data.filter((item) =>
+      selectedRowKeys.includes(item.key)
+    );
+
+    const newTotalCart = selectedItems.reduce((acc, item) => {
+      const itemTotal = item.quantity * item.productVariant.price;
+
+      const toppingTotal = item.cartDetailToppings.reduce(
+        (toppingAcc, topping) =>
+          toppingAcc + topping.quantity * topping.topping.price,
+        0
+      );
+
+      return acc + itemTotal + toppingTotal;
+    }, 0);
+
+    const newGrandTotal = newTotalCart > 0 ? newTotalCart : 0;
+    setTotalCart(newTotalCart);
+    setGrandTotal(newGrandTotal);
+
+    // Chuyển đổi selectedItems thành object
+    const selectedItemsObject = selectedItems.reduce((acc, item) => {
+      acc[item.id] = { ...item }; // Hoặc chỉ lấy các thuộc tính cần thiết
+      return acc;
+    }, {});
+
+    // Dispatch action để lưu selectedItems vào Redux
+    dispatch(setSelectedItems(selectedItemsObject));
+
+    console.log("selectedItems", selectedItemsObject);
+    console.log("newGrandTotal", newGrandTotal);
+    console.log("newTotalCart", newTotalCart);
+
+    // Chuyển hướng đến trang giỏ hàng
+    navigate("/cart");
+  };
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    selections: [
+      Table.SELECTION_ALL,
+      Table.SELECTION_INVERT,
+      Table.SELECTION_NONE,
+    ],
   };
 
   return (
     <>
+      {/*
       {isLoading && (
         <div className="loader">
           <div className="loader-inner">
@@ -210,7 +268,7 @@ function Header() {
           </div>
         </div>
       )}
-
+      */}
       <div className="top-header-area" id="sticker" ref={stickerRef}>
         <div className="container">
           <div className="row">
@@ -218,25 +276,25 @@ function Header() {
               <div className="main-menu-wrap">
                 {/* logo */}
                 <div className="site-logo">
-                  <a href="/">
+                  <Link to="/">
                     <img src="/assets/img/logo2.png" alt="" />
-                  </a>
+                  </Link>
                 </div>
                 {/* logo */}
                 {/* menu start */}
                 <nav className="main-menu">
                   <ul>
                     <li className="current-list-item">
-                      <a href="/">Home</a>
+                      <Link to="/">Home</Link>
                     </li>
                     <li>
-                      <a href="/about">About</a>
+                      <Link to="/about">About</Link>
                     </li>
                     <li>
-                      <a href="#">Pages</a>
+                      <Link to="#">Pages</Link>
                     </li>
                     <li>
-                      <a href="/shop">Products</a>
+                      <Link to="/shop">Products</Link>
                     </li>
                     <li>
                       <li>
@@ -285,53 +343,53 @@ function Header() {
                         <div className="sub-menu user-dropdown">
                           {!isLoggedIn ? (
                             <>
-                              <a href="/login">
+                              <Link to="/login">
                                 <LoginOutlined style={{ marginRight: "8px" }} />{" "}
                                 Đăng nhập
-                              </a>
-                              <a href="/register">
+                              </Link>
+                              <Link to="/register">
                                 <UserAddOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
                                 Đăng ký
-                              </a>
-                              <a href="/forgotpassword">
+                              </Link>
+                              <Link to="/forgotpassword">
                                 <KeyOutlined style={{ marginRight: "8px" }} />{" "}
                                 Quên mật khẩu
-                              </a>
+                              </Link>
                             </>
                           ) : (
                             <>
-                              <a href="/manager/*">
+                              <Link to="/manager/*">
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
                                 Tài khoản
-                              </a>
-                              <a href="/manager/*">
+                              </Link>
+                              <Link to="/manager/*">
                                 <ShoppingOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
                                 Đơn hàng
-                              </a>
+                              </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
                                 JSON.parse(
                                   localStorage.getItem("user")
                                 )?.roles.includes("ROLE_ADMIN") && (
-                                  <a href="/admin">
+                                  <Link to="/admin">
                                     <TeamOutlined
                                       style={{ marginRight: "8px" }}
                                     />{" "}
                                     Admin
-                                  </a>
+                                  </Link>
                                 )}
-                              <a href="/" onClick={handleLogout}>
+                              <Link to="/" onClick={handleLogout}>
                                 <LogoutOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
                                 Đăng xuất
-                              </a>
+                              </Link>
                             </>
                           )}
                         </div>
@@ -346,6 +404,7 @@ function Header() {
                 {/* menu end */}
                 <Drawer title="Shopping cart" onClose={onClose} open={open}>
                   <Table
+                    rowSelection={rowSelection}
                     columns={columns}
                     dataSource={data}
                     pagination={{ pageSize: 5 }}
@@ -379,7 +438,8 @@ function Header() {
                         e.currentTarget.style.color = "#fff";
                         e.currentTarget.style.transform = "scale(1)";
                       }}
-                      onClick={() => navigate("/cart")}
+                      onClick={handleCheckout}
+                      disabled={selectedRowKeys.length === 0}
                     >
                       Check out
                     </Button>
@@ -397,6 +457,7 @@ function Header() {
 const mapStateToProps = (state) => ({
   cartDetail: state.cartDetailReducer.cartDetail,
   cartDetails: state.cartDetailReducer.cartDetails,
+  selectedItems: state.cartDetailReducer.selectedItems,
 });
 
 const mapDispatchToProps = {
