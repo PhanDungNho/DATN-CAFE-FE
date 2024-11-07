@@ -129,21 +129,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     render: (_, record) => {
       return (
         <Space size="middle">
-          <Select
-            defaultValue={record.status}
-            style={{ width: 150 }}
-            options={statusOptions[record.status]}
-            onChange={(value) => {
-              updateOrder(record.id, { status: value });
-            }}
-          />
-          <Switch
-            checked={record.active}
-            onChange={(checked) => {
-              updateOrderActive(record.id, checked);
-            }}
-          />
-          
           {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {

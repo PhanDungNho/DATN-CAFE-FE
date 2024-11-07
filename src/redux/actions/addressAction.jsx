@@ -25,7 +25,7 @@ export const insertAddress = (address) => async (dispatch) => {
     if (response.status === 201) {
       dispatch({ type: ADDRESS_SET, payload: response.data });
       dispatch({ type: ADDRESS_APPEND, payload: response.data });
-      dispatch({ type: COMMON_MESSAGE_SET, payload: "Thêm thành công" });
+      dispatch({ type: COMMON_MESSAGE_SET, payload: "More success" });
     } else {
       dispatch({ type: COMMON_ERROR_SET, payload: response.message });
     }
@@ -96,7 +96,7 @@ export const updateAddress = (id, address) => async (dispatch) => {
     if (response.status === 200) { // Thay đổi status về 200
       dispatch({ type: ADDRESS_SET, payload: response.data });
       dispatch({ type: ADDRESS_UPDATE, payload: response.data });
-      dispatch({ type: COMMON_MESSAGE_SET, payload: "Cập nhật thành công" });
+      dispatch({ type: COMMON_MESSAGE_SET, payload: "Updated successfully"});
     } else {
       dispatch({ type: COMMON_ERROR_SET, payload: response.message });
     }
@@ -119,7 +119,7 @@ export const updateAddressActive = (id, active) => async (dispatch) => {
     const response = await service.toggleActive(id);
     if (response.status === 200) {
       dispatch({ type: ADDRESS_UPDATE_ACTIVE, payload: { id, active } });
-      dispatch({ type: COMMON_MESSAGE_SET, payload: "Cập nhật trạng thái thành công" });
+      dispatch({ type: COMMON_MESSAGE_SET, payload: "Status update successful" });
 
       // Tải lại danh sách địa chỉ sau khi cập nhật
       if (username) {
@@ -271,7 +271,7 @@ export const setIsDefault = (id) => async (dispatch, getState) => {
 
     if (response.status === 200) {
       dispatch({ type: ADDRESS_UPDATE_ISDEFAULT, payload: { id, isDefault: true } });
-      dispatch({ type: COMMON_MESSAGE_SET, payload: "Địa chỉ đã được đặt là mặc định thành công" });
+      dispatch({ type: COMMON_MESSAGE_SET, payload: "The address has been set as default successfully" });
     } else {
       dispatch({ type: COMMON_ERROR_SET, payload: response.message });
     }
