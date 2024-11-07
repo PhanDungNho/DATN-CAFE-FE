@@ -1,222 +1,181 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { Form, Input, Button, Upload, Modal, message, Slider } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import AvatarEditor from "react-avatar-editor";
+import React, { useState } from "react";
+import { Form, Input, Button, Select, Radio, Table, Modal } from "antd";
 
-const UpdateProfile = () => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true);
-  const [imageFileList, setImageFileList] = useState([]);
-  const [croppingImage, setCroppingImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [zoom, setZoom] = useState(1.2); // Trạng thái để lưu mức thu phóng
-  const editorRef = useRef(null);
+const { Option } = Select;
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8081/api/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const profileData = response.data;
-        form.setFieldsValue({
-          name: profileData.fullName,
-          email: profileData.email,
-          phone: profileData.phone,
-          password: "",
-        });
+const UpdateAddress = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState(null);
+  const [addresses, setAddresses] = useState([
+    { key: 1, name: "Lê Quang Vinh", phone: "+84336179835", province: "An Giang", district: "District1", ward: "Ward1", address: "Nhà Trọ Dũng Khanh 2", addressType: "home" },
+    { key: 2, name: "Nguyễn Văn A", phone: "+84336179836", province: "Bình Dương", district: "District2", ward: "Ward2", address: "Nhà Trọ Bình Minh", addressType: "home" },
+    { key: 3, name: "Trần Thị B", phone: "+84336179837", province: "Bình Thuận", district: "District1", ward: "Ward1", address: "Văn Phòng Công Ty XYZ", addressType: "office" },
+  ]);
 
-        if (profileData.image) {
-          setImageFileList([
-            {
-              uid: "-1",
-              name: profileData.image,
-              status: "done",
-              url: `http://localhost:8081/uploads/${profileData.image}`,
-            },
-          ]);
-        }
-      } catch (error) {
-        message.error("Cannot load account data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [form]);
-
-  const onFinish = async (values) => {
-    try {
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("fullName", values.name);
-      formData.append("email", values.email);
-      formData.append("phone", values.phone);
-
-      if (values.password) {
-        formData.append("password", values.password);
-      }
-
-      if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
-        formData.append("imageFile", imageFileList[0].originFileObj);
-      }
-
-      const response = await axios.put(
-        "http://localhost:8081/api/profile/update",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
+  // Hàm xử lý khi form được submit
+  const onFinish = (values) => {
+    if (currentAddress) {
+      // Cập nhật địa chỉ
+      setAddresses((prev) =>
+        prev.map((address) =>
+          address.key === currentAddress.key ? { ...address, ...values } : address
+        )
       );
-
-      message.success(response.data);
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to update information.";
-      message.error(errorMessage);
+    } else {
+      // Thêm địa chỉ mới
+      const newAddress = { key: Date.now(), ...values }; // Tạo key duy nhất cho mỗi địa chỉ
+      setAddresses((prev) => [...prev, newAddress]);
     }
+    handleCancel(); // Đóng modal sau khi hoàn thành
   };
 
-  const handleImageUpload = ({ file }) => {
-    setSelectedImage(file);
-    setCroppingImage(true);
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setCurrentAddress(null); // Reset địa chỉ hiện tại
   };
 
-  const handleCrop = () => {
-    if (editorRef.current) {
-      const canvas = editorRef.current.getImageScaledToCanvas();
-      canvas.toBlob((blob) => {
-        const croppedFile = new File([blob], selectedImage.name, {
-          type: selectedImage.type,
-          lastModified: Date.now(),
-        });
-
-        setImageFileList([
-          {
-            uid: "-1",
-            name: croppedFile.name,
-            status: "done",
-            originFileObj: croppedFile,
-            url: URL.createObjectURL(croppedFile),
-          },
-        ]);
-      });
-    }
-    setCroppingImage(false);
-    setSelectedImage(null);
+  const handleEdit = (address) => {
+    setCurrentAddress(address);
+    setIsModalVisible(true);
   };
+
+  const handleDelete = (key) => {
+    setAddresses((prev) => prev.filter((address) => address.key !== key));
+  };
+
+  const columns = [
+    { title: "Họ và tên", dataIndex: "name", key: "name" },
+    { title: "Số điện thoại", dataIndex: "phone", key: "phone" },
+    { title: "Tỉnh/Thành phố", dataIndex: "province", key: "province" },
+    { title: "Quận/Huyện", dataIndex: "district", key: "district" },
+    { title: "Phường/Xã", dataIndex: "ward", key: "ward" },
+    { title: "Địa chỉ", dataIndex: "address", key: "address" },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <>
+          <Button onClick={() => handleEdit(record)} type="link">Cập nhật</Button>
+          <Button onClick={() => handleDelete(record.key)} type="link" danger>Xóa</Button>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <div style={{ maxWidth: "100%", padding: "20px" }}>
-      <h2>Update Information</h2>
-      <Form
-        form={form}
-        name="update-profile"
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{ name: "", email: "", phone: "" }}
-      >
-        <Form.Item
-          label="Full Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter full name!" }]}
-        >
-          <Input placeholder="Enter full name" />
-        </Form.Item>
+    <div style={{ maxWidth: '100%', padding: "20px" }}>
+      <h2>Cập nhật địa chỉ</h2>
+      <Button type="primary" onClick={() => setIsModalVisible(true)}>
+        Thêm địa chỉ
+      </Button>
+      
+      <Table
+        columns={columns}
+        dataSource={addresses}
+        style={{ marginTop: 20 }}
+      />
 
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            { type: "email", message: "Invalid email address!" },
-            { required: true, message: "Please enter email!" },
-          ]}
-        >
-          <Input placeholder="Enter email" />
-        </Form.Item>
-
-        <Form.Item
-          label="Phone Number"
-          name="phone"
-          rules={[
-            { required: true, message: "Please enter phone number!" },
-            {
-              pattern: new RegExp(/^[0-9]{10}$/),
-              message: "Phone number must have 10 digits!",
-            },
-          ]}
-        >
-          <Input placeholder="Enter phone number" />
-        </Form.Item>
-
-        <Form.Item
-          label="New Password"
-          name="password"
-          rules={[{ min: 6, message: "Password must be at least 6 characters!" }]}
-        >
-          <Input.Password placeholder="Enter new password (optional)" />
-        </Form.Item>
-
-        <Form.Item label="Select Profile Picture (optional)">
-          <Upload
-            listType="picture"
-            maxCount={1}
-            accept=".jpg,.jpeg,.png,.gif"
-            beforeUpload={() => false}
-            onChange={handleImageUpload}
-          >
-            <Button icon={<UploadOutlined />}>Choose Image</Button>
-          </Upload>
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Update Information
-          </Button>
-        </Form.Item>
-      </Form>
-
-      {/* Crop Image Modal */}
       <Modal
-        visible={croppingImage}
-        onCancel={() => setCroppingImage(false)}
-        onOk={handleCrop}
-        title="Cắt ảnh đại diện"
+        title={currentAddress ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null} // Không hiển thị footer tự động
       >
-        {selectedImage && (
-          <AvatarEditor
-            ref={editorRef}
-            image={selectedImage}
-            width={400} // Tăng chiều rộng cho avatar
-            height={400} // Điều chỉnh chiều cao để phù hợp với chiều rộng mới
-            border={20} // Điều chỉnh đường viền để kiểm soát khoảng trống quanh ảnh
-            scale={zoom} // Sử dụng trạng thái zoom để điều chỉnh thu phóng
-            rotate={0}
-          />
-        )}
+        <Form
+          name="update-address"
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={currentAddress || {}} // Thiết lập giá trị mặc định cho form
+        >
+          <Form.Item
+            label="Họ và tên"
+            name="name"
+            rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
+          >
+            <Input placeholder="Lê Quang Vinh" />
+          </Form.Item>
 
-        {/* Thanh trượt để thu phóng */}
-        <div style={{ marginTop: 20 }}>
-          <span>Thu phóng:</span>
-          <Slider
-            min={0}
-            max={3}
-            step={0.1}
-            value={zoom}
-            onChange={(value) => setZoom(value)} // Cập nhật giá trị zoom
-          />
-        </div>
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại!" },
+              {
+                pattern: new RegExp(/^\+84\d{9}$/),
+                message: "Số điện thoại không hợp lệ!",
+              },
+            ]}
+          >
+            <Input placeholder="(+84) 336 179 835" />
+          </Form.Item>
+
+          <Form.Item
+            label="Tỉnh/Thành phố"
+            name="province"
+            rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố!" }]}
+          >
+            <Select placeholder="Chọn Tỉnh/Thành phố">
+              <Option value="An Giang">An Giang</Option>
+              <Option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</Option>
+              <Option value="Bình Dương">Bình Dương</Option>
+              <Option value="Bình Phước">Bình Phước</Option>
+              <Option value="Bình Thuận">Bình Thuận</Option>
+              <Option value="Bình Định">Bình Định</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quận/Huyện"
+            name="district"
+            rules={[{ required: true, message: "Vui lòng chọn quận/huyện!" }]}
+          >
+            <Select placeholder="Chọn Quận/Huyện">
+              <Option value="District1">Quận 1</Option>
+              <Option value="District2">Quận 2</Option>
+              {/* Thêm các quận/huyện khác */}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Phường/Xã"
+            name="ward"
+            rules={[{ required: true, message: "Vui lòng chọn phường/xã!" }]}
+          >
+            <Select placeholder="Chọn Phường/Xã">
+              <Option value="Ward1">Phường 1</Option>
+              <Option value="Ward2">Phường 2</Option>
+              {/* Thêm các phường/xã khác */}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Địa chỉ cụ thể"
+            name="address"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ cụ thể!" }]}
+          >
+            <Input placeholder="Nhà Trọ Dũng Khanh 2" />
+          </Form.Item>
+
+          <Form.Item
+            label="Loại địa chỉ"
+            name="addressType"
+            rules={[{ required: true, message: "Vui lòng chọn loại địa chỉ!" }]}
+          >
+            <Radio.Group>
+              <Radio value="home">Nhà Riêng</Radio>
+              <Radio value="office">Văn Phòng</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              {currentAddress ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
 };
 
-export default UpdateProfile;
+export default UpdateAddress;

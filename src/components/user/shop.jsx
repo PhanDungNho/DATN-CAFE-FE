@@ -150,7 +150,7 @@ function Shop() {
               <div className="col-lg-10 offset-lg-1 text-center">
                 <div className="hero-text">
                   <div className="hero-text-tablecell">
-                    <h1>WELCOME TO WALACOFFEE</h1>
+                    <h1>WELCOME TO fsfd</h1>
                     <p className="subtitle">Coffee &amp; Tea</p>
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import {
     COMMON_MESSAGE_SET,
     AUTHORITY_UPDATE,
     AUTHORITY_DELETE,
+    AUTHORITY_APPEND
 } from "./actionType";
 
 // Lấy danh sách quyền
@@ -94,45 +95,25 @@ export const findAuthoritiesByNameContainsIgnoreCase =
         }
     };
 
-// Cập nhật quyền (update authority)
-export const updateAuthority = (id, authorityDto) => async (dispatch) => {
-    const service = new authorityService();
-
-    try {
-        dispatch({
-            type: COMMON_LOADING_SET,
-            payload: true,
-        });
-
-        const response = await service.updateAuthority(id, authorityDto);
-
-        if (response.status === 200) {
+    export const postAuthority = (authorityDto) => async (dispatch) => {
+        const service = new authorityService();
+        try {
+            const response = await service.postAuthority(authorityDto);
             dispatch({
-                type: AUTHORITY_UPDATE,
-                payload: response.data, // Dữ liệu quyền vừa được cập nhật
+                type: AUTHORITY_APPEND,
+                payload: response,  // Add the new authority to the store
             });
             dispatch({
                 type: COMMON_MESSAGE_SET,
-                payload: "Authority successfully updated",
+                payload: "Authority successfully granted",
             });
-        } else {
+        } catch (error) {
             dispatch({
                 type: COMMON_ERROR_SET,
-                payload: "Error updating authority",
+                payload: error.response?.data?.message || error.message,
             });
         }
-    } catch (error) {
-        dispatch({
-            type: COMMON_ERROR_SET,
-            payload: error.response?.data?.message || error.message,
-        });
-    } finally {
-        dispatch({
-            type: COMMON_LOADING_SET,
-            payload: false,
-        });
-    }
-};
+    };
 
 // Tước quyền của tài khoản (delete authority)
 export const deleteAuthority = (id) => async (dispatch) => {

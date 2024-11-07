@@ -35,6 +35,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const CounterForm = () => {
+ 
   const [activeTab, setActiveTab] = useState("0");
   // const [ords, setOrds] = useState([]);
   const [products, setProducts] = useState([]);
@@ -43,7 +44,7 @@ const CounterForm = () => {
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], customerName: "Đơn 1", customerId: "" },
+    { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH",  },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
@@ -206,11 +207,11 @@ const CounterForm = () => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
         message.success("Đã nhập đúng số điện thoại!");
-        updatedOrders[index].customerName = foundAccount.fullname;
+        // updatedOrders[index].customerName = foundAccount.fullName;
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
       } else {
-        updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
+        // updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
       }
       return updatedOrders;
@@ -218,6 +219,9 @@ const CounterForm = () => {
   };
 
   const handleFinish = async (values, index) => {
+    // Lấy phương thức thanh toán từ orders cho tab hiện tại
+    const currentPaymentMethod = orders[index].paymentMethod;
+  
     const cartItems = orders[index].cart.map((item) => ({
       productVariant: { id: item.id },
       quantity: item.quantity,
@@ -239,37 +243,36 @@ const CounterForm = () => {
         momentPrice: topping.price,
       })),
     }));
+    
     const totalAmount = cartItems.reduce(
       (total, item) => total + item.totalPrice,
       0
     );
-
+  
     const order = {
       cashierId: JSON.parse(localStorage.getItem("user")).username,
       totalAmount: totalAmount,
-
       phone: orders[index].customerPhone || phoneNumberInput,
-      orderStatus: paymentMethod === "ONLINE" ? 0 : 1,
-      paymentMethod: paymentMethod,
-      paymentStatus:paymentMethod === "CASH" ? 1 : 0,
+      orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
+      paymentMethod: currentPaymentMethod,
+      paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
-
       shippingFee: 0,
       orderType: 0,
       fullAddress: null,
       customerId: orders[index].customerId || "test1",
       orderDetails: cartItems,
     };
-
+  
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
       console.log("Order not yet:", order);
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-
+  
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
-      if (paymentMethod === "ONLINE") {
+      if (currentPaymentMethod === "ONLINE") {
         await handleOnlinePayment(order, totalAmount, index);
       } else {
         handleSuccess(order, index);
@@ -279,7 +282,13 @@ const CounterForm = () => {
       message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
     }
   };
-
+  const handlePaymentMethodChange = (value, index) => {
+    setOrders((prevOrders) => {
+      const updatedOrders = [...prevOrders];
+      updatedOrders[index].paymentMethod = value;
+      return updatedOrders;
+    });
+  };
   // Hàm xử lý thanh toán online
   const handleOnlinePayment = async (order, totalAmount, index) => {
     try {
@@ -297,9 +306,28 @@ const CounterForm = () => {
         });
 
         console.log("Payment URL created:", response);
-        window.open(response.data.payUrl, "_blank", "width=800,height=600");
+       const paymentWindow =  window.open(response.data.payUrl, "_blank", "width=800,height=600");
 
-        // handleSuccess(order, index);
+        const checkPaymentStatus = setInterval(() => {
+          if (paymentWindow.closed) {
+            clearInterval(checkPaymentStatus);
+  
+            // Kiểm tra trạng thái thanh toán từ localStorage
+            const paymentStatus = localStorage.getItem(`payment_status_${order.id}`);
+  
+            if (paymentStatus === "success") {
+              message.success("Thanh toán thành công!");
+              handleSuccess(order, index); // Đóng form bán hàng
+              removeCustomer(index.toString()); 
+            } else {
+              message.error("Thanh toán thất bại hoặc bị hủy.");
+            }
+            console.log("first")
+            console.log(order.id)
+            console.log(order)
+            console.log(index)
+          }
+        }, 1000); // Kiểm tra mỗi giây
       } else {
         throw new Error("Không thể tạo URL thanh toán.");
       }
@@ -317,26 +345,23 @@ const CounterForm = () => {
     const newOrders = [...orders];
   
     // Xóa giỏ hàng của đơn hàng đã thanh toán
-    newOrders[index].cart = [];
+    newOrders[index].cart = []; // Giỏ hàng sẽ được làm sạch
   
-    // Reset thông tin khách hàng
-    newOrders[index].customerName = "";
-    newOrders[index].customerPhone = "";
-    newOrders[index].customerId = "";
+    // Làm sạch số điện thoại và ID khách hàng
+    newOrders[index].customerPhone = ""; // Reset số điện thoại
+    newOrders[index].customerId = ""; // Reset ID nếu cần
   
-    // Reset input số điện thoại
+    // Reset input số điện thoại trong trạng thái
     setPhoneNumberInput("");
+
   
-    // Cập nhật trạng thái đơn hàng và đóng tab hiện tại
+    // Cập nhật trạng thái đơn hàng mà không xóa tab
     setOrders(newOrders);
   
     // Cập nhật Local Storage
     localStorage.setItem("orders", JSON.stringify(newOrders));
   
-    // Đóng tab hiện tại
-    removeCustomer(index.toString()); // Gọi hàm xóa tab
-  
-
+    // Không gọi removeCustomer để giữ nguyên tab
   };
 
 
@@ -344,15 +369,21 @@ const CounterForm = () => {
   const addNewOrder = () => {
     let newCustomerIndex = 1;
     let newCustomerName = `Đơn ${newCustomerIndex}`;
-
+  
     while (
       orders.some((customer) => customer.customerName === newCustomerName)
     ) {
       newCustomerIndex++;
       newCustomerName = `Đơn ${newCustomerIndex}`;
     }
-
-    setOrders([...orders, { cart: [], customerName: newCustomerName }]);
+  
+    // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
+    const newOrder = { cart: [], customerName: newCustomerName, paymentMethod: "CASH",   customerPhone: "", // Reset số điện thoại
+      customerId: "", };
+    setOrders([...orders, newOrder]);
+    
+    console.log("New order added:", newOrder); // log giá trị của đơn hàng mới
+    console.log("Orders after add:", orders); // log giá trị orders hiện tại
     setActiveTab(`${orders.length}`);
   };
 
@@ -548,7 +579,9 @@ const CounterForm = () => {
       <Col xs={24} md={12}>
         {/* Code hiển thị giỏ hàng */}
         <OrderTab
+     
           orders={orders}
+          handlePaymentMethodChange = {handlePaymentMethodChange}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           addNewOrder={addNewOrder}

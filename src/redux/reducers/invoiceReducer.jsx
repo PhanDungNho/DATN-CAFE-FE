@@ -1,4 +1,5 @@
 import {
+  INVOICE_DELETE,
   INVOICE_SET,
   INVOICE_UPDATE,
   INVOICE_UPDATE_ACTIVE,
@@ -29,12 +30,14 @@ const invoiceReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         invoices: state.invoices.map((invoice) =>
-          invoice.id === payload.id
-            ? { ...invoice, ...payload.order } 
-            : invoice
+          invoice.id === payload.id ? { ...invoice, ...payload.order } : invoice
         ),
       };
-
+    case INVOICE_DELETE:
+      return {
+        ...state,
+        invoices: state.invoices.filter((item) => item.id !== payload),
+      };
     default:
       return state;
   }
