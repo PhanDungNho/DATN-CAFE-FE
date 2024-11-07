@@ -162,6 +162,36 @@ export const getProduct = (id) => async (dispatch) => {
   }
 };
 
+export const getProductBySlug = (slug) => async (dispatch) => {
+  const service = new ProductService();
+
+  try {
+    console.log("get product by id");
+
+    const response = await service.getProductBySlug(slug);
+    console.log(response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: PRODUCT_SET,
+        payload: response.data,
+      });
+    } else {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: response.message,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+};
+
 export const updateProductActive =
   (id, active) => async (dispatch, getState) => {
     const service = new ProductService();
