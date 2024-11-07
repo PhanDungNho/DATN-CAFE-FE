@@ -1,8 +1,10 @@
 import invoiceService from "../../services/invoiceService";
+import OrderService from "../../services/orderService";
 import {
   COMMON_ERROR_SET,
   COMMON_LOADING_SET,
   COMMON_MESSAGE_SET,
+  INVOICE_DELETE,
   INVOICE_UPDATE,
   INVOICE_UPDATE_ACTIVE,
   INVOICES_SET,
@@ -180,4 +182,28 @@ export const updateOrder = (id, order) => async (dispatch) => {
   }
 };
 
+export const deleteOrderById = (id) => async (dispatch) => {
+  const service = new OrderService();
 
+  try {
+    console.log("delete order by id", id);
+
+    const response = await service.deleteOrderById(id);
+    console.log("API response delete: ", response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: INVOICE_DELETE,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    console.log("Error: ", error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+};

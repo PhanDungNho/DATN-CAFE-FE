@@ -3,8 +3,10 @@ import {
   CARTDETAIL_DELETE,
   CARTDETAIL_SET,
   CARTDETAILS_SET,
+  CLEAR_SELECTED_ITEMS,
   COMMON_ERROR_SET,
   COMMON_MESSAGE_SET,
+  SET_SELECTED_ITEMS,
 } from "./actionType";
 
 const service = new CartDetailService();
@@ -122,4 +124,17 @@ export const removeCartDetail = (id) => async (dispatch) => {
         : error.message,
     });
   }
+};
+
+export const setSelectedItems = (items) => (dispatch) => {
+  dispatch({
+    type: SET_SELECTED_ITEMS,
+    payload: items,
+  });
+};
+
+export const clearSelectedItems = () => (dispatch) => {
+  dispatch({
+    type: CLEAR_SELECTED_ITEMS,
+  })
 };

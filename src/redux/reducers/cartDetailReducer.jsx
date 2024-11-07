@@ -1,8 +1,15 @@
-import { CARTDETAIL_DELETE, CARTDETAIL_SET, CARTDETAILS_SET } from "../actions/actionType";
+import {
+  CARTDETAIL_DELETE,
+  CARTDETAIL_SET,
+  CARTDETAILS_SET,
+  CLEAR_SELECTED_ITEMS,
+  SET_SELECTED_ITEMS,
+} from "../actions/actionType";
 
 const initialState = {
   cartDetail: {},
   cartDetails: [],
+  selectedItems: [],
 };
 
 const CartDetailReducer = (state = initialState, { type, payload }) => {
@@ -11,13 +18,15 @@ const CartDetailReducer = (state = initialState, { type, payload }) => {
       return { ...state, cartDetail: payload };
     case CARTDETAILS_SET:
       return { ...state, cartDetails: payload };
-      case CARTDETAIL_DELETE:
+    case CARTDETAIL_DELETE:
       return {
         ...state,
-        cartDetails: state.cartDetails.filter(
-          (item) => item.id !== payload
-        ),
+        cartDetails: state.cartDetails.filter((item) => item.id !== payload),
       };
+    case SET_SELECTED_ITEMS:
+      return { ...state, selectedItems: payload };
+    case CLEAR_SELECTED_ITEMS:
+      return { ...state, selectedItems: {} };
     default:
       return state;
   }
