@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, message } from 'antd';
+import { Table, Button, Modal, message, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import invoiceService from '../../../services/invoiceService';
 
@@ -11,12 +11,29 @@ const Allorder = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [statusCounts, setStatusCounts] = useState({});
-  const [totalCount, setTotalCount] = useState(0); // Tổng số hóa đơn
+  const [totalCount, setTotalCount] = useState(0);
   const [statusFilter, setStatusFilter] = useState('ALL');
-  
+
   const navigate = useNavigate();
   const service = new invoiceService();
   const username = JSON.parse(localStorage.getItem("user"))?.username;
+
+  const getRandomColor = () => {
+    const colors = [
+      "magenta",
+      "red",
+      "volcano",
+      "orange",
+      "gold",
+      "lime",
+      "green",
+      "cyan",
+      "blue",
+      "geekblue",
+      "purple",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -24,16 +41,15 @@ const Allorder = () => {
         const response = await service.getInvoicesByCustomer(username);
         setData(response.data);
         setFilteredData(response.data);
-
-        // Tính số lượng đơn hàng cho từng trạng thái
+        
         const counts = {};
-        let total = 0; // Biến để lưu tổng số đơn hàng
+        let total = 0;
         response.data.forEach(order => {
           counts[order.orderStatus] = (counts[order.orderStatus] || 0) + 1;
-          total += 1; // Tăng tổng số đơn hàng
+          total += 1;
         });
         setStatusCounts(counts);
-        setTotalCount(total); // Lưu tổng vào state
+        setTotalCount(total);
       } catch (error) {
         console.error('Failed to fetch invoices:', error);
         message.error('Không thể lấy dữ liệu hóa đơn.');
@@ -65,7 +81,7 @@ const Allorder = () => {
   const columns = [
     {
       title: 'Order (Số thứ tự)',
-      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1, // Tính số thứ tự trang
+      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: 'Created time',
@@ -120,7 +136,6 @@ const Allorder = () => {
   return (
     <div>
       <div style={{ marginBottom: '16px' }}>
-        {/* Các nút lọc với số lượng đơn hàng */}
         {['ALL', 'UNCONFIRMED', 'PROCESSING', 'DELIVERING', 'DELIVERED', 'COMPLETED', 'CANCELLED'].map(status => (
           <Button
             key={status}
@@ -153,6 +168,7 @@ const Allorder = () => {
         visible={isModalVisible}
         onCancel={handleModalClose}
         footer={null}
+        width={1000}
       >
         {selectedRecord && (
           <div>
@@ -164,6 +180,82 @@ const Allorder = () => {
             <p><strong>Trạng thái đơn hàng:</strong> {selectedRecord.orderStatus}</p>
             <p><strong>Phí vận chuyển:</strong> {selectedRecord.shippingFee.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
             <p><strong>Tổng số tiền:</strong> {selectedRecord.totalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+
+            <h4>Chi tiết sản phẩm:</h4>
+            <Table
+              dataSource={selectedRecord.orderdetails}
+              columns={[
+                { 
+                  title: 'Sản phẩm', 
+                  key: 'productWithSize',
+                  render: (_, record) => {
+                    const productName = record.productVariant.product.name; // Lấy tên sản phẩm
+                    const sizeName = record.productVariant.size.name; // Lấy tên kích thước
+                    return `${productName} ${sizeName}`; // Kết hợp cả hai
+                  }
+                },
+                // { 
+                //   title: 'Size', 
+                //   dataIndex: ['productVariant', 'size', 'name'], 
+                //   key: 'size' 
+                // },
+                // { 
+                //   title: 'Số lượng', 
+                //   dataIndex: 'quantity', 
+                //   key: 'quantity' 
+                // },
+                { 
+                  title: 'Giá', 
+                  dataIndex: ['productVariant', 'price'], 
+                  key: 'price', 
+                  render: (text) => text.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) 
+                },
+                {
+                  title: 'Topping',
+                  key: 'toppings',
+                  render: (_, record) => (
+                    <div>
+                      {record.orderdetailtoppings.map(topping => (
+                        <div key={topping.id}>
+                          <Tag color={getRandomColor()}>
+                            {topping.topping.name} ({topping.topping.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })})
+                          </Tag>{" "}
+                          x {topping.quantity}
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                },
+            { 
+                  title: 'Ghi chú', 
+                  dataIndex: 'note', 
+                  key: 'note',
+                  render: (text) => (
+                    <div 
+                      style={{ 
+                        maxWidth: '200px',  // Giới hạn chiều rộng tối đa
+                        // overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        // whiteSpace: 'nowrap' // Ngăn không cho xuống dòng
+                      }}>
+                      {text}
+                    </div>
+                  )
+                },
+                {
+                  title: 'Hành động',
+                  key: 'action',
+                  render: (_, record) => (
+                    <div  style={{ display: 'flex', gap: '8px' }}>
+                      <Button >Xem  </Button>
+                      <Button >
+                        Thêm     </Button>
+                    </div>
+                  )
+                }
+              ]}
+              pagination={false}
+            />
           </div>
         )}
       </Modal>

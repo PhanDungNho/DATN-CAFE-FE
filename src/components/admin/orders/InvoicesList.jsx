@@ -129,7 +129,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     render: (_, record) => {
       return (
         <Space size="middle">
-          <Select
+          {/* <Select
             defaultValue={record.status}
             style={{ width: 150 }}
             options={statusOptions[record.status]}
@@ -142,7 +142,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
             onChange={(checked) => {
               updateOrderActive(record.id, checked);
             }}
-          />
+          /> */}
           
           {record.paymentMethod === "ONLINE" && (
             <Button
