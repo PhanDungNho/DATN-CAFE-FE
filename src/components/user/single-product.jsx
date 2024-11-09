@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
-import { getProduct } from "../../redux/actions/productAction";
+import { getProduct, getProductBySlug } from "../../redux/actions/productAction";
 import {
   getCartDetailsByUsername,
   insertCartDetail,
@@ -31,13 +31,13 @@ function Product() {
     (state) => state.cartDetailReducer.cartDetails
   );
   
-  const { id } = useParams();
+  const { slug } = useParams();
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);
 
   useEffect(() => {
-    dispatch(getProduct(id)); // Gọi hàm để lấy sản phẩm theo ID
-  }, [dispatch, id]);
+    dispatch(getProductBySlug(slug)); // Gọi hàm để lấy sản phẩm theo ID
+  }, [dispatch, slug]);
 
   const thumbnails = product?.images?.map((image) => image.filename) || [];
   const sizes =
