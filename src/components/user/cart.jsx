@@ -312,7 +312,7 @@ const Cart = () => {
     console.log("String full address: ", stringFullAddress);
 
     const order = {
-      cashierId: "",
+      cashierId: JSON.parse(localStorage.getItem("user")).username,
       totalAmount: grandTotal,
       phone: selectedItemsArray.customerPhone || "", // || phoneNumberInput
       orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
@@ -322,7 +322,7 @@ const Cart = () => {
       shippingFee: 0,
       orderType: 0,
       fullAddress: stringFullAddress,
-      customerId: JSON.parse(localStorage.getItem("user")).username || "test1",
+      customerId: selectedItemsArray.customerId || "test1",
       orderDetails: cartItems,
     };
 

@@ -217,7 +217,7 @@ function Shop() {
                       <Row gutter={[16, 16]}>
                         {paginatedProducts.map((product) => (
                           <Col key={product.id} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
-                            <Link to={`/single-product/${product.slug}`}>
+                            <Link to={`/single-product/${product.id}`}>
                               <Card
                                 hoverable
                                 style={{
