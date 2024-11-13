@@ -216,7 +216,7 @@ function Shop() {
                     {paginatedProducts.length > 0 ? (
                       <Row gutter={[16, 16]}>
                         {paginatedProducts.map((product) => (
-                          <Col key={product.id} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
+                          <Col key={product.slug} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
                             <Link to={`/single-product/${product.slug}`}>
                               <Card
                                 hoverable

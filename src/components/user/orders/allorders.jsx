@@ -80,7 +80,7 @@ const Allorder = () => {
 
   const columns = [
     {
-      title: "Order (Số thứ tự)",
+      title: "NO#",
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
     },
     {
@@ -117,7 +117,7 @@ const Allorder = () => {
         text.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
     },
     {
-      title: "Total amount",
+      title: "Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (text) =>
