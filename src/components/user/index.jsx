@@ -24,33 +24,35 @@ function Index() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Kiểm tra lại URL, đảm bảo đúng cổng và route của API
         const response = await axios.get('http://localhost:8081/api/v1/products');
-
-        // Cập nhật state với dữ liệu sản phẩm, lấy giá từ product_variants
-        const updatedProducts = response.data.map(product => {
-          const variant = product.product_variants && product.product_variants.length > 0
-            ? product.product_variants[0]
-            : null; // Nếu không có variant, gán là null
-
-          return {
-            ...product,
-            price: variant ? variant.price : 'N/A', // Gán giá từ variant nếu có
-          };
-        });
-
-
-        setProducts(updatedProducts); // Cập nhật state với dữ liệu đã xử lý
-        setLoading(false); // Tắt trạng thái loading sau khi lấy dữ liệu xong
+        
+        // Xử lý sản phẩm để lấy ra top 10 sản phẩm bán chạy nhất
+        const updatedProducts = response.data
+          .map(product => {
+            const variant = product.product_variants && product.product_variants.length > 0
+              ? product.product_variants[0]
+              : null;
+            return {
+              ...product,
+              price: variant ? variant.price : 'N/A',
+            };
+          })
+          // Giả sử sản phẩm có thuộc tính `sales` để biểu thị số lượng bán ra
+          .sort((a, b) => b.sales - a.sales) // Sắp xếp giảm dần theo doanh số bán ra
+          .slice(0, 10); // Lấy ra 10 sản phẩm bán chạy nhất
+  
+        setProducts(updatedProducts);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching products:', error);
-        setError('Có lỗi xảy ra khi lấy dữ liệu sản phẩm.'); // Cập nhật state lỗi
-        setLoading(false); // Tắt trạng thái loading khi có lỗi
+        console.error('Lỗi khi lấy sản phẩm:', error);
+        setError('Có lỗi xảy ra khi lấy dữ liệu sản phẩm.');
+        setLoading(false);
       }
     };
-
+  
     fetchProducts();
   }, []);
+  
 //tự động chạy ảnh 
   useEffect(() => {
     if (products && products.length > 0) { // Kiểm tra products có phần tử
