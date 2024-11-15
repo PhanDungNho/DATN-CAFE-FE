@@ -290,6 +290,7 @@ const Cart = () => {
         quantity: topping.quantity,
         momentPrice: topping.topping.price,
       })),
+    
     }));
 
     console.log("CartItems", cartItems);
@@ -308,8 +309,8 @@ const Cart = () => {
 
     console.log("Full address is default: ", fullAddress);
 
-    const stringFullAddress = `${fullAddress[0].fullName}, ${fullAddress[0].phone}, ${fullAddress[0].fullAddress}, ${fullAddress[0].street}, ${fullAddress[0].districtCode}, ${fullAddress[0].wardCode}, ${fullAddress[0].cityCode}`;
-    console.log("String full address: ", stringFullAddress);
+    // const stringFullAddress = `${fullAddress[0].fullName}, ${fullAddress[0].phone}, ${fullAddress[0].fullAddress}, ${fullAddress[0].street}, ${fullAddress[0].districtCode}, ${fullAddress[0].wardCode}, ${fullAddress[0].cityCode}`;
+    // console.log("String full address: ", stringFullAddress);
 
     const order = {
       cashierId: JSON.parse(localStorage.getItem("user")).username,
@@ -321,7 +322,7 @@ const Cart = () => {
       active: false,
       shippingFee: 0,
       orderType: 0,
-      fullAddress: stringFullAddress,
+      // fullAddress: stringFullAddress,
       customerId: selectedItemsArray.customerId || "test1",
       orderDetails: cartItems,
     };
@@ -333,6 +334,8 @@ const Cart = () => {
       console.log("Order response:", orderResponse.data);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
+      localStorage.setItem("billData", JSON.stringify(orderResponse.data));    
+      console.log(order.id);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
         await handleOnlinePayment(order, grandTotal);
@@ -399,7 +402,7 @@ const Cart = () => {
   };
 
   // // Hàm xử lý thành công
-  const handleSuccess = async () => {
+  const handleSuccess = async (order) => {
     message.success("Thanh toán thành công!");
     const selectedItemsIds = selectedItemsArray.map((item) => item.id);
 
@@ -411,8 +414,11 @@ const Cart = () => {
       const username = JSON.parse(localStorage.getItem("user"));
       dispatch(getCartDetailsByUsername(username.username));
 
+
       dispatch(clearSelectedItems());
       setSelectedRowKeys([]);
+      navigate(`/bill/${order.id}`);
+
     } catch (error) {
       console.error("Error removing items after payment:", error);
     }
