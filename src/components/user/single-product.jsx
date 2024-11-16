@@ -34,6 +34,7 @@ function Product() {
   );
   
   const { id } = useParams();
+ 
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);
 
@@ -294,6 +295,7 @@ function Product() {
             <Col md={12}>
               <div className="product-content" style={{ marginLeft: "80px" }}>
                 <h3 style={{ color: "#f28123" }}>{product?.name}</h3>
+                <h5 style={{     textAlign: "justify"}}>{product?.description}</h5>
                 <p
                   className="product-pricing"
                   style={{
@@ -315,7 +317,7 @@ function Product() {
                       fontWeight: "500",
                     }}
                   >
-                    <span>Chọn kích cỡ:</span>
+                    <span>Choose size:</span>
                   </p>
                   <div className="size-options">
                     {sizes.map((item) => (
@@ -333,7 +335,7 @@ function Product() {
                   </div>
                 </div>
                 <div className="product-toppings" style={{ marginTop: "20px" }}>
-                  <p>Chọn topping:</p>
+                  <p>Choose topping:</p>
                   <div>
                     {toppings.map((topping) => (
                       <div key={topping.name}>
@@ -351,7 +353,7 @@ function Product() {
                             }
                             style={{ width: "50px" }}
                           />
-                          {topping.name} (+{topping.price.toLocaleString()} VNĐ)
+                          {topping.name} ({topping.price.toLocaleString()} VNĐ)
                         </label>
                       </div>
                     ))}

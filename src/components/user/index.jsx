@@ -182,8 +182,8 @@ function Index() {
                 visibleProductsFirstRow.map(
                   (product) =>
                     product && (
-                      <Col key={product.id} style={{ margin: "0 10px" }}>
-                        <Link to={`/single-product/${product.id}`}>
+                      <Col key={product.slug} style={{ margin: "0 10px" }}>
+                        <Link to={`/single-product/${product.slug}`}>
                           <Card
                             cover={
                               <img
@@ -345,8 +345,8 @@ function Index() {
                 visibleProductsSecondRow.slice(0, 4).map(
                   (product) =>
                     product && (
-                      <Col key={product.id} style={{ margin: "0 10px" }}>
-                        <Link to={`/single-product/${product.id}`}>
+                      <Col key={product.slug} style={{ margin: "0 10px" }}>
+                <Link to={`/single-product/${product.slug}`}>
                           <Card
                             cover={
                               <img
