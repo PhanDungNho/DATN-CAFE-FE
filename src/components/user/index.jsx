@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Row, Col, Button, Card, Typography } from "antd";
+import { Layout, Row, Col, Button, Card, Typography, Spin } from "antd";
 import {
   ShoppingCartOutlined,
   SyncOutlined,
@@ -24,7 +24,9 @@ function Index() {
   const [products, setProducts] = useState([]); // State for products
   const [loading, setLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null); // Add error state
+  const [topProducts, setTopProducts] = useState([]);
   const navigate = useNavigate();
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -82,16 +84,30 @@ function Index() {
     );
 
   const visibleProductsFirstRow = [
-    products[startIndex],
-    products[(startIndex + 1) % products.length],
-    products[(startIndex + 2) % products.length],
+    topProducts[startIndex],
+    topProducts[(startIndex + 1) % topProducts.length],
+    topProducts[(startIndex + 2) % topProducts.length],
   ];
-
+  
   const visibleProductsSecondRow = [
     products[startIndexSecondRow],
     products[(startIndexSecondRow + 1) % products.length],
     products[(startIndexSecondRow + 2) % products.length],
   ];
+
+  useEffect(() => {
+    // Gọi API để lấy danh sách sản phẩm bán chạy
+    axios.get('http://localhost:8081/api/v1/products/top-selling')
+      .then((response) => {
+        setTopProducts(response.data);  // Lưu dữ liệu sản phẩm vào state
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError('Có lỗi khi tải sản phẩm 123');
+        setLoading(false);
+      });
+  }, []);
+  
 
   return (
     <Layout>
@@ -134,7 +150,7 @@ function Index() {
                   paddingTop: "10px",
                 }}
               >
-                <span className="orange-text">Sản phẩm</span> nổi bật
+                <span className="orange-text">Sản phẩm</span> Best Seller
               </Title>
               <Paragraph
                 style={{
@@ -181,10 +197,13 @@ function Index() {
               />
             </Col>
 
-            <Row gutter={[16, 16]} justify="center">
+            <Row gutter={[16, 24]} justify="center" 
+                  style={{
+                    display: 'flex',
+                    gap: '20px',       // Khoảng cách giữa các sản phẩm
+                  }}>
               {visibleProductsFirstRow.length > 0 ? (
-                visibleProductsFirstRow.map(
-                  (product) =>
+        visibleProductsFirstRow.map((product) =>
                     product && (
                       <Col key={product.id} style={{ margin: "0 10px" }}>
                         <Link to={`/single-product/${product.id}`}>
@@ -282,169 +301,7 @@ function Index() {
               />
             </Col>
           </Row>
-          <Row justify="center" style={{ marginTop: "50px" }}>
-            <Col span={24} style={{ textAlign: "center" }}>
-              <Title
-                level={2}
-                style={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "600",
-                  color: "#333",
-                  paddingTop: "10px",
-                }}
-              >
-                <span className="orange-text">Sản phẩm</span> top bán chạy
-              </Title>
-              <Paragraph
-                style={{
-                  fontFamily: "Arial, sans-serif",
-                  color: "#555",
-                  lineHeight: "1.6",
-                }}
-              >
-                Mỗi ly trà là một cuộc hành trình qua thời gian và không gian,
-                gợi nhớ về truyền thống và sự thanh khiết của thiên nhiên.
-              </Paragraph>
-            </Col>
-          </Row>
-          <Row justify="center" align="middle" style={{ marginBottom: "20px" }}>
-            <Col>
-              <Button
-                icon={<LeftOutlined />}
-                onClick={handlePrevSecondRow}
-                disabled={startIndexSecondRow === 0}
-                style={{
-                  marginRight: "10px",
-                  backgroundColor: "#ff8c00",
-                  color: "#fff",
-                  borderRadius: "50%", // Make the button round
-                  width: "50px", // Set the width and height
-                  height: "50px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "none",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#000";
-                  e.currentTarget.style.transform = "scale(1.1)";
-                  e.currentTarget.style.boxShadow =
-                    "0px 4px 12px rgba(0, 0, 0, 0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#ff8c00";
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              />
-            </Col>
-            <Row
-              gutter={[16, 16]}
-              justify="center"
-              align="middle"
-              style={{ marginBottom: "20px" }}
-            >
-              {visibleProductsSecondRow.length > 0 ? (
-                visibleProductsSecondRow.slice(0, 4).map(
-                  (product) =>
-                    product && (
-                      <Col key={product.id} style={{ margin: "0 10px" }}>
-                        <Link to={`/single-product/${product.id}`}>
-                          <Card
-                            cover={
-                              <img
-                                alt={product.name}
-                                src={ProductService.getProductImageUrl(
-                                  product.images[0].fileName
-                                )}
-                                style={{
-                                  height: 200,
-                                  objectFit: "cover",
-                                  borderRadius: "8px",
-                                }}
-                                onError={(e) => {
-                                  console.log(
-                                    `Không thể tải ảnh: ${product.image}`
-                                  );
-                                  e.target.src =
-                                    "assets/css/img/index/bacxiu1.jpg"; // Đường dẫn ảnh mặc định khi không tải được
-                                }}
-                              />
-                            }
-                            style={{
-                              width: "200px",
-                              borderRadius: "8px",
-                              overflow: "hidden",
-                              transition: "transform 0.3s, box-shadow 0.3s",
-                            }}
-                            bodyStyle={{ padding: "16px", textAlign: "center" }}
-                            className="product-card"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = "scale(1.05)";
-                              e.currentTarget.style.boxShadow =
-                                "0 4px 15px rgba(0, 0, 0, 0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "scale(1)";
-                              e.currentTarget.style.boxShadow = "none";
-                            }}
-                          >
-                            <Title
-                              level={4}
-                              style={{
-                                marginBottom: "10px",
-                                fontSize: "18px",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {product.name}
-                            </Title>
-                          </Card>
-                        </Link>
-                      </Col>
-                    )
-                )
-              ) : (
-                <Col span={24} style={{ textAlign: "center" }}>
-                  <Paragraph>Không có sản phẩm nào để hiển thị.</Paragraph>
-                </Col>
-              )}
-            </Row>
-            <Col>
-              <Button
-                icon={<RightOutlined />}
-                onClick={handleNextSecondRow}
-                disabled={startIndexSecondRow + 3 >= products.length}
-                style={{
-                  marginLeft: "10px",
-                  backgroundColor: "#ff8c00",
-                  color: "#fff",
-                  borderRadius: "50%", // Make the button round
-                  width: "50px", // Set the width and height
-                  height: "50px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "none",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#000";
-                  e.currentTarget.style.transform = "scale(1.1)";
-                  e.currentTarget.style.boxShadow =
-                    "0px 4px 12px rgba(0, 0, 0, 0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#ff8c00";
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              />
-            </Col>
-          </Row>
+          
           <div>
             <img
               src="assets/img/index/banner2.png"
