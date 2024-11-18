@@ -29,12 +29,15 @@ import OrderTab from "./OrderTab";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import PaymentService from "../../../services/PaymentService";
 import Queue from "./Queue";
-
+import { deleteOrderById } from "../../../redux/actions/invoiceAction";
+import { useDispatch } from "react-redux";
+ 
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
 const { Option } = Select;
 
 const CounterForm = () => {
+const dispatch = useDispatch();
  
   const [activeTab, setActiveTab] = useState("0");
   // const [ords, setOrds] = useState([]);
@@ -319,7 +322,8 @@ const CounterForm = () => {
               message.success("Thanh toán thành công!");
               handleSuccess(order, index); // Đóng form bán hàng
               removeCustomer(index.toString()); 
-            } else {
+            }else {
+              dispatch(deleteOrderById(order.id));
               message.error("Thanh toán thất bại hoặc bị hủy.");
             }
             console.log("first")

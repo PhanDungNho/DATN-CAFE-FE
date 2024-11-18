@@ -1,4 +1,4 @@
-import React from "react"; 
+import React from "react";
 import { Form, Input, Button, Card, Col, Row, message } from "antd";
 import {
   UserOutlined,
@@ -8,9 +8,11 @@ import {
 } from "@ant-design/icons";
 import { FaLock } from "react-icons/fa";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-import { GoogleOutlined , HomeOutlined} from "@ant-design/icons";
+import { GoogleOutlined, HomeOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { handleGoogleLoginSuccess } from "../../redux/actions/authActions";
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -20,11 +22,15 @@ const Register = () => {
     console.log("Giá trị form:", values);
 
     try {
-      const response = await axios.post("http://localhost:8081/api/register", values, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8081/api/register",
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       message.success("Vui Lòng Nhập Mã OTP Để Xác Nhận Đăng Ký!");
 
       // Điều hướng đến trang xác thực OTP sau khi đăng ký thành công
@@ -38,9 +44,14 @@ const Register = () => {
 
         // Kiểm tra lỗi trùng username
         if (data.message === "Username already exists") {
-          message.error("Tài khoản này đã tồn tại. Vui lòng chọn tài khoản khác.");
+          message.error(
+            "Tài khoản này đã tồn tại. Vui lòng chọn tài khoản khác."
+          );
         } else {
-          message.error(data.message ||"Username này đã tồn tại. Vui lòng nhập Username khác.");
+          message.error(
+            data.message ||
+              "Username này đã tồn tại. Vui lòng nhập Username khác."
+          );
         }
       } else {
         message.error("Đăng ký thất bại! Vui lòng thử lại.");
@@ -73,8 +84,21 @@ const Register = () => {
         justifyContent: "center",
       }}
     >
-      <div className="card" style={{ maxWidth: "1000px", width: "100%", opacity: "0.95", marginTop: "20px" }}>
-        <Row gutter={32} align="middle" justify="center" style={{ height: "100%" }}>
+      <div
+        className="card"
+        style={{
+          maxWidth: "1000px",
+          width: "100%",
+          opacity: "0.95",
+          marginTop: "20px",
+        }}
+      >
+        <Row
+          gutter={32}
+          align="middle"
+          justify="center"
+          style={{ height: "100%" }}
+        >
           <Col xs={24} xl={14} className="register-image-col">
             <img
               src="/assets/img/nenregister2.png"
@@ -101,43 +125,64 @@ const Register = () => {
                 justifyContent: "center",
               }}
             >
-              <h3 className="register-title" style={{ textAlign: "center", marginBottom: "5px" }}>
+              <h3
+                className="register-title"
+                style={{ textAlign: "center", marginBottom: "5px" }}
+              >
                 Đăng ký
               </h3>
               <Form form={form} onFinish={onFinish}>
                 <Form.Item
                   name="username"
-                  rules={[{ required: true, message: "Vui lòng nhập tài khoản!" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tài khoản!" },
+                  ]}
                 >
                   <Input prefix={<UserOutlined />} placeholder="Tài khoản" />
                 </Form.Item>
                 <Form.Item
                   name="fullName"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập họ và tên!" },
+                  ]}
                 >
-                  <Input prefix={<MdDriveFileRenameOutline />} placeholder="Họ và tên" />
+                  <Input
+                    prefix={<MdDriveFileRenameOutline />}
+                    placeholder="Họ và tên"
+                  />
                 </Form.Item>
                 <Form.Item
                   name="email"
-                  rules={[{ required: true, message: "Vui lòng nhập email!", type: "email" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập email!",
+                      type: "email",
+                    },
+                  ]}
                 >
                   <Input prefix={<MailOutlined />} placeholder="Email" />
                 </Form.Item>
                 <Form.Item
                   name="password"
-                  rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập mật khẩu!" },
+                  ]}
                 >
                   <Input.Password prefix={<FaLock />} placeholder="Mật khẩu" />
                 </Form.Item>
                 <Form.Item
                   name="confirmpassword"
-                  dependencies={['password']}
+                  dependencies={["password"]}
                   rules={[
                     { required: true, message: "Vui lòng nhập lại mật khẩu!" },
                     { validator: validatePassword },
                   ]}
                 >
-                  <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" />
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="Nhập lại mật khẩu"
+                  />
                 </Form.Item>
                 <Form.Item
                   name="phone"
@@ -149,56 +194,81 @@ const Register = () => {
                     },
                   ]}
                 >
-                  <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
+                  <Input
+                    prefix={<PhoneOutlined />}
+                    placeholder="Số điện thoại"
+                  />
                 </Form.Item>
-                <div className="register-buttons" style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button type="default" onClick={onReset} className="reset-button">
+                <div
+                  className="register-buttons"
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Button
+                    type="default"
+                    onClick={onReset}
+                    className="reset-button"
+                  >
                     Reset all
                   </Button>
-                  <Button type="primary" htmlType="submit" className="submit-button">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="submit-button"
+                  >
                     Submit
                   </Button>
                 </div>
-                <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
-                
+
                 <Form.Item>
-  <Row gutter={16}>
-    <Col span={18}> {/* Nút Google chiếm 18 phần (tương đương 8 phần trong tổng 24 phần) */}
-      <Button
-        type="default"
-        className="btn-block btn-form btn-gg"
-        icon={<GoogleOutlined />}
-        style={{
-          backgroundColor: "red",
-          color: "white",
-          borderColor: "red",
-          width: "100%", // Làm cho nút chiếm toàn bộ chiều rộng
-        }}
-      >
-        Đăng ký với Google
-      </Button>
-    </Col>
-    <Col span={4}> {/* Nút Home chiếm 6 phần (tương đương 2 phần trong tổng 24 phần) */}
-      <Button
-        type="default"
-        icon={<HomeOutlined />}
-        onClick={() => navigate("/")} // Chuyển hướng về trang chủ khi nhấn nút
-        style={{
-          backgroundColor: "#1890ff", // Màu nền cho nút
-          color: "white",
-          borderColor: "#1890ff",
-          width: "100%",
-          marginLeft: "20px"
-          // Làm cho nút chiếm toàn bộ chiều rộng
-        }}
-      >
-      </Button>
-    </Col>
-  </Row>
-</Form.Item>
+                  <p className="text-center fw-bold my-3 text-muted">OR</p>
+
+                  <Form.Item>
+                    <GoogleOAuthProvider clientId="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com">
+                      <GoogleLogin
+                        useOneTap
+                        width={"360"}
+                        type="standard"
+                        size="medium"
+                        shape="square"
+                        theme="filled_black"
+                        text="continue_with"
+                        className="w-100"
+                        style={{ color: "red" }}
+                        onSuccess={handleGoogleLoginSuccess}
+                        onError={(error) => {
+                          console.error("Login Failed:", error);
+                        }}
+                      />
+                    </GoogleOAuthProvider>
+                  </Form.Item>
+                  {/* <a href="http://localhost:8081/oauth2/authorization/google"
+      class="btn btn-block btn-google auth-form-btn w-100"  > <i
+      class="mdi mdi-google  me-2 text-warning"></i>Connect using
+      google
+    </a> */}
+
+                  {/* <Row gutter={16}>
+                    <Col span={4}>
+                      {" "}
+                    
+                      <Button
+                        type="default"
+                        icon={<HomeOutlined />}
+                        onClick={() => navigate("/")} // Chuyển hướng về trang chủ khi nhấn nút
+                        style={{
+                          backgroundColor: "#1890ff", // Màu nền cho nút
+                          color: "white",
+                          borderColor: "#1890ff",
+                          width: "100%",
+                          marginLeft: "20px",
+                          // Làm cho nút chiếm toàn bộ chiều rộng
+                        }}
+                      ></Button>
+                    </Col>
+                  </Row> */}
+                </Form.Item>
               </Form>
-             
-            </Card> 
+            </Card>
           </Col>
         </Row>
       </div>

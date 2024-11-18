@@ -2,7 +2,6 @@ import axios from "axios";
 import { API_ADDRESS } from "./constant";
 
 export default class addressService {
-
   getAddresses = async () => {
     return await axios.get(API_ADDRESS, {
       headers: {
@@ -48,26 +47,34 @@ export default class addressService {
 
   // Đặt một địa chỉ là mặc định (isDefault)
   setIsDefault = async (addressId) => {
-    return await axios.patch(`${API_ADDRESS}/${addressId}/setIsDefault`, {}, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+    return await axios.patch(
+      `${API_ADDRESS}/${addressId}/setIsDefault`,
+      {},
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    );
   };
 
   // Toggle trạng thái active của một địa chỉ
   toggleActive = async (addressId) => {
-    return await axios.patch(`${API_ADDRESS}/${addressId}/toggle-active`, {}, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+    return await axios.patch(
+      `${API_ADDRESS}/${addressId}/toggle-active`,
+      {},
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    );
   };
 
   deleteAddress = async (id) => {
     return await axios.delete(`${API_ADDRESS}/${id}`, {
-        headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+      headers: { Authorization: "Bearer " + localStorage.getItem("token") },
     });
-};
-
+  };
+  
 }

@@ -127,6 +127,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     render: (_, record) => {
       return (
         <Space size="middle">
+
           {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {

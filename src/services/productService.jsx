@@ -145,6 +145,16 @@ export default class ProductService {
     });
   };
 
+  getProductBySlug = async (slug) => {
+    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
+
+
+
   deleteProductImage = async (fileName) => {
     await axios.delete(API_PRODUCT + "/images/" + fileName, {
       headers: {
