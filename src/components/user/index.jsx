@@ -60,40 +60,26 @@ function Index() {
   }, []);
   
 //tự động chạy ảnh 
-  useEffect(() => {
-    if (products && products.length > 0) {
-      // Kiểm tra products có phần tử
-      const interval = setInterval(() => {
-        setStartIndex((prev) => (prev + 1) % products.length);
-        setStartIndexSecondRow((prev) => (prev + 1) % products.length);
-      }, 4500);
+useEffect(() => {
+  let interval;
+  if (topProducts && topProducts.length > 0) {
+    interval = setInterval(() => {
+      setStartIndex((prev) => (prev + 1) % topProducts.length);
+    }, 4500);
+  }
 
-      return () => clearInterval(interval); // Dọn dẹp interval
-    }
-  }, [products.length]);
+  return () => clearInterval(interval);
+}, [topProducts]);
 
-  const handleNextFirstRow = () =>
-    setStartIndex((prev) => (prev + 1) % products.length);
-  const handlePrevFirstRow = () =>
-    setStartIndex((prev) => (prev - 1 + products.length) % products.length);
-  const handleNextSecondRow = () =>
-    setStartIndexSecondRow((prev) => (prev + 1) % products.length);
-  const handlePrevSecondRow = () =>
-    setStartIndexSecondRow(
-      (prev) => (prev - 1 + products.length) % products.length
-    );
+const handleNextFirstRow = () =>
+  setStartIndex((prev) => (prev + 1) % products.length);
 
-  const visibleProductsFirstRow = [
-    topProducts[startIndex],
-    topProducts[(startIndex + 1) % topProducts.length],
-    topProducts[(startIndex + 2) % topProducts.length],
-  ];
+const handlePrevFirstRow = () =>
+  setStartIndex((prev) => (prev - 1 + products.length) % products.length);
+
+const visibleProducts = topProducts.slice(startIndex, startIndex + 3);
+
   
-  const visibleProductsSecondRow = [
-    products[startIndexSecondRow],
-    products[(startIndexSecondRow + 1) % products.length],
-    products[(startIndexSecondRow + 2) % products.length],
-  ];
 
   useEffect(() => {
     // Gọi API để lấy danh sách sản phẩm bán chạy
@@ -130,7 +116,7 @@ function Index() {
       <Content style={{ padding: "5px 0", backgroundColor: "#ffff" }}>
         <div>
           <img
-            src="assets/img/index/banner4.png"
+            src="assets/img/index/bannernew1.png"
             alt=""
             style={{
               width: "1600px",
@@ -141,27 +127,10 @@ function Index() {
         <div className="container">
           <Row justify="center" style={{ marginTop: "50px" }}>
             <Col span={16} style={{ textAlign: "center" }}>
-              <Title
-                level={2}
-                style={{
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "600",
-                  color: "#333",
-                  paddingTop: "10px",
-                }}
-              >
+              <Title level={2} style={{ fontFamily: "Arial, sans-serif", fontWeight: "600" }}>
                 <span className="orange-text">Sản phẩm</span> Best Seller
               </Title>
-              <Paragraph
-                style={{
-                  fontFamily: "Arial, sans-serif",
-                  color: "#555",
-                  lineHeight: "1.6",
-                }}
-              >
-                Mỗi ly trà là một cuộc hành trình qua thời gian và không gian,
-                gợi nhớ về truyền thống và sự thanh khiết của thiên nhiên.
-              </Paragraph>
+              <Paragraph>Mỗi ly trà là một cuộc hành trình qua thời gian và không gian.</Paragraph>
             </Col>
           </Row>
           <Row justify="center" align="middle" style={{ marginBottom: "20px" }}>
@@ -174,20 +143,15 @@ function Index() {
                   marginRight: "10px",
                   backgroundColor: "#ff8c00",
                   color: "#fff",
-                  borderRadius: "50%", // Make the button round
-                  width: "50px", // Set the width and height
+                  borderRadius: "50%",
+                  width: "50px",
                   height: "50px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "none",
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = "#000";
-                  e.currentTarget.style.transform = "scale(1.1)";
-                  e.currentTarget.style.boxShadow =
-                    "0px 4px 12px rgba(0, 0, 0, 0.2)";
+                  e.currentTarget.style.transform = "scale(1.2)";
+                  e.currentTarget.style.boxShadow = "0px 4px 12px rgba(0, 0, 0, 0.2)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "#ff8c00";
@@ -197,72 +161,53 @@ function Index() {
               />
             </Col>
 
-            <Row gutter={[16, 24]} justify="center" 
-                  style={{
-                    display: 'flex',
-                    gap: '20px',       // Khoảng cách giữa các sản phẩm
-                  }}>
-              {visibleProductsFirstRow.length > 0 ? (
-        visibleProductsFirstRow.map((product) =>
-                    product && (
-                      <Col key={product.slug} style={{ margin: "0 10px" }}>
-                        <Link to={`/single-product/${product.slug}`}>
-                          <Card
-                            cover={
-                              <img
-                                alt={product.name}
-                                src={ProductService.getProductImageUrl(
-                                  product.images[0].fileName
-                                )}
-                                style={{
-                                  height: 200,
-                                  objectFit: "cover",
-                                  borderRadius: "8px",
-                                }}
-                                onError={(e) => {
-                                  console.log(
-                                    `Không thể tải ảnh: ${product.image}`
-                                  );
-                                  e.target.src =
-                                    "assets/css/img/index/bacxiu1.jpg"; // Đường dẫn ảnh mặc định khi không tải được
-                                }}
-                              />
-                            }
+            <Row
+              gutter={[16, 16]}
+              justify="center"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)", // Bố cục 3 sản phẩm
+                gap: "20px", // Khoảng cách giữa các sản phẩm
+              }}
+            >
+              {visibleProducts.length > 0 ? (
+                visibleProducts.map((product, index) => (
+                  <Col key={`${product.slug}-${index}`}>
+                    <Link to={`/single-product/${product.slug}`}>
+                      <Card
+                        cover={
+                          <img
+                            alt={product.name}
+                            src={ProductService.getProductImageUrl(product.images[0].fileName)}
                             style={{
-                              width: "200px",
+                              height: 200,
+                              objectFit: "cover",
                               borderRadius: "8px",
-                              overflow: "hidden",
-                              transition: "transform 0.3s, box-shadow 0.3s",
                             }}
-                            bodyStyle={{ padding: "16px", textAlign: "center" }}
-                            className="product-card"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = "scale(1.05)";
-                              e.currentTarget.style.boxShadow =
-                                "0 4px 15px rgba(0, 0, 0, 0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "scale(1)";
-                              e.currentTarget.style.boxShadow = "none";
-                            }}
-                          >
-                            <Title
-                              level={4}
-                              style={{
-                                marginBottom: "10px",
-                                fontSize: "18px",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {product.name}
-                            </Title>
-                          </Card>
-                        </Link>
-                      </Col>
-                    )
-                )
+                          />
+                        }
+                        style={{
+                          width: "200px",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "scale(1.05)";
+                          e.currentTarget.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "scale(1)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
+                      >
+                        <Title level={4} style={{ marginBottom: "10px", fontSize: "18px" }}>
+                          {product.name}
+                        </Title>
+                      </Card>
+                    </Link>
+                  </Col>
+                ))
               ) : (
                 <Col span={24} style={{ textAlign: "center" }}>
                   <Paragraph>Không có sản phẩm nào để hiển thị.</Paragraph>
@@ -278,20 +223,15 @@ function Index() {
                   marginLeft: "10px",
                   backgroundColor: "#ff8c00",
                   color: "#fff",
-                  borderRadius: "50%", // Make the button round
-                  width: "50px", // Set the width and height
+                  borderRadius: "50%",
+                  width: "50px",
                   height: "50px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "none",
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = "#000";
-                  e.currentTarget.style.transform = "scale(1.1)";
-                  e.currentTarget.style.boxShadow =
-                    "0px 4px 12px rgba(0, 0, 0, 0.2)";
+                  e.currentTarget.style.transform = "scale(1.2)";
+                  e.currentTarget.style.boxShadow = "0px 4px 12px rgba(0, 0, 0, 0.2)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "#ff8c00";
@@ -301,10 +241,9 @@ function Index() {
               />
             </Col>
           </Row>
-          
           <div>
             <img
-              src="assets/img/index/banner2.png"
+              src="assets/img/index/bannernew2.png"
               alt=""
               style={{
                 width: "1600px",
@@ -314,7 +253,7 @@ function Index() {
           </div>
         </div>
       </Content>
-
+      
       {/* Deal of the Month Section */}
       <Content style={{ padding: "30px 0", backgroundColor: "#ffff" }}>
         <div className="container">
@@ -437,6 +376,23 @@ function Index() {
             </Col>
           </Row>
         </div>
+        <style>
+  {`
+  .product-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Chia mỗi hàng thành 3 cột */
+  gap: 20px; /* Khoảng cách giữa các sản phẩm */
+}
+
+.product-item {
+  text-align: center;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+  `}
+</style>
       </Content>
       <Footer />
     </Layout>
