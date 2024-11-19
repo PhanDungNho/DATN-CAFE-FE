@@ -15,6 +15,9 @@ import {
   Tag,
   Radio,
   Modal,
+  Form,
+  Select,
+  Input,
 } from "antd";
 import { ShoppingCartOutlined, ShopOutlined } from "@ant-design/icons";
 import Header from "./Header";
@@ -35,19 +38,51 @@ import OrderService from "../../services/orderService";
 import {
   getAddressByUsername,
   setIsDefaultCart,
+  updateAddress,
+  insertAddress,
 } from "../../redux/actions/addressAction";
 import { GoPlus } from "react-icons/go";
+import {
+  calculateShippingFee,
+  fetchDistricts,
+  fetchProvinces,
+  fetchWards,
+} from "../../services/constant";
 
 const { Content } = Layout;
 const { Title } = Typography;
+const { Option } = Select;
+
+export const mapAddressToDto = (address) => ({
+  id: address.id,
+  active: address.active !== undefined ? address.active : true,
+  cityCode: address.cityCode,
+  districtCode: address.districtCode,
+  fullAddress: address.fullAddress,
+  isDefault: address.isDefault,
+  street: address.street,
+  wardCode: address.wardCode,
+  account: address.account ? address.account.username : null,
+});
 
 const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [currentAddress, setCurrentAddress] = useState(null);
+  const [wards, setWards] = useState([]);
+
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalAddressOpen, setIsModalAddressOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const orderService = new OrderService();
   const paymentService = new PaymentService();
+  const username = JSON.parse(localStorage.getItem("user"))?.username;
 
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
@@ -67,6 +102,7 @@ const Cart = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [grandTotal, setGrandTotal] = useState(0);
+  const [shippingfee, setShippingfee] = useState(0);
 
   useEffect(() => {
     const total = calculateTotalAmount(selectedItems);
@@ -298,19 +334,13 @@ const Cart = () => {
     const fullAddress = addresses
       .filter((address) => address.isDefault)
       .map((address) => ({
-        fullName: address.account.fullName,
-        phone: address.account.phone,
-        street: address.street,
-        cityCode: address.cityCode,
-        districtCode: address.districtCode,
-        wardCode: address.wardCode,
         fullAddress: address.fullAddress,
       }));
 
     console.log("Full address is default: ", fullAddress);
 
-    // const stringFullAddress = `${fullAddress[0].fullName}, ${fullAddress[0].phone}, ${fullAddress[0].fullAddress}, ${fullAddress[0].street}, ${fullAddress[0].districtCode}, ${fullAddress[0].wardCode}, ${fullAddress[0].cityCode}`;
-    // console.log("String full address: ", stringFullAddress);
+    const stringFullAddress = `${fullAddress[0].fullAddress}`;
+    console.log("String full address: ", stringFullAddress);
 
     const order = {
       cashierId: JSON.parse(localStorage.getItem("user")).username,
@@ -320,7 +350,7 @@ const Cart = () => {
       paymentMethod: currentPaymentMethod,
       paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
-      shippingFee: 0,
+      shippingFee: shippingfee,
       orderType: 0,
       // fullAddress: stringFullAddress,
       customerId: selectedItemsArray.customerId || "test1",
@@ -338,7 +368,7 @@ const Cart = () => {
       console.log(order.id);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
-        await handleOnlinePayment(order, grandTotal);
+        await handleOnlinePayment(order, grandTotal + shippingfee);
       } else {
         handleSuccess(order);
       }
@@ -354,8 +384,10 @@ const Cart = () => {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
         `Thanh toán cho đơn hàng ID: ${order.id}`,
-        "d"
+        "wala"
       );
+
+      console.log("MOMO", response);
 
       if (response && response.data && response.data.payUrl) {
         // Lưu thông tin giao dịch
@@ -425,19 +457,54 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const defaultAddress = addresses.find((address) => address.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress(defaultAddress.id);
-    }
-  }, [addresses]);
+    const fetchDefaultAddressAndCalculateShipping = async () => {
+      const defaultAddress = addresses.find((address) => address.isDefault);
+      const numberOfItems = Object.keys(selectedItems).length;
+      const weight = 500 * numberOfItems;
+
+      if (numberOfItems === 0) {
+        setShippingfee(0);
+        return; 
+      }
+
+      if (defaultAddress) {
+        setSelectedAddress(defaultAddress.id);
+        const body = {
+          service_type_id: 2,
+          to_district_id: defaultAddress.districtCode,
+          to_ward_code: String(defaultAddress.wardCode),
+          height: 20,
+          length: 15,
+          weight: weight || 500,
+          width: 15,
+          insurance_value: 0,
+          cod_failed_amount: 0,
+          coupon: null,
+        };
+        const shippingFee = await calculateShippingFee(body);
+        console.log(shippingFee);
+        setShippingfee(shippingFee.data.total);
+      }
+    };
+
+    fetchDefaultAddressAndCalculateShipping();
+  }, [addresses, selectedItems]);
 
   const showModal = () => {
     setIsModalOpen(true);
   };
 
   const onAddressChange = (e) => {
-    setSelectedAddress(e.target.value);
-    console.log("Onchange address: ", e.target.value);
+    const selectedAddressId = e.target.value;
+    setSelectedAddress(selectedAddressId);
+
+    // Tìm địa chỉ tương ứng với ID đã chọn
+    const selectedAddressObject = addresses.find(
+      (address) => address.id === selectedAddressId
+    );
+
+    // In ra đối tượng địa chỉ đã chọn
+    console.log("Selected Address Object: ", selectedAddressObject);
   };
 
   const handleOk = () => {
@@ -452,6 +519,145 @@ const Cart = () => {
       setSelectedAddress(defaultAddress.id);
     }
     setIsModalOpen(false);
+  };
+
+  const handleCancelAddress = () => {
+    setIsModalOpen(true);
+    setIsModalAddressOpen(false);
+    setCurrentAddress(null);
+  };
+
+  //API Address
+
+  useEffect(() => {
+    const loadProvinces = async () => {
+      const provincesData = await fetchProvinces();
+
+      // Lọc để chỉ lấy dữ liệu của thành phố Cần Thơ
+      const canTho = provincesData.find(
+        (province) => province.ProvinceName === "Cần Thơ"
+      );
+
+      if (canTho) {
+        setProvinces([canTho]); // Đặt provinces chỉ gồm "Cần Thơ"
+        form.setFieldsValue({ cityCode: canTho.ProvinceID });
+        handleProvinceChange(canTho.ProvinceID); // Gọi hàm để tải quận/huyện của Cần Thơ
+      }
+    };
+    loadProvinces();
+  }, []);
+
+  const handleProvinceChange = async (value) => {
+    setDistricts([]);
+    setWards([]);
+    if (value) {
+      const districtData = await fetchDistricts(value);
+      setDistricts(districtData);
+      form.setFieldsValue({ districtCode: undefined, wardCode: undefined });
+    }
+  };
+
+  const handleDistrictChange = async (value) => {
+    setWards([]);
+    if (value) {
+      const wardData = await fetchWards(value);
+      setWards(wardData);
+      form.setFieldsValue({ wardCode: undefined });
+    }
+  };
+
+  const handleWardChange = (value) => {};
+
+  const onFinish = (values) => {
+    const provinceName =
+      provinces.find((p) => p.ProvinceID === values.cityCode)?.ProvinceName ||
+      "Unknown City";
+    const districtName =
+      districts.find((d) => d.DistrictID === values.districtCode)
+        ?.DistrictName || "Unknown District";
+    const wardName =
+      wards.find((w) => w.WardCode === values.wardCode)?.WardName ||
+      "Unknown Ward";
+
+    const fullAddressText = `${values.street}, ${wardName}, ${districtName}, ${provinceName}`;
+
+    const addressDto = mapAddressToDto({
+      ...currentAddress,
+      ...values,
+      fullAddress: fullAddressText,
+    });
+
+    if (!currentAddress) {
+      addressDto.account = username;
+      addressDto.active = true;
+    }
+
+    if (currentAddress) {
+      dispatch(updateAddress(currentAddress.id, addressDto));
+    } else {
+      dispatch(insertAddress(addressDto));
+    }
+
+    setIsModalOpen(true);
+    setIsModalAddressOpen(false);
+  };
+
+  const mapAddressWithNames = (address) => {
+    const provinceName =
+      provinces.find((p) => p.ProvinceID === address.cityCode)?.ProvinceName ||
+      "Unknown City";
+    const districtName =
+      districts.find((d) => d.DistrictID === address.districtCode)
+        ?.DistrictName || "Unknown District";
+    const wardName =
+      wards.find((w) => w.WardID === address.wardCode)?.WardName ||
+      "Unknown District";
+
+    return {
+      ...address,
+      cityName: provinceName,
+      districtName: districtName,
+      wardName: wardName,
+      street: address.street || "",
+    };
+  };
+
+  const handleEdit = async (address) => {
+    setCurrentAddress(address);
+    setIsModalAddressOpen(true);
+    setIsModalOpen(false);
+
+    if (address.cityCode) {
+      const districtData = await fetchDistricts(address.cityCode);
+      setDistricts(districtData);
+
+      if (address.districtCode) {
+        const wardData = await fetchWards(address.districtCode);
+        setWards(wardData);
+
+        console.log("Fetched Wards:", wardData);
+
+        const selectedWard = wardData.find(
+          (ward) => String(ward.WardCode) === String(address.wardCode)
+        );
+
+        if (selectedWard) {
+          form.setFieldsValue({
+            ...mapAddressWithNames(address),
+            wardCode: selectedWard.WardCode,
+            wardName: selectedWard.WardName,
+          });
+        } else {
+          form.setFieldsValue({
+            ...mapAddressWithNames(address),
+            wardCode: undefined,
+            wardName: undefined,
+          });
+        }
+      }
+    } else {
+      form.setFieldsValue(mapAddressWithNames(address));
+    }
   };
 
   return (
@@ -561,8 +767,7 @@ const Cart = () => {
                       </Row>
                       <Row>
                         <span style={{ marginRight: 20 }}>
-                          {address.fullAddress}, District {address.districtCode}
-                          , City {address.cityCode}
+                          {address.fullAddress}
                         </span>
                         <span>
                           <Button
@@ -578,6 +783,8 @@ const Cart = () => {
                           >
                             Change Address
                           </Button>
+
+                          {/* Modal list address */}
                           <Modal
                             title="Address"
                             open={isModalOpen}
@@ -587,59 +794,195 @@ const Cart = () => {
                             <Radio.Group
                               onChange={onAddressChange}
                               value={selectedAddress}
+                              style={{ width: "100%" }}
                             >
                               {addresses.map((address) => (
-                                <div
+                                <Card
                                   key={address.id}
+                                  hoverable
                                   style={{
-                                    padding: "10px",
                                     marginBottom: "10px",
-                                    border: "1px solid #e0e0e0",
-                                    borderRadius: "5px",
-                                    backgroundColor: "#f9f9f9",
-                                    transition: "background-color 0.3s",
+                                    borderRadius: "8px",
+                                    boxShadow:
+                                      "0px 4px 12px rgba(0, 0, 0, 0.1)",
                                   }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor =
-                                      "#e6f7ff";
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor =
-                                      "#f9f9f9";
+                                  bodyStyle={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    padding: "15px 20px",
                                   }}
                                 >
-                                  <Radio value={address.id}>
-                                    <span
+                                  <Radio
+                                    value={address.id}
+                                    style={{ flex: "1" }}
+                                  >
+                                    <div
                                       style={{
-                                        fontWeight: "bold",
-                                        marginRight: "20px",
+                                        display: "flex",
+                                        flexDirection: "column",
                                       }}
                                     >
-                                      {address.account.fullName} (+84){" "}
-                                      {address.account.phone}
-                                    </span>
-                                    <span
-                                      style={{
-                                        color: "#555",
-                                        marginRight: "20px",
-                                      }}
-                                    >
-                                      {address.fullAddress}, District{" "}
-                                      {address.districtCode}, City{" "}
-                                      {address.cityCode}
-                                    </span>
+                                      <span
+                                        style={{
+                                          fontWeight: "bold",
+                                          color: "#333",
+                                        }}
+                                      >
+                                        {address.account.fullName} (+84){" "}
+                                        {address.account.phone}
+                                      </span>
+                                      <span style={{ color: "#666" }}>
+                                        {address.fullAddress}
+                                      </span>
+                                    </div>
                                   </Radio>
-                                </div>
+                                  <Button
+                                    size="small"
+                                    type="link"
+                                    onClick={() => handleEdit(address)}
+                                    style={{
+                                      color: "#1890ff",
+                                      padding: 0,
+                                      marginLeft: "15px",
+                                      textDecoration: "underline",
+                                    }}
+                                  >
+                                    Update
+                                  </Button>
+                                </Card>
                               ))}
                             </Radio.Group>
                             <Divider />
                             <Button
                               onClick={() => navigate("/manager/address")}
                               type="dashed"
-                              style={{ marginBottom: 16 }}
+                              icon={<GoPlus />}
+                              style={{
+                                width: "100%",
+                                borderRadius: "8px",
+                                fontWeight: "bold",
+                              }}
                             >
-                              <GoPlus /> New address
+                              New Address
                             </Button>
+                          </Modal>
+
+                          {/* Modal update address */}
+                          <Modal
+                            title={
+                              currentAddress ? "Update address" : "Add address"
+                            }
+                            open={isModalAddressOpen}
+                            onCancel={handleCancelAddress}
+                            footer={null}
+                          >
+                            <Form
+                              form={form}
+                              name="update-address"
+                              layout="vertical"
+                              onFinish={onFinish}
+                            >
+                              <Form.Item
+                                label="Province/City"
+                                name="cityCode"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please select province/city!",
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  placeholder="Select Province/City"
+                                  onChange={handleProvinceChange}
+                                >
+                                  {provinces.map((province) => (
+                                    <Option
+                                      key={province.ProvinceID}
+                                      value={province.ProvinceID}
+                                    >
+                                      {province.ProvinceName}
+                                    </Option>
+                                  ))}
+                                </Select>
+                              </Form.Item>
+
+                              <Form.Item
+                                label="District/District"
+                                name="districtCode"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please select District!",
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  placeholder="Select District/District"
+                                  onChange={handleDistrictChange}
+                                  value={currentAddress?.districtCode}
+                                  disabled={!districts.length}
+                                >
+                                  {districts.map((district) => (
+                                    <Option
+                                      key={district.DistrictID}
+                                      value={district.DistrictID}
+                                    >
+                                      {district.DistrictName}
+                                    </Option>
+                                  ))}
+                                </Select>
+                              </Form.Item>
+
+                              <Form.Item
+                                label="Ward/Commune"
+                                name="wardCode"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please select ward/commune!",
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  placeholder="Select Ward/Commune"
+                                  onChange={handleWardChange}
+                                  value={currentAddress?.wardCode}
+                                  disabled={!wards.length}
+                                >
+                                  {wards.map((ward) => (
+                                    <Option
+                                      key={ward.WardCode}
+                                      value={ward.WardCode}
+                                    >
+                                      {ward.WardName}
+                                    </Option>
+                                  ))}
+                                </Select>
+                              </Form.Item>
+                              <Form.Item
+                                label="Detailed address"
+                                name="street"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please enter detailed address!",
+                                  },
+                                ]}
+                              >
+                                <Input />
+                              </Form.Item>
+
+                              <Button
+                                type="primary"
+                                htmlType="submit"
+                                style={{ width: "100%" }}
+                              >
+                                {currentAddress
+                                  ? "Update Address"
+                                  : "Add Address"}
+                              </Button>
+                            </Form>
                           </Modal>
                         </span>{" "}
                       </Row>
@@ -672,8 +1015,14 @@ const Cart = () => {
                 </Row>
               </Title>
               <Divider />
+              <Title level={5}>
+                Order value: {grandTotal.toLocaleString()} VNĐ
+              </Title>
+              <Title level={5}>
+                Shipping Fee: {shippingfee.toLocaleString()} VNĐ
+              </Title>
               <Title level={4}>
-                Tổng tiền: {grandTotal.toLocaleString()} VNĐ
+                Total: {(grandTotal + shippingfee).toLocaleString()} VNĐ
               </Title>
               <div
                 style={{
