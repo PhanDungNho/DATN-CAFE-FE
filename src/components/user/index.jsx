@@ -172,8 +172,8 @@ const visibleProducts = topProducts.slice(startIndex, startIndex + 3);
             >
               {visibleProducts.length > 0 ? (
                 visibleProducts.map((product, index) => (
-                  <Col key={`${product.slug}-${index}`}>
-                    <Link to={`/single-product/${product.slug}`}>
+                  <Col key={`${product.id}-${index}`}>
+                    <Link to={product.id ? `/single-product/${product.id}` : "#"}>
                       <Card
                         cover={
                           <img

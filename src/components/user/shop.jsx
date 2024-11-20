@@ -230,7 +230,7 @@ return matchesSearch && (selectedCategory === "All" || product.category.name ===
                         {paginatedProducts.map((product) => (
 
                           <Col key={product.slug} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
-                            <Link to={`/single-product/${product.slug}`}>
+                            <Link to={`/single-product/${product.id}`}>
 
                               <Card
                                 hoverable
