@@ -35,7 +35,6 @@ function Admin() {
           />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
-
           <Route path="accounts/list" element={<ListAccount />} />
           <Route path="authorities/list" element={<ListAuthority />} />
           <Route path="statistics/list" element={<Statistic />} />   

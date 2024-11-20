@@ -146,12 +146,6 @@ export const updateOrder = (id, order) => async (dispatch) => {
 
   try {
     console.log("Update order");
-
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
     const response = await services.updateOrderStatus(id, order);
     console.log("response order: ", response);
 
@@ -177,8 +171,6 @@ export const updateOrder = (id, order) => async (dispatch) => {
       type: COMMON_ERROR_SET,
       payload: error.response?.data?.message || error.message,
     });
-  } finally {
-    dispatch({ type: COMMON_LOADING_SET, payload: false });
   }
 };
 

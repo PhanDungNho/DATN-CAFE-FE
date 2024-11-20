@@ -70,7 +70,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
       const statusOptions = {
         UNCONFIRMED: [
           { value: "UNCONFIRMED", label: "UNCONFIRMED" },
-          { value: "PROCESSING", label: "" },
+          { value: "PROCESSING", label: "PROCESSING" },
           { value: "CANCELLED", label: "CANCELLED" },
         ],
         PROCESSING: [
@@ -96,7 +96,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
           style={{ width: 150 }}
           options={statusOptions[record.orderStatus]}
           onChange={(value) => {
-            updateOrder(record.id, { status: value });
+            updateOrder(record.id, { orderStatus: value });
           }}
         />
       );
@@ -222,9 +222,9 @@ const InvoicesList = ({
         id: index + 1,
         productName: detail.productVariant.product.name,
         quantity: detail.quantity,
-        price: detail.momentprice,
+        price: detail.momentPrice,
         size: detail.productVariant.size.name,
-        toppings: detail.orderdetailtoppings
+        toppings: detail.orderDetailToppings
           .map((topping) => topping.topping.name)
           .join(", "),
         note: detail.note,
@@ -304,7 +304,7 @@ const InvoicesList = ({
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        key={invoices.id + invoices.createtime}
+        key={invoices.id + invoices.createTime}
         width="90%"
       >
         {selectedOrder ? (

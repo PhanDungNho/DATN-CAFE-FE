@@ -99,7 +99,7 @@ export const updateAccount = (username, account) => async (dispatch) => {
         type: COMMON_ERROR_SET,
         payload: response.message,
       });
-    }    
+    }
   } catch (error) {
     dispatch({
       type: COMMON_ERROR_SET,
@@ -191,21 +191,12 @@ export const getAccountsAdmin = () => async (dispatch) => {
   });
 };
 
-
-
 export const getAccount = (username) => async (dispatch) => {
   const service = new accountService();
 
   try {
-    console.log("get account by username");
-
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
     const response = await service.getAccount(username);
-    console.log(response);
+    console.log("API Account: ", response);
 
     if (response.status === 200) {
       dispatch({
@@ -226,10 +217,7 @@ export const getAccount = (username) => async (dispatch) => {
         : error.message,
     });
   }
-  dispatch({
-    type: COMMON_LOADING_SET,
-    payload: false,
-  });
+ 
 };
 
 export const clearAccountState = () => (dispatch) => {
@@ -389,9 +377,7 @@ export const findAccountByPhoneContainsIgnoreCase =
     }
   };
 
-
-
-  export const findAccountByNameContainsIgnoreCaseAdmin =
+export const findAccountByNameContainsIgnoreCaseAdmin =
   (query) => async (dispatch) => {
     const service = new accountService();
     console.log("FindAdmin");
@@ -401,7 +387,9 @@ export const findAccountByPhoneContainsIgnoreCase =
         payload: true,
       });
 
-      const response = await service.findAccountByNameContainsIgnoreCaseAdmin(query);
+      const response = await service.findAccountByNameContainsIgnoreCaseAdmin(
+        query
+      );
 
       if (response.status === 200) {
         const accounts = Array.isArray(response.data) ? response.data : [];
