@@ -402,7 +402,7 @@ function Header() {
                 </a>
                 <div className="mobile-menu" />
                 {/* menu end */}
-                <Drawer title="Shopping cart" onClose={onClose} open={open}>
+                <Drawer title="Shopping cart" onClose={onClose} open={open} className="drawerTable">
                   <Table
                     rowSelection={rowSelection}
                     columns={columns}

@@ -48,6 +48,7 @@ import {
   fetchProvinces,
   fetchWards,
 } from "../../services/constant";
+import { getAccount } from "../../redux/actions/accountAction";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -69,13 +70,11 @@ const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const [account, setAccount] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [currentAddress, setCurrentAddress] = useState(null);
   const [wards, setWards] = useState([]);
-
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalAddressOpen, setIsModalAddressOpen] = useState(false);
@@ -97,6 +96,7 @@ const Cart = () => {
   const [data, setData] = useState(selectedItemsArray);
   const [address, setAddress] = useState([]);
   const addresses = useSelector((state) => state.addressReducer.addresses);
+  const accountData = useSelector((state) => state.accountReducer.account);
 
   // State for selected row keys
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -125,6 +125,7 @@ const Cart = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user && user.username) {
       dispatch(getAddressByUsername(user.username));
+      dispatch(getAccount(user.username));
     }
   }, [dispatch]);
 
@@ -133,6 +134,12 @@ const Cart = () => {
       setAddress(addresses);
     }
   }, [addresses]);
+
+  // useEffect(() => {
+  //   if (accountData) {
+  //     setAccount(accountData);
+  //   }
+  // }, [accountData]);
 
   // Hàm xử lý khi thay đổi số lượng
   const handleQuantityChange = (value, key) => {
@@ -454,11 +461,13 @@ const Cart = () => {
     const fetchDefaultAddressAndCalculateShipping = async () => {
       const defaultAddress = addresses.find((address) => address.isDefault);
       const numberOfItems = Object.keys(selectedItems).length;
-      const weight = 500 * numberOfItems;
+      console.log("numberOfItems", numberOfItems)
+      const weightT = 500 * numberOfItems;
+      console.log("weightT", weightT)
 
       if (numberOfItems === 0) {
         setShippingfee(0);
-        return; 
+        return;
       }
 
       if (defaultAddress) {
@@ -469,20 +478,26 @@ const Cart = () => {
           to_ward_code: String(defaultAddress.wardCode),
           height: 20,
           length: 15,
-          weight: weight || 500,
+          weight: weightT,
           width: 15,
           insurance_value: 0,
           cod_failed_amount: 0,
           coupon: null,
         };
         const shippingFee = await calculateShippingFee(body);
-        console.log(shippingFee);
         setShippingfee(shippingFee.data.total);
       }
     };
 
     fetchDefaultAddressAndCalculateShipping();
   }, [addresses, selectedItems]);
+
+  useEffect(() => {
+    const defaultAddress = addresses.find((address) => address.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress(defaultAddress.id);
+    }
+  }, [addresses]);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -522,7 +537,6 @@ const Cart = () => {
   };
 
   //API Address
-
   useEffect(() => {
     const loadProvinces = async () => {
       const provincesData = await fetchProvinces();
@@ -581,19 +595,18 @@ const Cart = () => {
       fullAddress: fullAddressText,
     });
 
-    if (!currentAddress) {
+    if (currentAddress) {
+      dispatch(updateAddress(currentAddress.id, addressDto)).then(() => {
+        handleCancelAddress();
+      });
+    } else {
       addressDto.account = username;
       addressDto.active = true;
-    }
 
-    if (currentAddress) {
-      dispatch(updateAddress(currentAddress.id, addressDto));
-    } else {
-      dispatch(insertAddress(addressDto));
+      dispatch(insertAddress(addressDto)).then(() => {
+        handleCancelAddress();
+      });
     }
-
-    setIsModalOpen(true);
-    setIsModalAddressOpen(false);
   };
 
   const mapAddressWithNames = (address) => {
@@ -652,6 +665,12 @@ const Cart = () => {
     } else {
       form.setFieldsValue(mapAddressWithNames(address));
     }
+  };
+
+  const handleNewAddress = () => {
+    setCurrentAddress(null); // Reset địa chỉ hiện tại
+    setIsModalAddressOpen(true); // Mở modal thêm mới
+    form.resetFields(); // Reset form về giá trị mặc định
   };
 
   return (
@@ -743,245 +762,276 @@ const Cart = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {addresses
-                  .filter((address) => address.isDefault)
-                  .map((address) => (
-                    <div
-                      key={address.id}
+                {!addresses || addresses.length === 0 ? (
+                  <>
+                    <Title level={5} style={{ color: "red" }}>
+                      This account does not have a shipping address!
+                    </Title>
+                    <Button
+                      onClick={handleNewAddress}
+                      type="dashed"
+                      icon={<GoPlus />}
                       style={{
-                        alignItems: "center",
-                        marginBottom: 10,
+                        width: "100%",
+                        borderRadius: "8px",
+                        fontWeight: "bold",
                       }}
                     >
-                      <Row>
-                        <span style={{ fontWeight: "bold", marginRight: 20 }}>
-                          {address.account.fullName} (+84){" "}
-                          {address.account.phone}
-                        </span>
-                      </Row>
-                      <Row>
-                        <span style={{ marginRight: 20 }}>
-                          {address.fullAddress}
-                        </span>
-                        <span>
-                          <Button
-                            color="default"
-                            size={"small"}
-                            type="link"
-                            onClick={showModal}
-                            style={{
-                              padding: 0,
-                              color: "#1890ff",
-                              textDecoration: "underline",
-                            }}
-                          >
-                            Change Address
-                          </Button>
-
-                          {/* Modal list address */}
-                          <Modal
-                            title="Address"
-                            open={isModalOpen}
-                            onOk={handleOk}
-                            onCancel={handleCancel}
-                          >
-                            <Radio.Group
-                              onChange={onAddressChange}
-                              value={selectedAddress}
-                              style={{ width: "100%" }}
-                            >
-                              {addresses.map((address) => (
-                                <Card
-                                  key={address.id}
-                                  hoverable
-                                  style={{
-                                    marginBottom: "10px",
-                                    borderRadius: "8px",
-                                    boxShadow:
-                                      "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                                  }}
-                                  bodyStyle={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    padding: "15px 20px",
-                                  }}
-                                >
-                                  <Radio
-                                    value={address.id}
-                                    style={{ flex: "1" }}
-                                  >
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          fontWeight: "bold",
-                                          color: "#333",
-                                        }}
-                                      >
-                                        {address.account.fullName} (+84){" "}
-                                        {address.account.phone}
-                                      </span>
-                                      <span style={{ color: "#666" }}>
-                                        {address.fullAddress}
-                                      </span>
-                                    </div>
-                                  </Radio>
-                                  <Button
-                                    size="small"
-                                    type="link"
-                                    onClick={() => handleEdit(address)}
-                                    style={{
-                                      color: "#1890ff",
-                                      padding: 0,
-                                      marginLeft: "15px",
-                                      textDecoration: "underline",
-                                    }}
-                                  >
-                                    Update
-                                  </Button>
-                                </Card>
-                              ))}
-                            </Radio.Group>
-                            <Divider />
+                      New Address
+                    </Button>
+                  </>
+                ) : (
+                  addresses
+                    .filter((address) => address.isDefault)
+                    .map((address) => (
+                      <div
+                        key={address.id}
+                        style={{
+                          alignItems: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <Row>
+                          <span style={{ fontWeight: "bold", marginRight: 20 }}>
+                            {accountData.fullName} (+84) {accountData.phone}
+                          </span>
+                        </Row>
+                        <Row>
+                          <span style={{ marginRight: 20 }}>
+                            {address.fullAddress}
+                          </span>
+                          <span>
                             <Button
-                              onClick={() => navigate("/manager/address")}
-                              type="dashed"
-                              icon={<GoPlus />}
+                              color="default"
+                              size={"small"}
+                              type="link"
+                              onClick={showModal}
                               style={{
-                                width: "100%",
-                                borderRadius: "8px",
-                                fontWeight: "bold",
+                                padding: 0,
+                                color: "#1890ff",
+                                textDecoration: "underline",
                               }}
                             >
-                              New Address
+                              Change Address
                             </Button>
-                          </Modal>
 
-                          {/* Modal update address */}
-                          <Modal
-                            title={
-                              currentAddress ? "Update address" : "Add address"
-                            }
-                            open={isModalAddressOpen}
-                            onCancel={handleCancelAddress}
-                            footer={null}
-                          >
-                            <Form
-                              form={form}
-                              name="update-address"
-                              layout="vertical"
-                              onFinish={onFinish}
+                            {/* Modal list address */}
+                            <Modal
+                              title="Address"
+                              open={isModalOpen}
+                              onOk={handleOk}
+                              onCancel={handleCancel}
                             >
-                              <Form.Item
-                                label="Province/City"
-                                name="cityCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select province/city!",
-                                  },
-                                ]}
+                              <Radio.Group
+                                onChange={onAddressChange}
+                                value={selectedAddress}
+                                style={{
+                                  width: "100%",
+                                  maxHeight: "300px",
+                                  overflowY: "auto",
+                                }}
                               >
-                                <Select
-                                  placeholder="Select Province/City"
-                                  onChange={handleProvinceChange}
-                                >
-                                  {provinces.map((province) => (
-                                    <Option
-                                      key={province.ProvinceID}
-                                      value={province.ProvinceID}
+                                {[...addresses]
+                                  .sort(
+                                    (a, b) =>
+                                      (b.isDefault ? 1 : 0) -
+                                      (a.isDefault ? 1 : 0)
+                                  )
+                                  .map((address) => (
+                                    <Card
+                                      key={address.id}
+                                      hoverable
+                                      style={{
+                                        marginBottom: "10px",
+                                        borderRadius: "8px",
+                                        boxShadow:
+                                          "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                                      }}
+                                      bodyStyle={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: "15px 20px",
+                                      }}
                                     >
-                                      {province.ProvinceName}
-                                    </Option>
+                                      <Radio
+                                        value={address.id}
+                                        style={{ flex: "1" }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontWeight: "bold",
+                                              color: "#333",
+                                            }}
+                                          >
+                                            {accountData.fullName} (+84){" "}
+                                            {accountData.phone}
+                                          </span>
+                                          <span style={{ color: "#666" }}>
+                                            {address.fullAddress}
+                                          </span>
+                                        </div>
+                                      </Radio>
+                                      <Button
+                                        size="small"
+                                        type="link"
+                                        onClick={() => handleEdit(address)}
+                                        style={{
+                                          color: "#1890ff",
+                                          padding: 0,
+                                          marginLeft: "15px",
+                                          textDecoration: "underline",
+                                        }}
+                                      >
+                                        Update
+                                      </Button>
+                                    </Card>
                                   ))}
-                                </Select>
-                              </Form.Item>
-
-                              <Form.Item
-                                label="District/District"
-                                name="districtCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select District!",
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  placeholder="Select District/District"
-                                  onChange={handleDistrictChange}
-                                  value={currentAddress?.districtCode}
-                                  disabled={!districts.length}
-                                >
-                                  {districts.map((district) => (
-                                    <Option
-                                      key={district.DistrictID}
-                                      value={district.DistrictID}
-                                    >
-                                      {district.DistrictName}
-                                    </Option>
-                                  ))}
-                                </Select>
-                              </Form.Item>
-
-                              <Form.Item
-                                label="Ward/Commune"
-                                name="wardCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select ward/commune!",
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  placeholder="Select Ward/Commune"
-                                  onChange={handleWardChange}
-                                  value={currentAddress?.wardCode}
-                                  disabled={!wards.length}
-                                >
-                                  {wards.map((ward) => (
-                                    <Option
-                                      key={ward.WardCode}
-                                      value={ward.WardCode}
-                                    >
-                                      {ward.WardName}
-                                    </Option>
-                                  ))}
-                                </Select>
-                              </Form.Item>
-                              <Form.Item
-                                label="Detailed address"
-                                name="street"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please enter detailed address!",
-                                  },
-                                ]}
-                              >
-                                <Input />
-                              </Form.Item>
-
+                              </Radio.Group>
+                              <Divider />
                               <Button
-                                type="primary"
-                                htmlType="submit"
-                                style={{ width: "100%" }}
+                                onClick={handleNewAddress}
+                                type="dashed"
+                                icon={<GoPlus />}
+                                style={{
+                                  width: "100%",
+                                  borderRadius: "8px",
+                                  fontWeight: "bold",
+                                }}
                               >
-                                {currentAddress
-                                  ? "Update Address"
-                                  : "Add Address"}
+                                New Address
                               </Button>
-                            </Form>
-                          </Modal>
-                        </span>{" "}
-                      </Row>
-                    </div>
-                  ))}
+                            </Modal>
+
+                            {/* Modal update address */}
+                            <Modal
+                              title={
+                                currentAddress
+                                  ? "Update address"
+                                  : "Add address"
+                              }
+                              open={isModalAddressOpen}
+                              onCancel={handleCancelAddress}
+                              footer={null}
+                            >
+                              <Form
+                                form={form}
+                                name="update-address"
+                                layout="vertical"
+                                onFinish={onFinish}
+                              >
+                                <Form.Item
+                                  label="Province/City"
+                                  name="cityCode"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please select province/city!",
+                                    },
+                                  ]}
+                                >
+                                  <Select
+                                    placeholder="Select Province/City"
+                                    onChange={handleProvinceChange}
+                                  >
+                                    {provinces.map((province) => (
+                                      <Option
+                                        key={province.ProvinceID}
+                                        value={province.ProvinceID}
+                                      >
+                                        {province.ProvinceName}
+                                      </Option>
+                                    ))}
+                                  </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                  label="District/District"
+                                  name="districtCode"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please select District!",
+                                    },
+                                  ]}
+                                >
+                                  <Select
+                                    placeholder="Select District/District"
+                                    onChange={handleDistrictChange}
+                                    value={currentAddress?.districtCode}
+                                    disabled={!districts.length}
+                                  >
+                                    {districts.map((district) => (
+                                      <Option
+                                        key={district.DistrictID}
+                                        value={district.DistrictID}
+                                      >
+                                        {district.DistrictName}
+                                      </Option>
+                                    ))}
+                                  </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                  label="Ward/Commune"
+                                  name="wardCode"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please select ward/commune!",
+                                    },
+                                  ]}
+                                >
+                                  <Select
+                                    placeholder="Select Ward/Commune"
+                                    onChange={handleWardChange}
+                                    value={currentAddress?.wardCode}
+                                    disabled={!wards.length}
+                                  >
+                                    {wards.map((ward) => (
+                                      <Option
+                                        key={ward.WardCode}
+                                        value={ward.WardCode}
+                                      >
+                                        {ward.WardName}
+                                      </Option>
+                                    ))}
+                                  </Select>
+                                </Form.Item>
+                                <Form.Item
+                                  label="Detailed address"
+                                  name="street"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please enter detailed address!",
+                                    },
+                                  ]}
+                                >
+                                  <Input />
+                                </Form.Item>
+
+                                <Button
+                                  type="primary"
+                                  htmlType="submit"
+                                  style={{ width: "100%" }}
+                                >
+                                  {currentAddress
+                                    ? "Update Address"
+                                    : "Add Address"}
+                                </Button>
+                              </Form>
+                            </Modal>
+                          </span>
+                        </Row>
+                      </div>
+                    ))
+                )}
               </div>
             </Card>
             <Card
@@ -1035,7 +1085,9 @@ const Cart = () => {
                 <Button
                   type="primary"
                   onClick={(value) => handleFinish(value)}
-                  disabled={selectedItemsArray.length === 0}
+                  disabled={
+                    selectedItemsArray.length === 0 || addresses.length === 0
+                  }
                 >
                   Thanh toán
                 </Button>
