@@ -31,6 +31,7 @@ import PaymentService from "../../../services/PaymentService";
 import Queue from "./Queue";
 import { deleteOrderById } from "../../../redux/actions/invoiceAction";
 import { useDispatch } from "react-redux";
+import { printBill } from "../../user/printBill";
  
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
@@ -276,9 +277,9 @@ const dispatch = useDispatch();
   
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
-        await handleOnlinePayment(order, totalAmount, index);
+        await handleOnlinePayment(order, totalAmount, index,orderResponse.data);
       } else {
-        handleSuccess(order, index);
+        handleSuccess(order, index,orderResponse.data);
       }
     } catch (error) {
       console.error("Lỗi khi xử lý đơn hàng:", error);
@@ -293,7 +294,7 @@ const dispatch = useDispatch();
     });
   };
   // Hàm xử lý thanh toán online
-  const handleOnlinePayment = async (order, totalAmount, index) => {
+  const handleOnlinePayment = async (order, totalAmount, index,orderResponse) => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
@@ -320,7 +321,7 @@ const dispatch = useDispatch();
   
             if (paymentStatus === "success") {
               message.success("Thanh toán thành công!");
-              handleSuccess(order, index); // Đóng form bán hàng
+              handleSuccess(order, index,orderResponse); // Đóng form bán hàng
               removeCustomer(index.toString()); 
             }else {
               dispatch(deleteOrderById(order.id));
@@ -342,7 +343,7 @@ const dispatch = useDispatch();
   };
 
   // Hàm xử lý thành công
-  const handleSuccess = async (order, index) => {
+  const handleSuccess = async (order, index,orderResponse) => {
     message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
   
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
@@ -364,7 +365,7 @@ const dispatch = useDispatch();
   
     // Cập nhật Local Storage
     localStorage.setItem("orders", JSON.stringify(newOrders));
-  
+    printBill(orderResponse);
     // Không gọi removeCustomer để giữ nguyên tab
   };
 

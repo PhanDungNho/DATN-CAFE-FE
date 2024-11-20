@@ -57,7 +57,7 @@ const OrderTab = ({
                 columns={columns}
                 dataSource={orders[activeTab]?.cart}
                 pagination={false}
-                rowKey="id"
+                // rowKey="id"
                 summary={() => (
                   <Table.Summary.Row>
                     <Table.Summary.Cell index={0} colSpan={2}>
