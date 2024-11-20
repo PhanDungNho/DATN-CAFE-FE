@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
  
-import { getProductBySlug } from "../../redux/actions/productAction";
+import { getProduct } from "../../redux/actions/productAction";
  
 import {
   getCartDetailsByUsername,
@@ -40,7 +40,7 @@ function Product() {
 
   useEffect(() => {
  
-    dispatch(getProductBySlug(id));  
+    dispatch(getProduct(id));  
  
   }, [dispatch, id]);
 
@@ -173,18 +173,22 @@ function Product() {
   return (
     <>
       <Header />
-      <div className="breadcrumb-section breadcrumb-bg">
+
+      <div className="hero-area hero-bg">
         <div className="container">
           <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="breadcrumb-text">
-                <p>Fresh adn Organic</p>
-                <h1>404 - Not Found</h1>
+            <div className="col-lg-10 offset-lg-1 text-center">
+              <div className="hero-text">
+                <div className="hero-text-tablecell">
+                  <h1>WELCOME TO WALACOFFEE</h1>
+                  <p className="subtitle">Coffee &amp; Tea</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Features Section */}
       <div className="product mt-150 mb-150">
         <div className="container">
           <Row gutter={[16, 16]}>

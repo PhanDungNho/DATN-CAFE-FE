@@ -357,15 +357,21 @@ function Header() {
   border-radius: 8px;
   max-height: 300px;
   overflow-y: auto;
-  width: 52%;
+  width: 180px;
   z-index: 1000;
   padding: 8px 0;
   text-align: left;
+   display: block; /* Đảm bảo mỗi item là block */
+
+  text-align: left; /* Canh trái nội dung */
+  padding: 5px 10px; /* Khoảng cách padding */
+
+}
+.search-input{
+width: 180px;
 }
 
-
 .search-item {
-  display: block; /* Đảm bảo mỗi sản phẩm chiếm toàn bộ chiều ngang */
   padding: 8px 12px; /* Thêm khoảng cách để dễ nhìn hơn */
   align-items: center;
   cursor: pointer;
@@ -373,6 +379,13 @@ function Header() {
   color: #333;
   transition: background-color 0.2s ease, color 0.2s ease;
   border-bottom: 1px solid #f0f0f0;
+   display: block; /* Đảm bảo mỗi item là block */
+  min-height: 40px; /* Chiều cao tối thiểu (có thể chỉnh) */
+  line-height: 40px; /* Canh giữa theo chiều dọc */
+  white-space: nowrap; /* Ngăn xuống dòng giữa các từ trong cùng 1 tên sản phẩm */
+  text-align: left; /* Canh trái nội dung */
+  padding: 5px 10px; /* Khoảng cách padding */
+  border-bottom: 1px solid #ddd; /* Dòng phân cách (tuỳ chọn) */
 }
 
 .search-item:hover {
