@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Pagination, Layout, Menu, Select, Slider, Spin } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getProducts, getProductsUser } from "../../redux/actions/productAction";
 import { UnorderedListOutlined, StarFilled, HeartFilled } from '@ant-design/icons';
@@ -30,6 +30,10 @@ function Shop() {
   const [sortOrder, setSortOrder] = useState(null);
   const [maxPrice, setMaxPrice] = useState(100); // Giá trị mặc định nếu không có sản phẩm
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const searchQuery = queryParams.get('search') || '';
+
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
@@ -48,10 +52,18 @@ function Shop() {
 
   // Điều chỉnh filter danh mục dựa trên product.category.name
   const filteredProducts = products
-    .filter((product) => {
-      if (!product.productVariants || product.productVariants.length === 0) return false; // Loại bỏ sản phẩm không có biến thể
-      return selectedCategory === "All" || product.category.name === selectedCategory;
-    })
+  .filter((product) => {
+    // if (!product.productVariants || product.productVariants.length === 0) return false;
+    // const matchesSearch = searchQuery ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+    if (!product.productVariants || product.productVariants.length === 0) return false;
+    // Khi searchQuery rỗng, bỏ qua điều kiện lọc theo tên sản phẩm
+  //   return matchesSearch && (selectedCategory === "All" || product.category.name === selectedCategory);
+  // })
+  const matchesSearch = searchQuery 
+  ? product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  : true; 
+return matchesSearch && (selectedCategory === "All" || product.category.name === selectedCategory);
+})
     .filter((product) => {
       // Lấy giá thấp nhất và cao nhất từ các biến thể để áp dụng filter giá
       const prices = product.productVariants.map(variant => variant.price);
@@ -150,7 +162,7 @@ function Shop() {
               <div className="col-lg-10 offset-lg-1 text-center">
                 <div className="hero-text">
                   <div className="hero-text-tablecell">
-                    <h1>WELCOME TO fsfd</h1>
+                    <h1>WELCOME TO WALACOFFEE</h1>
                     <p className="subtitle">Coffee &amp; Tea</p>
                   </div>
                 </div>
@@ -218,7 +230,7 @@ function Shop() {
                         {paginatedProducts.map((product) => (
 
                           <Col key={product.slug} xs={24} sm={12} md={12} lg={8} style={{ textAlign: "center" }}>
-                            <Link to={`/single-product/${product.slug}`}>
+                            <Link to={`/single-product/${product.id}`}>
 
                               <Card
                                 hoverable

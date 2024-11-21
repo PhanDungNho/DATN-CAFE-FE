@@ -30,7 +30,24 @@ import { FaShoppingCart } from "react-icons/fa";
 import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
+// Custom hook để debounce
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
@@ -39,7 +56,67 @@ function Header() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
+  const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
+   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
+   useEffect(() => {
+    if (debouncedSearchQuery.trim() === '') {
+      setProducts([]); // Xóa kết quả tìm kiếm khi ô tìm kiếm trống
+      setShowDropdown(false);
+      return;
+    }
+    const handleSearch = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8081/api/v1/products/search`, {
+          params: { name: debouncedSearchQuery }
+        });
+        setProducts(response.data);
+        setShowDropdown(true);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    handleSearch();
+  }, [debouncedSearchQuery]);
+
+  const handleKeywordClick = async (keyword) => {
+    try {
+      // Gọi API tìm kiếm sản phẩm theo từ khóa
+      const response = await axios.get(`http://localhost:8081/api/v1/products/search`, {
+        params: { name: keyword },
+      });
+  
+      if (response.data.length > 0) {
+        // Nếu tìm thấy sản phẩm, điều hướng đến trang chi tiết của sản phẩm đầu tiên
+        const product = response.data[0]; // Lấy sản phẩm đầu tiên trong danh sách
+        navigate(`/single-product/${product.id}`);
+      } else {
+        // Nếu không tìm thấy sản phẩm, hiển thị thông báo hoặc xử lý lỗi
+        console.warn("Không tìm thấy sản phẩm phù hợp!");
+      }
+    } catch (error) {
+      console.error("Error searching for product:", error);
+    }
+  };
+  // Hàm xử lý khi thay đổi nội dung tìm kiếm
+  const handleInputChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+  // Hàm xử lý khi nhấn Enter
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      if (searchQuery.trim() !== '') {
+        navigate(`/shop?search=${searchQuery}`);
+      } else {
+        navigate('/shop');
+      }
+      setShowDropdown(false);
+    }
+  };
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
   );
@@ -205,6 +282,10 @@ function Header() {
         console.error("Error deleting item from cart:", error);
       });
   };
+  const handleBlur = () => {
+    setTimeout(() => setShowDropdown(false), 200); // Đợi để tránh mất kết quả khi nhấp vào
+  };
+
 
   const handleCheckout = () => {
     const selectedItems = data.filter((item) =>
@@ -260,7 +341,6 @@ function Header() {
 
   return (
     <>
-      {/*
       {isLoading && (
         <div className="loader">
           <div className="loader-inner">
@@ -268,7 +348,104 @@ function Header() {
           </div>
         </div>
       )}
-      */}
+<style>
+  {`
+  .search-dropdown {
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 180px;
+  z-index: 1000;
+  padding: 8px 0;
+  text-align: left;
+   display: block; /* Đảm bảo mỗi item là block */
+
+  text-align: left; /* Canh trái nội dung */
+  padding: 5px 10px; /* Khoảng cách padding */
+
+}
+.search-input{
+width: 180px;
+}
+
+.search-item {
+  padding: 8px 12px; /* Thêm khoảng cách để dễ nhìn hơn */
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+   display: block; /* Đảm bảo mỗi item là block */
+  min-height: 40px; /* Chiều cao tối thiểu (có thể chỉnh) */
+  line-height: 40px; /* Canh giữa theo chiều dọc */
+  white-space: nowrap; /* Ngăn xuống dòng giữa các từ trong cùng 1 tên sản phẩm */
+  text-align: left; /* Canh trái nội dung */
+  padding: 5px 10px; /* Khoảng cách padding */
+  border-bottom: 1px solid #ddd; /* Dòng phân cách (tuỳ chọn) */
+}
+
+.search-item:hover {
+  background-color: #f0f0f0;
+}
+
+.popular-keywords-container {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%; /* Đảm bảo container co giãn theo bố cục */
+  max-width: 400px; /* Đặt giới hạn chiều rộng tối đa */
+  margin: 0 auto; /* Canh giữa nếu cần */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.popular-keywords-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+  text-align: left;
+}
+
+.popular-keywords {
+  display: flex;
+  flex-wrap: wrap; /* Cho phép xuống dòng khi từ khóa quá dài */
+  gap: 8px; /* Khoảng cách giữa các từ khóa */
+}
+
+.keyword {
+  background-color: #F28123; /* Màu nền xanh lá */
+  color: #fff; /* Màu chữ trắng */
+  padding: 6px 12px; /* Khoảng cách trong từ khóa */
+  font-size: 14px; /* Kích thước chữ vừa đủ */
+  border-radius: 20px; /* Làm tròn từ khóa */
+  white-space: nowrap; /* Tránh xuống dòng trong mỗi từ khóa */
+  cursor: pointer; /* Thêm hiệu ứng chuột */
+  transition: all 0.3s ease; /* Hiệu ứng hover */
+}
+
+.keyword:hover {
+  background-color: #F28125; /* Màu nền khi hover */
+  transform: scale(1.05); /* Tăng kích thước nhẹ khi hover */
+}
+
+@media screen and (max-width: 480px) {
+  .popular-keywords-container {
+    max-width: 90%; /* Đảm bảo giao diện đẹp trên mobile */
+  }
+
+  .keyword {
+    font-size: 12px; /* Kích thước chữ nhỏ hơn trên màn hình nhỏ */
+    padding: 4px 10px;
+  }
+}
+
+  `}
+</style>
       <div className="top-header-area" id="sticker" ref={stickerRef}>
         <div className="container">
           <div className="row">
@@ -298,12 +475,36 @@ function Header() {
                     </li>
                     <li>
                       <li>
-                        <input
-                          type="text"
-                          placeholder="Search..."
-                          className="search-input"
-                          style={{ display: "inline-block", marginRight: 10 }}
-                        />
+                      <input
+                        type="text"
+                        placeholder="Tìm sản phẩm theo tên..."
+                        value={searchQuery}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        onFocus={() => setShowDropdown(true)}
+                        onBlur={handleBlur} // Đóng dropdown khi mất focus
+                        className="search-input"
+                      />
+                      {showDropdown && (
+                          <div className="search-dropdown">
+                            {products.length > 0 ? (
+                              products.map((product) => (
+                                <Link
+                                  key={product.id}
+                                  to={`/single-product/${product.id}`}
+                                  className="search-item"
+                                  onClick={() => setShowDropdown(false)}
+                                >
+                                  <h4 style={{fontSize: '16.3px'}}>{product.name}</h4>
+                                </Link>
+                              ))
+                            ) : (
+                              <div className="search-item">Không tìm thấy sản phẩm!</div>
+                            )}
+                            {/* Hiển thị từ khóa phổ biến */}
+                            
+                            </div>
+                        )}
                       </li>
                       <li>
                         <a className="mobile-hide search-bar-icon" href="#">
@@ -402,7 +603,7 @@ function Header() {
                 </a>
                 <div className="mobile-menu" />
                 {/* menu end */}
-                <Drawer title="Shopping cart" onClose={onClose} open={open}>
+                <Drawer title="Shopping cart" onClose={onClose} open={open} className="drawerTable">
                   <Table
                     rowSelection={rowSelection}
                     columns={columns}

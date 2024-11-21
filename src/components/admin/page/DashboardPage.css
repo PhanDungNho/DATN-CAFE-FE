@@ -90,3 +90,7 @@
 .custom-radio-group-paymentMethod .ant-radio-button-wrapper:last-child {
   margin-right: 0; 
 }
+
+.drawerTable .ant-drawer-body {
+  padding: 15px !important;
+}
