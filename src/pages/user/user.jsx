@@ -32,6 +32,8 @@ import About from "../../components/user/about";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setMessage } from "../../redux/actions/commonAction.js";
 import Allorder from "../../components/user/orders/allorders.jsx";
+import Bill from "../../components/user/bill.jsx";
+
 
 
 function User() {
@@ -81,7 +83,8 @@ function User() {
         <Route path="/google-callback" element={<GoogleCallback />} />
 
         <Route path="/About" element={<About />} />
-        <Route path="/bill" element={<Bill />} />
+        <Route path="/bill/:billId" element={<Bill />} />
+
         
 
         {/* Route cho ManagerUser với đường dẫn /manager */}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
+ 
 import { getProduct } from "../../redux/actions/productAction";
+ 
 import {
   getCartDetailsByUsername,
   insertCartDetail,
@@ -32,11 +34,14 @@ function Product() {
   );
   
   const { id } = useParams();
+ 
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);
 
   useEffect(() => {
-    dispatch(getProduct(id)); // Gọi hàm để lấy sản phẩm theo ID
+ 
+    dispatch(getProduct(id));  
+ 
   }, [dispatch, id]);
 
   const thumbnails = product?.images?.map((image) => image.filename) || [];
@@ -168,18 +173,22 @@ function Product() {
   return (
     <>
       <Header />
-      <div className="breadcrumb-section breadcrumb-bg">
+
+      <div className="hero-area hero-bg">
         <div className="container">
           <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="breadcrumb-text">
-                <p>Fresh adn Organic</p>
-                <h1>404 - Not Found</h1>
+            <div className="col-lg-10 offset-lg-1 text-center">
+              <div className="hero-text">
+                <div className="hero-text-tablecell">
+                  <h1>WELCOME TO WALACOFFEE</h1>
+                  <p className="subtitle">Coffee &amp; Tea</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Features Section */}
       <div className="product mt-150 mb-150">
         <div className="container">
           <Row gutter={[16, 16]}>
@@ -290,6 +299,7 @@ function Product() {
             <Col md={12}>
               <div className="product-content" style={{ marginLeft: "80px" }}>
                 <h3 style={{ color: "#f28123" }}>{product?.name}</h3>
+                <h5 style={{     textAlign: "justify"}}>{product?.description}</h5>
                 <p
                   className="product-pricing"
                   style={{
@@ -311,7 +321,7 @@ function Product() {
                       fontWeight: "500",
                     }}
                   >
-                    <span>Chọn kích cỡ:</span>
+                    <span>Choose size:</span>
                   </p>
                   <div className="size-options">
                     {sizes.map((item) => (
@@ -329,7 +339,7 @@ function Product() {
                   </div>
                 </div>
                 <div className="product-toppings" style={{ marginTop: "20px" }}>
-                  <p>Chọn topping:</p>
+                  <p>Choose topping:</p>
                   <div>
                     {toppings.map((topping) => (
                       <div key={topping.name}>
@@ -347,7 +357,7 @@ function Product() {
                             }
                             style={{ width: "50px" }}
                           />
-                          {topping.name} (+{topping.price.toLocaleString()} VNĐ)
+                          {topping.name} ({topping.price.toLocaleString()} VNĐ)
                         </label>
                       </div>
                     ))}
