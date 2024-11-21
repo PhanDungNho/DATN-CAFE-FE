@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import { API_TRANSACTION,API_MOMO } from "./constant";
 
  
-const ngrok = "https://0b77-14-241-166-117.ngrok-free.app"
+const ngrok = " https://1c72-1-55-50-113.ngrok-free.app "
  
 export default class PaymentService extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class PaymentService extends Component {
   createPayment = (amount, orderInfo,orderId) => {
     const partnerCode = "MOMO";
     const redirectUrl = "http://localhost:3000/paymentresult";
-    const ipnUrl = ngrok + "/api/v1/transactions/ipn";
+    const ipnUrl = ngrok.trim + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
     const requestId = newOrderId;
