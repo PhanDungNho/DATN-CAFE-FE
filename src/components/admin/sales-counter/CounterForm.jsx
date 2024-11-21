@@ -48,7 +48,7 @@ const dispatch = useDispatch();
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH",  },
+    { cart: [], tabName: "Đơn 1", customerId: "", paymentMethod: "CASH",  },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
@@ -211,9 +211,10 @@ const dispatch = useDispatch();
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
         message.success("Đã nhập đúng số điện thoại!");
-        // updatedOrders[index].customerName = foundAccount.fullName;
+       
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
+        updatedOrders[index].customerName = foundAccount.fullName;
       } else {
         // updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
@@ -344,7 +345,7 @@ const dispatch = useDispatch();
 
   // Hàm xử lý thành công
   const handleSuccess = async (order, index,orderResponse) => {
-    message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
+    message.success(`Thanh toán thành công cho ${orders[index].tabName}!`);
   
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
     const newOrders = [...orders];
@@ -355,6 +356,7 @@ const dispatch = useDispatch();
     // Làm sạch số điện thoại và ID khách hàng
     newOrders[index].customerPhone = ""; // Reset số điện thoại
     newOrders[index].customerId = ""; // Reset ID nếu cần
+    newOrders[index].customerName = ""; // Reset ID nếu cần
   
     // Reset input số điện thoại trong trạng thái
     setPhoneNumberInput("");
@@ -372,19 +374,19 @@ const dispatch = useDispatch();
 
   
   const addNewOrder = () => {
-    let newCustomerIndex = 1;
-    let newCustomerName = `Đơn ${newCustomerIndex}`;
+    let newTabIndex = 1;
+    let newTabName = `Đơn ${newTabIndex}`;
   
     while (
-      orders.some((customer) => customer.customerName === newCustomerName)
+      orders.some((customer) => customer.tabName === newTabName)
     ) {
-      newCustomerIndex++;
-      newCustomerName = `Đơn ${newCustomerIndex}`;
+      newTabIndex++;
+      newTabName = `Đơn ${newTabIndex}`;
     }
   
     // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
-    const newOrder = { cart: [], customerName: newCustomerName, paymentMethod: "CASH",   customerPhone: "", // Reset số điện thoại
-      customerId: "", };
+    const newOrder = { cart: [], tabName: newTabName, paymentMethod: "CASH",   customerPhone: "", // Reset số điện thoại
+      customerId: "",customerName:"" };
     setOrders([...orders, newOrder]);
     
     console.log("New order added:", newOrder); // log giá trị của đơn hàng mới

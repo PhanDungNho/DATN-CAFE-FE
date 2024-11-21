@@ -371,7 +371,7 @@ const Cart = () => {
       console.log("Order response:", orderResponse.data);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-      localStorage.setItem("billData", JSON.stringify(orderResponse.data));    
+   
       console.log(order.id);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
@@ -456,7 +456,7 @@ const Cart = () => {
 
       dispatch(clearSelectedItems());
       setSelectedRowKeys([]);
-      navigate(`/bill/${order.id}`);
+  
 
     } catch (error) {
       console.error("Error removing items after payment:", error);

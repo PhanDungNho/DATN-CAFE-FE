@@ -165,8 +165,9 @@ const expandColumns = [
     title: "Price",
     dataIndex: "price",
     key: "price",
-    render: (text) => text.toLocaleString(),
-  },
+    render: (text) => (text ? text.toLocaleString() : ""),
+  }
+,  
   {
     title: "Size",
     dataIndex: "size",

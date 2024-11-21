@@ -33,11 +33,11 @@ const OrderTab = ({
     >
       {orders.map((customer, index) => (
         <Tabs.TabPane
-          tab={customer.customerName}
+          tab={customer.tabName}
           key={index}
           closable={orders.length > 1}
         >
-          <Card title={`Giỏ hàng  ${customer.customerName}`}>
+          <Card title={`Giỏ hàng  ${customer.tabName}`}>
           <style>
   {`
   .ant-table-tbody {
@@ -120,7 +120,7 @@ const OrderTab = ({
               block
               disabled={
                 orders[index].cart.length === 0 ||
-                (orders[index].customerPhone && !orders[index].customerName)
+                (orders[index].customerPhone && !orders[index].tabName)
               }
             >
               Thanh toán
