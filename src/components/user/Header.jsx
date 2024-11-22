@@ -477,7 +477,7 @@ width: 180px;
                       <li>
                       <input
                         type="text"
-                        placeholder="Tìm sản phẩm theo tên..."
+                        placeholder="Find products by name..."
                         value={searchQuery}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
@@ -546,17 +546,17 @@ width: 180px;
                             <>
                               <Link to="/login">
                                 <LoginOutlined style={{ marginRight: "8px" }} />{" "}
-                                Đăng nhập
+                                Login
                               </Link>
                               <Link to="/register">
                                 <UserAddOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
-                                Đăng ký
+                                Register
                               </Link>
                               <Link to="/forgotpassword">
                                 <KeyOutlined style={{ marginRight: "8px" }} />{" "}
-                                Quên mật khẩu
+                                Forgot Password
                               </Link>
                             </>
                           ) : (
@@ -565,13 +565,13 @@ width: 180px;
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
-                                Tài khoản
+                                Account
                               </Link>
                               <Link to="/manager/*">
                                 <ShoppingOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
-                                Đơn hàng
+                                Order
                               </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
@@ -589,7 +589,7 @@ width: 180px;
                                 <LogoutOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
-                                Đăng xuất
+                                Log out
                               </Link>
                             </>
                           )}

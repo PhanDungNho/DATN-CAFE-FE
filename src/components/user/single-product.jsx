@@ -198,6 +198,11 @@ function Product() {
                   position: "relative",
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                   borderRadius: "8px",
+                  overflow: "hidden", 
+                  width: "500px",
+                  height: "500px", 
+                  display: "flex",
+                  
                 }}
               >
                 <Image
@@ -207,23 +212,28 @@ function Product() {
                   alt="Product"
                   style={{
                     borderRadius: "8px",
-                    width: "450px",
+                    width: "500px",
                     maxHeight: "450px",
                     objectFit: "cover",
+                    
                   }}
                 />
-                <Button
+                
+              </div>
+
+              <Button
                   icon={<LeftOutlined />}
                   shape="circle"
                   onClick={handlePreviousImage}
                   style={{
                     position: "absolute",
-                    top: "50%",
-                    left: "10px",
+                    top: "40.5%",
+                    left: "-40px",
                     transform: "translateY(-50%)",
-                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "#666666",
                     border: "none",
                     color: "white",
+                    
                   }}
                 />
                 <Button
@@ -232,15 +242,14 @@ function Product() {
                   onClick={handleNextImage}
                   style={{
                     position: "absolute",
-                    top: "50%",
-                    right: "10px",
+                    top: "40%",
+                    right: "0px",
                     transform: "translateY(-50%)",
-                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "#666666",
                     border: "none",
                     color: "white",
                   }}
                 />
-              </div>
 
               <div style={{ display: "flex", alignItems: "center" }}>
                 <Button
