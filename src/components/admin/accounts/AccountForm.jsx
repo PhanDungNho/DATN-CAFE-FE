@@ -20,7 +20,7 @@ class AccountForm extends Component {
     super(props);
 
     this.state = {
-      account: { username: "", fullName: "", amountPaid: "", email: "", password: "", phone: "", image: "", active: true },
+      account: { username: "", fullName: "", email: "", password: "", phone: "", image: "", active: true },
       previewImage: "",
       previewVisible: false,
     };
@@ -108,7 +108,6 @@ class AccountForm extends Component {
           initialValues={{
             username: account.username || "",
             fullName: account.fullName || "",
-            amountPaid: account.amountPaid || "",
             password: "",
             email: account.email || "",
             phone: account.phone || "",
@@ -171,20 +170,7 @@ class AccountForm extends Component {
             <Input.Password />
           </Form.Item>
 
-          <Form.Item
-            label="Số tiền đã trả"
-            name="amountPaid"
-            rules={[
-              { required: true, message: "Số tiền đã trả là bắt buộc" },
-              {
-                type: "number",
-                min: 0,
-                message: "Số tiền đã trả phải lớn hơn 0",
-              },
-            ]}
-          >
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
+          
           <Form.Item
             label="Số điện thoại"
             name="phone"

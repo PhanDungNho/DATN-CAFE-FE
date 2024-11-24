@@ -32,12 +32,6 @@ const columns = (editAccount, updateAccountActive) => [
     key: "fullName",
   },
   {
-    title: "Số tiền đã trả",
-    dataIndex: "amountPaid",
-    key: "amountPaid",
-    // width: 40,
-  },
-  {
     title: "Số điện thoại",
     dataIndex: "phone",
     key: "phone",

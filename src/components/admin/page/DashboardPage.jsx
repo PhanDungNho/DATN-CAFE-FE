@@ -160,7 +160,7 @@ function DashboardPage() {
               key: "1",
               icon: <MdOutlineHome />,
               label: "Home",
-              onClick: () => navigate("/admin"),
+              onClick: () => navigate("/admin/statistics/list"),
             },
             {
               key: "2",
@@ -294,7 +294,7 @@ function DashboardPage() {
         >
           <div className="content-panel">
             <Routes>
-              <Route path="/" element={"Xin chào"}></Route>
+              <Route path="/admin/statistics/list" element={"Xin chào"}></Route>
               {/* Thêm các Route khác ở đây nếu cần */}
             </Routes>
             <Outlet></Outlet>

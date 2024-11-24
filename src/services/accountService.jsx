@@ -11,7 +11,7 @@ export default class AccountService {
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountPaid", account.amountPaid);
+    formData.append("amountPaid", account.amountPaid ?? 0);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
@@ -36,7 +36,7 @@ export default class AccountService {
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountPaid", account.amountPaid);
+    formData.append("amountPaid", account.amountPaid ?? 0);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
