@@ -326,7 +326,7 @@ const Allorder = () => {
                     },
                   }),
                   render: (_, record) =>
-                    record.orderdetailtoppings.map((topping) => (
+                    record.orderDetailToppings.map((topping) => (
                       <div key={topping.id}>
                         <Tag color={getRandomColor()}>
                           {topping.topping.name} (

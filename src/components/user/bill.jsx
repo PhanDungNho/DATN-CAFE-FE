@@ -3,76 +3,97 @@ import { Typography, Table, Divider } from "antd";
 
 const { Text } = Typography;
 
-const Bill = () => {
-  const [billData, setBillData] = useState({
-    orderDetails: [],
+const Bill = ({ billData }) => {
+  // Nhận billData từ props
+  const [displayData, setDisplayData] = useState({
+    orderDetails: [], // Khởi tạo như một mảng rỗng
     totalAmount: 0,
   });
 
-  // Lấy dữ liệu từ localStorage khi trang được load
+  // Lấy dữ liệu từ props khi component được load
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("billData"));
-    if (data) {
-      setBillData(data);
-      console.log("localStorage: ", data);
+    if (billData && Array.isArray(billData.orderDetails)) {
+      setDisplayData(billData);
+      console.log("Dữ liệu hóa đơn: ", billData);
     } else {
-      console.log("Không tìm thấy dữ liệu hóa đơn trong localStorage");
+      console.log(
+        "Không tìm thấy dữ liệu hóa đơn hoặc orderDetails không phải là mảng"
+      );
     }
-  }, []);
+  }, [billData]);
 
   const columns = [
     {
-      title: "Mặt hàng",
+      title:<div style={{ fontSize: "12px", fontWeight: 'bold' }}>Sản phẩm</div>, 
       dataIndex: "item",
       key: "item",
       render: (text, record) => (
-        <div>
-          <strong>{record.item}</strong>
+        <div style={{ fontSize: "10px",marginTop: "3px" }}>
+          <strong >
+            {record.name} - {record.size} (
+            {Number(record.price).toLocaleString()}đ)
+          </strong>
           <br />
-          <Text type="secondary" style={{ fontSize: "12px" }}>
-            Số lượng: {record.quantity}
-          </Text>
-          {/* Hiển thị danh sách topping nếu có */}
           {record.toppings && record.toppings.length > 0 && (
-            <div style={{ marginTop: "5px" }}>
-              <Text type="secondary" style={{ fontSize: "12px" }}>
-                Topping:
-              </Text>
-              <ul style={{ paddingLeft: "15px", margin: "5px 0" }}>
+            <div >
+              <ul style={{ paddingLeft: "0px", margin: "2px 0" }}>
                 {record.toppings.map((topping, i) => (
-                  <li key={i} style={{ fontSize: "12px", color: "#888" }}>
-                    {topping.name} - Số lượng: {topping.quantity} - Giá: {topping.price.toLocaleString()} đ
+                  <li
+                    key={i}
+                    style={{
+                      marginLeft: "0",
+                      fontSize: "10px",
+                      // color: "#888",
+                      listStyle: "none",
+                    }}
+                  >
+                    {topping.name} ({topping.price.toLocaleString()} đ) x{" "}
+                    {topping.quantity}
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+          {record.note && record.note.trim() !== "null" && (
+            <div
+              style={{
+                marginLeft: "0",
+                marginTop: "5px",
+                fontSize: "12px",
+               
+              }}
+            >
+              Note: {record.note}
             </div>
           )}
         </div>
       ),
     },
     {
-      title: "Thành tiền",
+      title: <div style={{ fontSize: "12px", fontWeight: 'bold', textWrap:"none",textAlign:"center" }}>Thành tiền</div>, 
       dataIndex: "total",
+     textWrap:"none",
       key: "total",
-      render: (total) => <span>{total.toLocaleString()} đ</span>,
+      align: "right",
+      render: (total) => <span style={{ fontSize: "12px",}}>{total.toLocaleString()} đ</span>,
     },
   ];
-  
-  // Thêm topping vào cấu trúc billItems
-  const billItems = billData.orderDetails.map((detail, index) => {
-    // Tính tổng tiền của các topping
+
+  const billItems = (displayData.orderDetails || []).map((detail, index) => {
     const toppingTotal = detail.orderDetailToppings.reduce((sum, topping) => {
       return sum + topping.momentPrice * topping.quantity;
     }, 0);
-  
-    // Tổng tiền của variant = giá variant + tổng tiền topping
+
     const totalAmount = detail.momentPrice + toppingTotal;
-  
+
     return {
       key: index + 1,
-      item: `${detail.productVariant.product.name}`,
+      name: `${detail.productVariant.product.name}`,
+      size: `${detail.productVariant.size.name}`,
+      price: `${detail.momentPrice}`,
       quantity: detail.quantity,
-      total: totalAmount, // Tổng tiền cho variant bao gồm cả topping
+      note: `${detail.note}`,
+      total: totalAmount,
       toppings: detail.orderDetailToppings.map((topping) => ({
         name: topping.topping.name,
         quantity: topping.quantity,
@@ -80,49 +101,64 @@ const Bill = () => {
       })),
     };
   });
-  
-
-  console.log(billItems);
-
-  console.log("Bill: ", billItems);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "80mm",
-        padding: "20px",
-        background: "#fff",
-        fontFamily: "Arial, sans-serif",
-        fontSize: "16px",
-        color: "#333",
-        border: "1px solid #ddd",
-        margin: "auto",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        borderRadius: "8px",
-        position: "relative", // Chú ý thêm position relative ở đây
-      }}
-    >
-      {/* Logo được điều chỉnh không bị bể và có kích thước như ban đầu */}
+    <div style={{
+      width: "58mm",
+      maxWidth: "58mm",
+      padding: "10px",
+      background: "#fff",
+      fontFamily: "Arial, sans-serif",
+      fontSize: "12px",
+      color: "#333",
+      margin: "auto",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+      borderRadius: "8px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      <style>{`
+        @media print {
+          button { 
+            display: none;
+          }
+          body {
+            margin: 0; 
+          }
+        }
+        .bordered-row {
+          // border: 1px solid #ddd portant; ;
+        }
+        .ant-table-cell {
+          // border: 1px solid black !important;
+        }
+        .ant-table {
+          // border: 1px solid #ddd;
+        }
+          .ant-table-content>table{
+          // border-collapse: collapse; 
+       
+          width:100%}
+      `}</style>
+      
       <img
         src="/assets/img/logo2.png"
         alt="Logo"
         style={{
-          position: "absolute", // Để logo không đè lên nội dung
+          position: "absolute",
           top: "0",
           left: "50%",
-          transform: "translateX(-50%)", // Để logo căn giữa
-          width: "100%", // Logo chiếm toàn bộ chiều rộng của tờ hóa đơn
-          maxWidth: "200px", // Giới hạn chiều rộng tối đa để không quá lớn
-          height: "auto", // Đảm bảo logo không bị méo
-          opacity: 0.9, // Làm logo mờ đi một chút
+          transform: "translateX(-50%)",
+          width: "100%",
+          maxWidth: "200px",
+          height: "auto",
+          opacity: 0.9,
         }}
       />
 
-      {/* Địa chỉ và thông tin điện thoại không bị đè lên logo */}
       <div style={{ marginTop: "80px", textAlign: "center" }}>
         <Text style={{ fontSize: "12px", color: "#555", marginBottom: "5px" }}>
           P. An Khánh, Q. Ninh Kiều - TP. Cần Thơ
@@ -134,15 +170,12 @@ const Bill = () => {
       </div>
 
       <Divider style={{ margin: "10px 0" }} />
-
-      {/* Thay Title bằng Text */}
       <Text
         style={{
           textAlign: "center",
           fontWeight: "bold",
           fontSize: "16px",
           margin: "0",
-          display: "block",
         }}
       >
         HÓA ĐƠN BÁN HÀNG
@@ -154,12 +187,10 @@ const Bill = () => {
         pagination={false}
         bordered
         size="small"
-        style={{ width: "100%", marginTop: "15px" }}
-        rowClassName="table-row"
+        style={{ width: "100%", marginTop: "10px" }}
       />
 
       <Divider style={{ margin: "15px 0" }} />
-
       <div
         style={{
           textAlign: "right",
@@ -168,17 +199,16 @@ const Bill = () => {
           marginBottom: "10px",
         }}
       >
-        <Text>Tổng cộng: {billData.totalAmount.toLocaleString()} đ</Text>
+        <Text>Tổng cộng: {displayData.totalAmount.toLocaleString()} đ</Text>
       </div>
 
       <Divider style={{ margin: "15px 0" }} />
-
       <Text
         style={{
           textAlign: "center",
           fontStyle: "italic",
           fontSize: "14px",
-          color: "#888",
+          color: "red",
         }}
       >
         Cảm ơn Quý khách. Hẹn gặp lại!

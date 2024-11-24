@@ -42,25 +42,16 @@ class Counter extends Component {
     const { navigate } = this.props.router;
    
     const { isLoading, activeTab } = this.state;
-    if (isLoading) {
-      return (
-        <>
-          <ContentHeader
-            navigate={navigate}
-            title="List Categories"
-            className="site-page-header"
-          />
-          <Skeleton active />
-        </>
-      );
-    }
+   
 
     return (
       <Layout>
         <ContentHeader
           navigate={navigate}
-          title="List Category"
+          title="Orders"
           className="site-page-header"
+        
+        
         />
         <Content style={{ padding: "20px" }}>
 
