@@ -173,7 +173,16 @@ function Product() {
   return (
     <>
       <Header />
-
+      <style>
+        {`
+   
+    // :where(.css-dev-only-do-not-override-11lehqq).ant-btn-primary {
+    // color: #fff;
+    // background: #f28123;
+    // box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
+}
+  `}
+      </style>
       <div className="hero-area hero-bg">
         <div className="container">
           <div className="row">
@@ -335,20 +344,23 @@ function Product() {
                   <div className="size-options">
                     {sizes.map((item) => (
                       <Button
-                        key={item.size}
-                        type={
-                          selectedSize === item.size ? "primary" : "default"
-                        }
-                        onClick={() => handleSizeClick(item.size, item.price)}
-                        style={{ marginRight: "10px" }}
-                      >
-                        {item.size}
-                      </Button>
+                      key={item.size}
+                      onClick={() => handleSizeClick(item.size, item.price)}
+                      style={{
+                        marginRight: "10px",
+                        backgroundColor: selectedSize === item.size ? "#f28123" : "White",
+                        color: selectedSize === item.size ? "#fff" : "inherit",
+                        border: "0.1px solid #f28123",
+                      }}
+                    >
+                      {item.size}
+                    </Button>
+                    
                     ))}
                   </div>
                 </div>
                 <div className="product-toppings" style={{ marginTop: "20px" }}>
-                  <p>Choose topping:</p>
+                  <p>Choose topping: </p>
                   <div>
                     {toppings.map((topping) => (
                       <div key={topping.name}>
@@ -366,7 +378,7 @@ function Product() {
                             }
                             style={{ width: "50px" }}
                           />
-                          {topping.name} ({topping.price.toLocaleString()} VNĐ)
+                           {topping.name} ({topping.price.toLocaleString()} VNĐ)
                         </label>
                       </div>
                     ))}

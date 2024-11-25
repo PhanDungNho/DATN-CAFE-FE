@@ -35,7 +35,7 @@ import axios from "axios";
 // Custom hook để debounce
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
-  
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
@@ -61,8 +61,8 @@ function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
   const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
-   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
-   useEffect(() => {
+  // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
+  useEffect(() => {
     if (debouncedSearchQuery.trim() === '') {
       setProducts([]); // Xóa kết quả tìm kiếm khi ô tìm kiếm trống
       setShowDropdown(false);
@@ -89,7 +89,7 @@ function Header() {
       const response = await axios.get(`http://localhost:8081/api/v1/products/search`, {
         params: { name: keyword },
       });
-  
+
       if (response.data.length > 0) {
         // Nếu tìm thấy sản phẩm, điều hướng đến trang chi tiết của sản phẩm đầu tiên
         const product = response.data[0]; // Lấy sản phẩm đầu tiên trong danh sách
@@ -180,13 +180,13 @@ function Header() {
       render: (toppings) =>
         toppings && toppings.length > 0
           ? toppings.map((topping) => (
-              <div key={topping.topping.id}>
-                <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
-                  {topping.topping.name} ({topping.topping.price}) x{" "}
-                  {topping.quantity}
-                </Tag>
-              </div>
-            ))
+            <div key={topping.topping.id}>
+              <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
+                {topping.topping.name} ({topping.topping.price}) x{" "}
+                {topping.quantity}
+              </Tag>
+            </div>
+          ))
           : "",
     },
     {
@@ -348,20 +348,20 @@ function Header() {
           </div>
         </div>
       )}
-<style>
-  {`
+      <style>
+        {`
   .search-dropdown {
   position: absolute;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
   width: 180px;
   z-index: 1000;
   padding: 8px 0;
   text-align: left;
-   display: block; /* Đảm bảo mỗi item là block */
+  display: block; /* Đảm bảo mỗi item là block */
 
   text-align: left; /* Canh trái nội dung */
   padding: 5px 10px; /* Khoảng cách padding */
@@ -379,17 +379,20 @@ width: 180px;
   color: #333;
   transition: background-color 0.2s ease, color 0.2s ease;
   border-bottom: 1px solid #f0f0f0;
-   display: block; /* Đảm bảo mỗi item là block */
+  display: block; /* Đảm bảo mỗi item là block */
   min-height: 40px; /* Chiều cao tối thiểu (có thể chỉnh) */
   line-height: 40px; /* Canh giữa theo chiều dọc */
   white-space: nowrap; /* Ngăn xuống dòng giữa các từ trong cùng 1 tên sản phẩm */
   text-align: left; /* Canh trái nội dung */
   padding: 5px 10px; /* Khoảng cách padding */
   border-bottom: 1px solid #ddd; /* Dòng phân cách (tuỳ chọn) */
+  width: 100%;
+
 }
 
 .search-item:hover {
-  background-color: #f0f0f0;
+  background-color: #d6c5b6; /* Đổi màu nền khi hover */
+  color: #fff; /* Đổi màu chữ thành trắng (tuỳ chọn) */
 }
 
 .popular-keywords-container {
@@ -445,7 +448,7 @@ width: 180px;
 }
 
   `}
-</style>
+      </style>
       <div className="top-header-area" id="sticker" ref={stickerRef}>
         <div className="container">
           <div className="row">
@@ -475,17 +478,17 @@ width: 180px;
                     </li>
                     <li>
                       <li>
-                      <input
-                        type="text"
-                        placeholder="Find products by name..."
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        onFocus={() => setShowDropdown(true)}
-                        onBlur={handleBlur} // Đóng dropdown khi mất focus
-                        className="search-input"
-                      />
-                      {showDropdown && (
+                        <input
+                          type="text"
+                          placeholder="Find products by name..."
+                          value={searchQuery}
+                          onChange={handleInputChange}
+                          onKeyDown={handleKeyDown}
+                          onFocus={() => setShowDropdown(true)}
+                          onBlur={handleBlur} // Đóng dropdown khi mất focus
+                          className="search-input"
+                        />
+                        {showDropdown && (
                           <div className="search-dropdown">
                             {products.length > 0 ? (
                               products.map((product) => (
@@ -495,15 +498,15 @@ width: 180px;
                                   className="search-item"
                                   onClick={() => setShowDropdown(false)}
                                 >
-                                  <h4 style={{fontSize: '16.3px'}}>{product.name}</h4>
+                                  <h4 style={{ fontSize: '16.3px' }}>{product.name}</h4>
                                 </Link>
                               ))
                             ) : (
                               <div className="search-item">Không tìm thấy sản phẩm!</div>
                             )}
                             {/* Hiển thị từ khóa phổ biến */}
-                            
-                            </div>
+
+                          </div>
                         )}
                       </li>
                       <li>

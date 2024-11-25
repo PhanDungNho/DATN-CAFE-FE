@@ -19,6 +19,7 @@ import {
   Input,
   Row,
   Skeleton,
+  message
 } from 'antd';
 import ContentHeader from '../common/ContentHeader';
 import withRouter from '../../../helpers/withRouter';
@@ -51,9 +52,9 @@ export class ListAccount extends Component {
 
     if (account.username) {
       console.log(account.username)
-      this.props.updateAccount(account.username, values);
+       this.props.updateAccount(account.username, values).catch(this.handleError); // Handle errors here
     } else {
-      this.props.insertAccount(values);
+       this.props.insertAccount(values).catch(this.handleError); // Handle errors here
     }
 
     this.setState({ open: false });
@@ -82,7 +83,15 @@ export class ListAccount extends Component {
   closeModal = () => {
     this.setState({ open: false });
   };
-
+  handleError = (error) => {
+    // Handling errors from backend
+    if (error.response && error.response.data) {
+      const errorMessage = error.response.data.message || 'An error occurred';
+      message.error(errorMessage);  // Display an error message
+    } else {
+      message.error('An unexpected error occurred');
+    }
+  };
   render() {
     const { accounts, getAccounts, isLoading, router } = this.props;
     const { open, query } = this.state;
@@ -144,6 +153,7 @@ export class ListAccount extends Component {
           onCancel={() => {
             this.setState({ ...this.state, open: false })
           }}
+          handleError={this.handleError}  
         />
       </>
     );

@@ -241,7 +241,7 @@ return matchesSearch && (selectedCategory === "All" || product.category.name ===
                                   transition: 'transform 0.2s',
                                   display: 'flex',
                                   flexDirection: 'column',
-                                  height: '350px',
+                                  height: '300px',
                                 }}
                                 cover={
                                   <img
@@ -286,17 +286,6 @@ return matchesSearch && (selectedCategory === "All" || product.category.name ===
                                             Math.min(...product.productVariants.map(v => v.price))
                                           )} VNĐ
                                         </span>
-                                      </div>
-                                      {/* Icon ngôi sao và trái tim bên dưới giá */}
-                                      <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
-                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
-                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
-                                          <StarFilled style={{ color: '#fadb14', marginRight: '8px' }} />
-                                          <StarFilled style={{ color: '#fadb14' }} />
-                                        </div>
-                                        <HeartFilled style={{ color: '#ff4d4f' }} />
                                       </div>
                                     </>
                                   }

@@ -9,6 +9,7 @@ import {
   Upload,
   Divider,
   Image,
+  message 
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import AccountService from "../../../services/accountService";
@@ -55,6 +56,7 @@ class AccountForm extends Component {
     }
   };
 
+ 
   handleRemove = (value) => {
     console.log(value);
   };
@@ -95,7 +97,7 @@ class AccountForm extends Component {
             .validateFields()
             .then((values) => {
               this.formRef.current.resetFields();
-              onSubmitForm(values);
+              onSubmitForm(values).catch(this.handleError); // Handling errors after submitting
             })
             .catch((info) => {
               console.log("Validate Failed:", info);
@@ -130,7 +132,7 @@ class AccountForm extends Component {
               },
             ]}
           >
-            <Input />
+            <Input disabled={isEdit} />
           </Form.Item>
           <Form.Item
             label="Họ và tên"

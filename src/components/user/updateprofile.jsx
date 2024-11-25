@@ -100,7 +100,6 @@ const UpdateProfile = () => {
 
   return (
     <div style={{ maxWidth: "100%", padding: "20px" }}>
-      <h2>Update Information</h2>
       <Form
         form={form}
         name="update-profile"

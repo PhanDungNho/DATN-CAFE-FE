@@ -36,15 +36,14 @@ function About() {
   return (
     <>
       <Header />
-      <div className="breadcrumb-section breadcrumb-bg">
+      <div className="hero-area hero-bg">
         <div className="container">
           <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="breadcrumb-text">
-                <p></p>
+            <div className="col-lg-10 offset-lg-1 text-center">
+              <div className="hero-text">
                 <div className="hero-text-tablecell">
                   <h1>WELCOME TO WALACOFFEE</h1>
-                  <p className="subtitle">About Us</p>
+                  <p className="subtitle">Coffee &amp; Tea</p>
                 </div>
               </div>
             </div>
