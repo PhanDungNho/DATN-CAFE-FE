@@ -120,7 +120,7 @@ const ProductItem = ({
                                 variant.id === selectedVariants[product.id]
                             )
                             .price.toLocaleString()}`
-                        : "Chọn kích thước để xem giá"}
+                        : "Select size to see price"}
                     </p>
                   </Col>
 
@@ -139,7 +139,7 @@ const ProductItem = ({
                   padding: 0}
 `}
                       </style>
-                      <Panel  header="Chọn topping" key="1" style={{     fontWeight:"bold",}}>
+                      <Panel  header="Choose toppings" key="1" style={{     fontWeight:"bold",}}>
                         {product.productToppings.map((topping) => (
                           <Row
                             key={topping.topping.id}
@@ -225,7 +225,7 @@ const ProductItem = ({
                       }
                       disabled={!selectedVariants[product.id]}
                     >
-                      Thêm
+                      Add
                     </Button>
                   </Col>
                 </Row>

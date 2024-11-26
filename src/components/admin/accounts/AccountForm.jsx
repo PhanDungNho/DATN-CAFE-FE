@@ -75,8 +75,8 @@ class AccountForm extends Component {
   render() {
     const { open, onSubmitForm, account = {}, onCancel } = this.props;
     const isEdit = !!account.username;
-    const title = isEdit ? "Cập nhật Account" : "Thêm mới Account";
-    const okText = isEdit ? "Cập nhật" : "Lưu";
+    const title = isEdit ? "Update Account" : "Add Account";
+    const okText = isEdit ? "Update" : "Save";
 
     const logoUrl = AccountService.getAccountLogoUrl(account.image);
 
@@ -121,51 +121,51 @@ class AccountForm extends Component {
             label="Username"
             name="username"
             rules={[
-              { required: true, message: "Username là bắt buộc" },
+              { required: true, message: "Username is required" },
               {
                 min: 2,
-                message: "Username không được dưới 2 kí tự",
+                message: "Username cannot be less than 2 characters",
               },
               {
                 max: 255,
-                message: "Username không được vượt quá 255 kí tự",
+                message: "Username must not exceed 255 characters",
               },
             ]}
           >
             <Input disabled={isEdit} />
           </Form.Item>
           <Form.Item
-            label="Họ và tên"
+            label="Full name"
             name="fullName"
             rules={[
-              { required: true, message: "Họ và tên là bắt buộc" },
+              { required: true, message: "Full name is required" },
               {
                 min: 2,
-                message: "Họ và tên không được dưới 2 kí tự",
+                message: "Full name must not be less than 2 characters",
               },
               {
                 max: 255,
-                message: "Họ và tên không được vượt quá 255 kí tự",
+                message: "Full name must not exceed 255 characters",
               },
             ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="Mật khẩu"
+            label="Password"
             name="password"
             rules={[
               {
                 required: !isEdit, // Bắt buộc khi không phải là edit (thêm mới)
-                message: "Mật khẩu là bắt buộc",
+                message: "Password is required",
               },
               {
                 min: 8,
-                message: "Mật khẩu phải có ít nhất 8 ký tự",
+                message: "Password must have at least 8 characters",
               },
               {
                 pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                message: "Mật khẩu phải bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+                message: "Password must include uppercase letters, lowercase letters, numbers and special characters",
               },
             ]}
           >
@@ -174,17 +174,17 @@ class AccountForm extends Component {
 
           
           <Form.Item
-            label="Số điện thoại"
+            label="Phone number"
             name="phone"
             rules={[
-              { required: true, message: "Số điện thoại là bắt buộc" },
+              { required: true, message: "Phone number is required" },
               {
                 len: 10,
-                message: "Số điện thoại phải là 10 số",
+                message: "Phone number must be 10 digits",
               },
               {
                 pattern: /^(0[3|5|7|8|9])+([0-9]{8})$/,
-                message: "Số điện thoại không hợp lệ. Phải là số điện thoại Việt Nam hợp lệ",
+                message: "Invalid phone number. Must be a valid Vietnamese phone number",
               },
             ]}
           >
@@ -194,35 +194,35 @@ class AccountForm extends Component {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: "Email là bắt buộc" },
+              { required: true, message: "Email is required" },
               {
                 type: "email",
-                message: "Email không hợp lệ",
+                message: "Invalid email",
               },
             ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="Trạng thái"
+            label="Active"
             name="active"
             rules={[
-              { required: true, message: "Vui lòng chọn trạng thái hoạt động" },
+              { required: true, message: "Please select an active status" },
             ]}
           >
             <Select>
-              <Select.Option value={true}>Hoạt động</Select.Option>
-              <Select.Option value={false}>Không hoạt động</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Hình ảnh"
+            label="Image"
             name="imageFile"
             initialValue={[initialLogo]}
             valuePropName="fileList"
             getValueFromEvent={this.normFile}
-            rules={[{ required: true, message: "Vui lòng tải lên một hình ảnh" }]}
+            rules={[{ required: true, message: "Please upload an image" }]}
           >
             <Upload
               listType="picture"
@@ -232,7 +232,7 @@ class AccountForm extends Component {
               maxCount={1}
               beforeUpload={() => false}
             >
-              <Button icon={<UploadOutlined />}>Bấm để tải lên
+              <Button icon={<UploadOutlined />}>Click to upload
               </Button>
             </Upload>
           </Form.Item>

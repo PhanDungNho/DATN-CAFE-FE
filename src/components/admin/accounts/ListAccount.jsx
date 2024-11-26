@@ -101,7 +101,7 @@ export class ListAccount extends Component {
         <>
           <ContentHeader
             navigate={navigate}
-            title="Danh sách tài khoản"
+            title="List of accounts"
             className="site-page-header"
           ></ContentHeader>
           <Skeleton active />
@@ -112,7 +112,7 @@ export class ListAccount extends Component {
       <>
         <ContentHeader
           navigate={navigate}
-          title="Danh sách tài khoản"
+          title="List of accounts"
           className="site-page-header"
         />
 
@@ -121,7 +121,7 @@ export class ListAccount extends Component {
             <Form layout="inline" name="searchForm" initialValues={{ query }}>
               <Form.Item name="query">
                 <Input
-                  placeholder="Tìm tài khoản "
+                  placeholder="Find accounts"
                   value={query}
                   onChange={this.handleSearch}
                 />
@@ -130,7 +130,7 @@ export class ListAccount extends Component {
           </Col>
           <Col md={6} style={{ textAlign: 'right', paddingRight: 5 }}>
             <Button type="primary" onClick={() => this.setState({ account: {}, open: true })}>
-              Thêm mới tài khoản
+            Add new account
             </Button>
           </Col>
         </Row>

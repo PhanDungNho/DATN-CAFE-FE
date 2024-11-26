@@ -14,7 +14,7 @@ const columns = (editAccount, updateAccountActive) => [
     align: "center",
   },
   {
-    title: "Hình ảnh",
+    title: "Image",
     dataIndex: "image",
     key: "image",
     width: 80,
@@ -27,12 +27,12 @@ const columns = (editAccount, updateAccountActive) => [
     )
   },
   {
-    title: "Họ và tên",
+    title: "Fullname",
     dataIndex: "fullName",
     key: "fullName",
   },
   {
-    title: "Số điện thoại",
+    title: "Phone number",
     dataIndex: "phone",
     key: "phone",
   },
@@ -42,18 +42,18 @@ const columns = (editAccount, updateAccountActive) => [
     key: "email",
   },
   {
-    title: "Trạng thái",
+    title: "Active",
     dataIndex: "active",
     key: "active",
     // width: 100,
     render: (_, { active }) => {
       let color = active ? "green" : "volcano";
-      let statusText = active ? "Hoạt động" : "Không hoạt động";
+      let statusText = active ? "Active" : "Inactive";
       return <Tag color={color}>{statusText}</Tag>;
     },
   },
   {
-    title: "Hành động",
+    title: "Action",
     key: "action",
     // width: 150,
     align: "center",
@@ -132,7 +132,7 @@ const AccountList = ({ accounts, editAccount, updateAccountActive }) => {
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: 'Không tìm thấy tài khoản nào' }}
+      locale={{ emptyText: 'No accounts found' }}
     />
   );
 };

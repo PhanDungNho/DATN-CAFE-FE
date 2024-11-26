@@ -90,10 +90,10 @@ const UpdateAddress = () => {
         // Gọi hàm để tải danh sách quận/huyện của Cần Thơ
         await handleProvinceChange(canTho.ProvinceID);
       } else {
-        console.error("Cần Thơ không có trong danh sách tỉnh/thành phố.");
+        console.error("Can Tho is not in the list of provinces/cities.");
       }
     } catch (error) {
-      console.error("Lỗi khi tải danh sách tỉnh/thành phố:", error);
+      console.error("Error when loading list of provinces/cities:", error);
     }
   };
 

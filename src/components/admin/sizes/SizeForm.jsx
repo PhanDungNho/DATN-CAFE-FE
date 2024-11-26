@@ -13,8 +13,8 @@ class SizeForm extends Component {
   render() {
     const { open, onSubmitForm, size = {}, onCancel } = this.props;
     const isEdit = !!size.id;
-    const title = isEdit ? "Cập nhật Size" : "Thêm mới Size";
-    const okText = isEdit ? "Cập nhật" : "Lưu";
+    const title = isEdit ? "Update Size" : "Add new Size";
+    const okText = isEdit ? "Update" : "Save";
 
     return (
       <Modal
@@ -73,8 +73,8 @@ class SizeForm extends Component {
             ]}
           >
             <Select>
-              <Select.Option value={true}>Visible</Select.Option>
-              <Select.Option value={false}>In-Visible</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
         </Form>

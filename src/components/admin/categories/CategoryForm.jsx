@@ -13,8 +13,8 @@ class CategoryForm extends Component {
   render() {
     const { open, onSubmitForm, category = {}, onCancel } = this.props;
     const isEdit = !!category.id;
-    const title = isEdit ? "Cập nhật Category" : "Thêm mới Category";
-    const okText = isEdit ? "Cập nhật" : "Lưu";
+    const title = isEdit ? "Update Category" : "Add new Category";
+    const okText = isEdit ? "Update" : "Save";
 
     return (
       <Modal
@@ -73,8 +73,8 @@ class CategoryForm extends Component {
             ]}
           >
             <Select>
-              <Select.Option value={true}>Visible</Select.Option>
-              <Select.Option value={false}>In-Visible</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
         </Form>

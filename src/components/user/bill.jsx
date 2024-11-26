@@ -14,17 +14,17 @@ const Bill = ({ billData }) => {
   useEffect(() => {
     if (billData && Array.isArray(billData.orderDetails)) {
       setDisplayData(billData);
-      console.log("Dữ liệu hóa đơn: ", billData);
+      console.log("Invoice data: ", billData);
     } else {
       console.log(
-        "Không tìm thấy dữ liệu hóa đơn hoặc orderDetails không phải là mảng"
+        "Invoice data not found or orderDetails is not an array"
       );
     }
   }, [billData]);
 
   const columns = [
     {
-      title:<div style={{ fontSize: "12px", fontWeight: 'bold' }}>Sản phẩm</div>, 
+      title:<div style={{ fontSize: "12px", fontWeight: 'bold' }}>Product</div>, 
       dataIndex: "item",
       key: "item",
       render: (text, record) => (
@@ -70,7 +70,7 @@ const Bill = ({ billData }) => {
       ),
     },
     {
-      title: <div style={{ fontSize: "12px", fontWeight: 'bold', textWrap:"none",textAlign:"center" }}>Thành tiền</div>, 
+      title: <div style={{ fontSize: "12px", fontWeight: 'bold', textWrap:"none",textAlign:"center" }}>Total</div>, 
       dataIndex: "total",
      textWrap:"none",
       key: "total",
@@ -165,7 +165,7 @@ const Bill = ({ billData }) => {
         </Text>
         <br />
         <Text style={{ fontSize: "12px", color: "#555", marginBottom: "10px" }}>
-          ĐT: 0974.300.007 - 0909.191.195
+          Phone number: 0974.300.007 - 0909.191.195
         </Text>
       </div>
 
@@ -178,7 +178,7 @@ const Bill = ({ billData }) => {
           margin: "0",
         }}
       >
-        HÓA ĐƠN BÁN HÀNG
+        SALES INVOICE
       </Text>
 
       <Table
@@ -199,7 +199,7 @@ const Bill = ({ billData }) => {
           marginBottom: "10px",
         }}
       >
-        <Text>Tổng cộng: {displayData.totalAmount.toLocaleString()} đ</Text>
+        <Text>Total: {displayData.totalAmount.toLocaleString()} VNĐ</Text>
       </div>
 
       <Divider style={{ margin: "15px 0" }} />
@@ -211,7 +211,7 @@ const Bill = ({ billData }) => {
           color: "red",
         }}
       >
-        Cảm ơn Quý khách. Hẹn gặp lại!
+      Thank you. See you again!
       </Text>
     </div>
   );

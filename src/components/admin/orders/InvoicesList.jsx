@@ -289,7 +289,7 @@ const InvoicesList = ({
         onChange={handleTableChange}
         size="small"
         bordered
-        locale={{ emptyText: "Không có dữ liệu" }}
+        locale={{ emptyText: "No data available" }}
         expandable={{
           expandedRowRender,
           defaultExpandedRowKeys: ["0"],
@@ -375,7 +375,7 @@ const InvoicesList = ({
                     align: "center",
                     render: (text) => (
                       <a href={text} target="_blank" rel="noopener noreferrer">
-                        Link thanh toán
+                        Payment link
                       </a>
                     ),
                   },
