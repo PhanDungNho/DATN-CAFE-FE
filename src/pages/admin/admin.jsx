@@ -13,9 +13,11 @@ import ListInvoices from "../../components/admin/orders/ListInvoices";
 import ListProductVariant from "../../components/admin/productvariants/ListProductVariant";
 import AddorEditVariant from "../../components/admin/productvariants/AddorEditVariant";
 import Statistic from "../../components/admin/statistics/StatisticList";
+import NotFound from "../../components/user/404";
 
-
-
+function NotFoundDashBoard() {
+  return <h1 style={{textAlign: "center"}}>404 - Page Not Found</h1>;
+}
 function Admin() {
   return (
     <>
@@ -31,13 +33,13 @@ function Admin() {
           <Route path="productvariants/add" element={<AddorEditVariant />} />
           <Route
             path="productvariants/update/:id"
-            element={<AddorEditVariant />}  
+            element={<AddorEditVariant />}
           />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
           <Route path="accounts/list" element={<ListAccount />} />
           <Route path="authorities/list" element={<ListAuthority />} />
-          <Route path="statistics/list" element={<Statistic />} />   
+          <Route path="statistics/list" element={<Statistic />} />
         </Route>
       </Routes>
     </>
