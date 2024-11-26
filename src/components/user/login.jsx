@@ -101,15 +101,26 @@ const Login = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="btn-block btn-form btn-sign"
-                  loading={loading}
-                >
-                  Đăng nhập
-                </Button>
-              </Form.Item>
+  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+    <Button
+      type="primary"
+      htmlType="submit"
+      className="btn-block btn-form btn-sign"
+      loading={loading}
+    >
+      Đăng nhập
+    </Button>
+    <Button
+      type="default"
+      className="btn-block btn-form btn-back"
+      onClick={() => (window.location.href = "/")}
+    >
+      Trở lại
+    </Button>
+  </div>
+</Form.Item>
+
+         
 
               <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
 
