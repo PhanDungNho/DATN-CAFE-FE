@@ -71,11 +71,13 @@ const ProductVariantForm = forwardRef((props, ref) => {
           style={{ width: "100%" }}
           onChange={(value) => handleSave({ ...record, sizeId: value })}
         >
-          {sizes.map((size) => (
-            <Select.Option key={size.id} value={size.id}>
-              {size.name}
-            </Select.Option>
-          ))}
+          {sizes
+            .filter((item) => item.active)
+            .map((size) => (
+              <Select.Option key={size.id} value={size.id}>
+                {size.name}
+              </Select.Option>
+            ))}
         </Select>
       ),
     },

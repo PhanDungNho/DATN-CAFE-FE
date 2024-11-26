@@ -13,7 +13,7 @@ import NotFound from "../../components/user/404";
 import ManagerUser from "../../components/user/manageruser";
 import UpdateAddress from "../../components/user/address/updateaddress";
 import UpdateProfile from "../../components/user/updateprofile";
- 
+
 import WaitOrder from "../../components/user/waitorders";
 import TransOrder from "../../components/user/transorders";
 import SuccessOrder from "../../components/user/successorders";
@@ -26,15 +26,12 @@ import PaymentService from "../../services/PaymentService";
 import PaymentResult from "../../components/user/PaymentResult";
 import GoogleCallback from "../../services/GoogleAuthService";
 import Loginwithgoogledrap from "../../components/user/loginwithgoogledrap";
- 
 
 import About from "../../components/user/about";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setMessage } from "../../redux/actions/commonAction.js";
 import Allorder from "../../components/user/orders/allorders.jsx";
 import Bill from "../../components/user/bill.jsx";
-
-
 
 function User() {
   const navigate = useNavigate();
@@ -73,8 +70,11 @@ function User() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/VerifyOtp" element={<OtpRegister />} />
-        <Route path="/forgotpassword/otp/newpassword" element={<NewPassword />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />   
+        <Route
+          path="/forgotpassword/otp/newpassword"
+          element={<NewPassword />}
+        />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/forgotpassword/otp" element={<OtpPassword />} />
 
         <Route path="/drap" element={<PaymentService />} />
@@ -85,10 +85,8 @@ function User() {
         <Route path="/About" element={<About />} />
         <Route path="/bill/:billId" element={<Bill />} />
 
-        
-
         {/* Route cho ManagerUser với đường dẫn /manager */}
-       <Route path="/manager/*" element={<ManagerUser />} >
+        <Route path="/manager/*" element={<ManagerUser />}>
           <Route path="" element={<UpdateAddress />} />
           <Route path="address" element={<UpdateAddress />} />
           <Route path="info" element={<UpdateProfile />} />
@@ -98,6 +96,7 @@ function User() {
           <Route path="orders/completed" element={<SuccessOrder />} />
           <Route path="orders/canceled" element={<CancelOrder />} /> */}
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

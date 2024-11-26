@@ -70,13 +70,13 @@ const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const [account, setAccount] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [currentAddress, setCurrentAddress] = useState(null);
   const [wards, setWards] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalSuccessOpen, setIsModalSuccessOpen] = useState(false);
   const [isModalAddressOpen, setIsModalAddressOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const orderService = new OrderService();
@@ -333,7 +333,6 @@ const Cart = () => {
         quantity: topping.quantity,
         momentPrice: topping.topping.price,
       })),
-    
     }));
 
     console.log("CartItems", cartItems);
@@ -371,7 +370,7 @@ const Cart = () => {
       console.log("Order response:", orderResponse.data);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-   
+
       console.log(order.id);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
@@ -442,8 +441,10 @@ const Cart = () => {
 
   // // Hàm xử lý thành công
   const handleSuccess = async (order) => {
-    message.success("Thanh toán thành công!");
+    // message.success("Thanh toán thành công!");
     const selectedItemsIds = selectedItemsArray.map((item) => item.id);
+
+    setIsModalSuccessOpen(true);
 
     try {
       for (const id of selectedItemsIds) {
@@ -453,11 +454,8 @@ const Cart = () => {
       const username = JSON.parse(localStorage.getItem("user"));
       dispatch(getCartDetailsByUsername(username.username));
 
-
       dispatch(clearSelectedItems());
       setSelectedRowKeys([]);
-  
-
     } catch (error) {
       console.error("Error removing items after payment:", error);
     }
@@ -467,9 +465,9 @@ const Cart = () => {
     const fetchDefaultAddressAndCalculateShipping = async () => {
       const defaultAddress = addresses.find((address) => address.isDefault);
       const numberOfItems = Object.keys(selectedItems).length;
-      console.log("numberOfItems", numberOfItems)
+      console.log("numberOfItems", numberOfItems);
       const weightT = 500 * numberOfItems;
-      console.log("weightT", weightT)
+      console.log("weightT", weightT);
 
       if (numberOfItems === 0) {
         setShippingfee(0);
@@ -673,11 +671,21 @@ const Cart = () => {
     }
   };
 
+  //Payment Successfully
+  const handleOkFinish = () => {
+    setIsModalSuccessOpen(false);
+    navigate("/manager/orders");
+  };
+
+  const handleCancelFinish = () => {
+    setIsModalSuccessOpen(false);
+  };
+
   const handleNewAddress = () => {
     setCurrentAddress(null);
     setIsModalAddressOpen(true);
-    setIsModalOpen(false)
-    form.resetFields(); 
+    setIsModalOpen(false);
+    form.resetFields();
   };
 
   return (
@@ -1033,6 +1041,87 @@ const Cart = () => {
                                     : "Add Address"}
                                 </Button>
                               </Form>
+                            </Modal>
+
+                            {/* Modal finish */}
+                            <Modal
+                              open={isModalSuccessOpen}
+                              closable={false}
+                              centered={true}
+                              bodyStyle={{
+                                textAlign: "center",
+                                border: "1px solid #f6ffed", // Viền xanh nhạt
+                                borderRadius: "8px", // Bo góc
+                                padding: "20px", // Khoảng cách nội dung
+                              }}
+                              footer={[
+                                <button
+                                  key="close"
+                                  onClick={handleCancelFinish}
+                                  style={{
+                                    backgroundColor: "#fff",
+                                    color: "#595959",
+                                    border: "1px solid #d9d9d9",
+                                    padding: "6px 16px",
+                                    borderRadius: "6px",
+                                    fontSize: "14px",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.target.style.borderColor = "#40a9ff")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.target.style.borderColor = "#d9d9d9")
+                                  }
+                                >
+                                  Close
+                                </button>,
+                                <button
+                                  key="my-orders"
+                                  onClick={handleOkFinish} // Hàm xử lý khi bấm vào nút My Orders
+                                  style={{
+                                    backgroundColor: "#1677ff",
+                                    color: "#fff",
+                                    border: "1px solid #1677ff",
+                                    padding: "6px 16px",
+                                    borderRadius: "6px",
+                                    fontSize: "14px",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s",
+                                    marginLeft: "5px",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.target.style.backgroundColor = "#1677ff")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.target.style.backgroundColor = "#1677ff")
+                                  }
+                                >
+                                  My Orders
+                                </button>,
+                              ]}
+                            >
+                              <div>
+                                <h3
+                                  style={{
+                                    fontSize: "24px",
+                                    fontWeight: "bold",
+                                    marginBottom: "10px",
+                                  }}
+                                >
+                                  Success!
+                                </h3>
+                                <p
+                                  style={{
+                                    color: "#595959", // Màu xám cho nội dung
+                                    fontSize: "16px",
+                                    margin: "0",
+                                  }}
+                                >
+                                  Order has been paid successfully.
+                                </p>
+                              </div>
                             </Modal>
                           </span>
                         </Row>
