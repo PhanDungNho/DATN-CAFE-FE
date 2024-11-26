@@ -112,7 +112,7 @@ const NewPasswordForm = () => {
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Trở về <a href="/home">trang chủ</a></p>
+              <p>Trở về <a href="/">trang chủ</a></p>
             </div>
           </Col>
         </Row>

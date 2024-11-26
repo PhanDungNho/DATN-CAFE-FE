@@ -102,6 +102,9 @@ const VerifyOtp = () => {
                 >
                   Xác nhận
                 </Button>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+    <p>Trở về <a href="/">trang chủ</a></p>
+  </div>
               </Form.Item>
             </Form>
           </Col>
