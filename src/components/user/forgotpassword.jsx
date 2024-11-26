@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, message } from 'antd';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate từ react-router-dom
-import 'antd/dist/reset.css'; // CSS của Ant Design
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
+import 'antd/dist/reset.css'; // Ant Design CSS
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const onFinish = async (values) => {
-    setLoading(true); // Bắt đầu loading
+    setLoading(true); // Start loading
     try {
       const response = await fetch('http://localhost:8081/api/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: values.email }), // Gửi email đến backend
+        body: JSON.stringify({ email: values.email }), // Send email to backend
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        message.error(errorData.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+        message.error(errorData.message || 'An error occurred, please try again.');
       } else {
         const data = await response.json();
         message.success(data.message);
-        // Lưu email vào local storage hoặc state trước khi điều hướng
-        localStorage.setItem('email', values.email); // Lưu email vào local storage
-        navigate('/forgotpassword/otp'); // Điều hướng đến trang xác thực OTP
+        // Save email to local storage or state before redirecting
+        localStorage.setItem('email', values.email); // Save email to local storage
+        navigate('/forgotpassword/otp'); // Redirect to OTP verification page
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra, vui lòng thử lại.');
+      message.error('An error occurred, please try again.');
       console.error('Error:', error);
     } finally {
-      setLoading(false); // Kết thúc loading
+      setLoading(false); // End loading
     }
   };
 
@@ -42,7 +42,7 @@ const ForgotPassword = () => {
         display: 'flex',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url(assets/img/nennnn.jpg)', // Đường dẫn ảnh nền
+        backgroundImage: 'url(assets/img/nennnn.jpg)', // Background image path
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         justifyContent: 'center',
@@ -50,7 +50,7 @@ const ForgotPassword = () => {
     >
       <div
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.85)', // Màu nền với độ trong suốt
+          backgroundColor: 'rgba(255, 255, 255, 0.85)', // Background color with transparency
           padding: '20px',
           borderRadius: '10px',
           boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
@@ -67,30 +67,30 @@ const ForgotPassword = () => {
           </Col>
           <Col lg={10}>
             <div style={{ textAlign: 'center' }}>
-              <h1>Quên Mật Khẩu</h1>
+              <h1>Forgot Password</h1>
               <Form
                 name="forgot-password"
                 onFinish={onFinish}
-                layout="vertical" // Sắp xếp label trên input
+                layout="vertical" // Layout with label on top of input
                 style={{ maxWidth: '400px', margin: '0 auto' }}
               >
                 <Form.Item
                   name="email"
                   rules={[
-                    { required: true, message: 'Vui lòng nhập email của bạn!' },
-                    { type: 'email', message: 'Vui lòng nhập đúng định dạng email!' },
+                    { required: true, message: 'Please enter your email!' },
+                    { type: 'email', message: 'Please enter a valid email format!' },
                   ]}
                 >
                   <Input placeholder="Email" />
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" block loading={loading}>
-                    Gửi Mã
+                    Send Code
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Không có tài khoản? <a href="/register">Đăng ký tại đây</a></p>
-              <p>Trở về <a href="/">trang chủ</a></p>
+              <p>Don't have an account? <a href="/register">Sign up here</a></p>
+              <p>Return to <a href="/">home page</a></p>
             </div>
           </Col>
         </Row>

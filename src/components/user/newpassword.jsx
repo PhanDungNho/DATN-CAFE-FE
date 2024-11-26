@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, message } from 'antd';
-import { useNavigate } from 'react-router-dom'; // Thêm import useNavigate
-import 'antd/dist/reset.css'; // CSS của Ant Design
+import { useNavigate } from 'react-router-dom'; // Add useNavigate import
+import 'antd/dist/reset.css'; // Ant Design CSS
 
 const NewPasswordForm = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Khởi tạo hook useNavigate
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const onFinish = async (values) => {
-    setLoading(true); // Bắt đầu loading
+    setLoading(true); // Start loading
     try {
-      const email = localStorage.getItem('email'); // Lấy email từ localStorage
-  
+      const email = localStorage.getItem('email'); // Get email from localStorage
+
       const response = await fetch('http://localhost:8081/api/reset-password', {
         method: 'POST',
         headers: {
@@ -23,27 +23,26 @@ const NewPasswordForm = () => {
           confirmPassword: values.confirmPassword,
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        message.error(errorData.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+        message.error(errorData.message || 'An error occurred, please try again.');
       } else {
         const data = await response.json();
         message.success(data.message);
-  
-        // Xóa email khỏi localStorage sau khi đặt lại mật khẩu thành công
+
+        // Remove email from localStorage after successful password reset
         localStorage.removeItem('email');
-  
-        // Chuyển hướng đến trang đăng nhập và thay thế lịch sử để không thể quay lại
+
+        // Redirect to the login page and replace history to prevent going back
         navigate('/login', { replace: true });
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra, vui lòng thử lại.');
+      message.error('An error occurred, please try again.');
     } finally {
-      setLoading(false); // Kết thúc loading
+      setLoading(false); // End loading
     }
   };
-  
 
   return (
     <div
@@ -51,7 +50,7 @@ const NewPasswordForm = () => {
         display: 'flex',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url(../../assets/img/nennnn.jpg)', // Đường dẫn ảnh nền
+        backgroundImage: 'url(../../assets/img/nennnn.jpg)', // Background image path
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         justifyContent: 'center',
@@ -59,7 +58,7 @@ const NewPasswordForm = () => {
     >
       <div
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Màu nền với độ trong suốt
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background color
           padding: '20px',
           borderRadius: '10px',
           boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
@@ -77,7 +76,7 @@ const NewPasswordForm = () => {
           </Col>
           <Col lg={10}>
             <div style={{ textAlign: 'center' }}>
-              <h1>Nhập Mật Khẩu Mới</h1>
+              <h1>Enter New Password</h1>
               <Form
                 name="new-password-form"
                 onFinish={onFinish}
@@ -86,33 +85,39 @@ const NewPasswordForm = () => {
               >
                 <Form.Item
                   name="newPassword"
-                  rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới!' }]}
+                  rules={[
+                    { required: true, message: 'Please enter a new password!' },
+                    {
+                      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, 
+                      message: 'Password must have at least 8 characters, one uppercase letter, one lowercase letter, and one number.',
+                    },
+                  ]}
                 >
-                  <Input.Password placeholder="Mật khẩu mới" />
+                  <Input.Password placeholder="New Password" />
                 </Form.Item>
                 <Form.Item
                   name="confirmPassword"
                   rules={[
-                    { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                    { required: true, message: 'Please confirm your password!' },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue('newPassword') === value) {
                           return Promise.resolve();
                         }
-                        return Promise.reject(new Error('Mật khẩu không khớp!'));
+                        return Promise.reject(new Error('Passwords do not match!'));
                       },
                     }),
                   ]}
                 >
-                  <Input.Password placeholder="Xác nhận mật khẩu" />
+                  <Input.Password placeholder="Confirm Password" />
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" block loading={loading}>
-                    Xác Nhận
+                    Confirm
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Trở về <a href="/">trang chủ</a></p>
+              <p>Back to <a href="/">home page</a></p>
             </div>
           </Col>
         </Row>

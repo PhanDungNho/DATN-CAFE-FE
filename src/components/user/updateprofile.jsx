@@ -148,14 +148,22 @@ const UpdateProfile = () => {
         </Form.Item>
 
         <Form.Item
-          label="New Password"
-          name="password"
-          rules={[
-            { min: 6, message: "Password must be at least 6 characters!" },
-          ]}
-        >
-          <Input.Password placeholder="Enter new password (optional)" />
-        </Form.Item>
+  label="New Password"
+  name="password"
+  rules={[
+    { 
+      min: 8, 
+      message: "Password must be at least 8 characters!" 
+    },
+    { 
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
+      message: "Password must contain at least one uppercase letter, one lowercase letter, and one number!" 
+    }
+  ]}
+>
+  <Input.Password placeholder="Enter new password (optional)" />
+</Form.Item>
+
 
         <Form.Item label="Profile Picture">
           <Upload
