@@ -236,6 +236,12 @@ const Cart = () => {
           : "",
     },
     {
+      title: "Note",
+      dataIndex: "note",
+      key: "note",
+      width: "18%",
+    },
+    {
       title: "Price",
       dataIndex: ["productVariant", "price"],
       key: "price",
@@ -346,10 +352,11 @@ const Cart = () => {
     console.log("Full address is default: ", fullAddress);
 
     const stringFullAddress = `${fullAddress[0].fullAddress}`;
+    console.log("Username", username);
     console.log("String full address: ", stringFullAddress);
 
     const order = {
-      cashierId: JSON.parse(localStorage.getItem("user")).username,
+      cashierId: "",
       totalAmount: grandTotal,
       phone: selectedItemsArray.customerPhone || "", // || phoneNumberInput
       orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
@@ -358,8 +365,8 @@ const Cart = () => {
       active: false,
       shippingFee: shippingfee,
       orderType: 0,
-      // fullAddress: stringFullAddress,
-      customerId: selectedItemsArray.customerId || "test1",
+      fullAddress: stringFullAddress,
+      customerId: username || "test1",
       orderDetails: cartItems,
     };
 
