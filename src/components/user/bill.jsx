@@ -8,10 +8,12 @@ const Bill = ({ billData }) => {
   const [displayData, setDisplayData] = useState({
     orderDetails: [], // Khởi tạo như một mảng rỗng
     totalAmount: 0,
+    createdTime:""
   });
 
   // Lấy dữ liệu từ props khi component được load
   useEffect(() => {
+    console.log(billData)
     if (billData && Array.isArray(billData.orderDetails)) {
       setDisplayData(billData);
       console.log("Dữ liệu hóa đơn: ", billData);
@@ -24,11 +26,11 @@ const Bill = ({ billData }) => {
 
   const columns = [
     {
-      title:<div style={{ fontSize: "12px", fontWeight: 'bold' }}>Sản phẩm</div>, 
+      title:<div style={{ fontSize: "13px", textWrap:'none' }}>Products</div>, 
       dataIndex: "item",
       key: "item",
       render: (text, record) => (
-        <div style={{ fontSize: "10px",marginTop: "3px" }}>
+        <div style={{ fontSize: "12px",marginTop: "3px" }}>
           <strong >
             {record.name} - {record.size} (
             {Number(record.price).toLocaleString()}đ)
@@ -70,7 +72,7 @@ const Bill = ({ billData }) => {
       ),
     },
     {
-      title: <div style={{ fontSize: "12px", fontWeight: 'bold', textWrap:"none",textAlign:"center" }}>Thành tiền</div>, 
+      title: <div style={{ fontSize: "12px",   textWrap:"nowrap",textAlign:"center" }}>Total amount</div>, 
       dataIndex: "total",
      textWrap:"none",
       key: "total",
@@ -101,12 +103,12 @@ const Bill = ({ billData }) => {
       })),
     };
   });
-
+  const formattedCreatedTime = new Date(displayData.createdTime).toLocaleString();
   return (
     <div style={{
       width: "58mm",
       maxWidth: "58mm",
-      padding: "10px",
+      padding: "5px 0px",
       background: "#fff",
       fontFamily: "Arial, sans-serif",
       fontSize: "12px",
@@ -145,7 +147,7 @@ const Bill = ({ billData }) => {
       `}</style>
       
       <img
-        src="/assets/img/logo2.png"
+        src="/assets/img/logo3.png"
         alt="Logo"
         style={{
           position: "absolute",
@@ -155,20 +157,19 @@ const Bill = ({ billData }) => {
           width: "100%",
           maxWidth: "200px",
           height: "auto",
-          opacity: 0.9,
         }}
       />
 
       <div style={{ marginTop: "80px", textAlign: "center" }}>
-        <Text style={{ fontSize: "12px", color: "#555", marginBottom: "5px" }}>
-          P. An Khánh, Q. Ninh Kiều - TP. Cần Thơ
+        <Text style={{ fontSize: "12px",color:"black", marginBottom: "5px" }}>
+        123, 30th of April Street, An Khanh Ward, Ninh Kieu District - Can Tho City.
         </Text>
         <br />
-        <Text style={{ fontSize: "12px", color: "#555", marginBottom: "10px" }}>
-          ĐT: 0974.300.007 - 0909.191.195
+        <Text style={{ fontSize: "12px",color:"black", marginBottom: "10px" }}>
+           0974.300.007 - 0909.191.195
         </Text>
       </div>
-
+   
       <Divider style={{ margin: "10px 0" }} />
       <Text
         style={{
@@ -178,9 +179,11 @@ const Bill = ({ billData }) => {
           margin: "0",
         }}
       >
-        HÓA ĐƠN BÁN HÀNG
+        INVOICE
       </Text>
-
+      <div style={{ textAlign: "center", marginTop:"3px" }}>
+        <Text style={{ fontSize: "12px",color:"black",}}>Time: {formattedCreatedTime}</Text>
+      </div>
       <Table
         dataSource={billItems}
         columns={columns}
@@ -190,7 +193,7 @@ const Bill = ({ billData }) => {
         style={{ width: "100%", marginTop: "10px" }}
       />
 
-      <Divider style={{ margin: "15px 0" }} />
+      <Divider style={{ margin: "10px 0" }} />
       <div
         style={{
           textAlign: "right",
@@ -199,19 +202,19 @@ const Bill = ({ billData }) => {
           marginBottom: "10px",
         }}
       >
-        <Text>Tổng cộng: {displayData.totalAmount.toLocaleString()} đ</Text>
+        <Text>Total: {displayData.totalAmount.toLocaleString()} đ</Text>
       </div>
 
-      <Divider style={{ margin: "15px 0" }} />
+      <Divider style={{ marginTop: " 5px" }} />
       <Text
         style={{
           textAlign: "center",
           fontStyle: "italic",
           fontSize: "14px",
-          color: "red",
+          color:"black",
         }}
       >
-        Cảm ơn Quý khách. Hẹn gặp lại!
+  Thank you for visiting! We hope to serve you again soon!
       </Text>
     </div>
   );

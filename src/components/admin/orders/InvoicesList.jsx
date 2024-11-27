@@ -119,30 +119,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
       );
     },
   },
-  {
-    title: "",
-    dataIndex: "createdTime",
-    key: "createdTime",
-    align: "center",
-    render: (_, record) => {
-      return (
-        <Space size="middle">
-
-          {record.paymentMethod === "ONLINE" && (
-            <Button
-              onClick={() => {
-                showModal(record);
-              }}
-            >
-              <BsListColumnsReverse
-                style={{ fontSize: "18px", color: "#4A90E2" }}
-              />
-            </Button>
-          )}
-        </Space>
-      );
-    },
-  },
+  
 ];
 
 const expandColumns = [

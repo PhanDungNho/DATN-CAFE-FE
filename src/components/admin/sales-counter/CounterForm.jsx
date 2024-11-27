@@ -323,6 +323,7 @@ const dispatch = useDispatch();
             if (paymentStatus === "success") {
               message.success("Thanh toán thành công!");
               handleSuccess(order, index,orderResponse); // Đóng form bán hàng
+              setPhoneNumberInput('');
               removeCustomer(index.toString()); 
             }else {
               dispatch(deleteOrderById(order.id));
@@ -349,7 +350,7 @@ const dispatch = useDispatch();
   
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
     const newOrders = [...orders];
-  
+    setPhoneNumberInput('');
     // Xóa giỏ hàng của đơn hàng đã thanh toán
     newOrders[index].cart = []; // Giỏ hàng sẽ được làm sạch
   
@@ -359,7 +360,7 @@ const dispatch = useDispatch();
     newOrders[index].customerName = ""; // Reset ID nếu cần
   
     // Reset input số điện thoại trong trạng thái
-    setPhoneNumberInput("");
+    
 
   
     // Cập nhật trạng thái đơn hàng mà không xóa tab
