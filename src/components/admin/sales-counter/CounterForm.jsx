@@ -216,7 +216,7 @@ const dispatch = useDispatch();
         updatedOrders[index].customerId = foundAccount.username;
         updatedOrders[index].customerName = foundAccount.fullName;
       } else {
-        // updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
+        updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
       }
       return updatedOrders;

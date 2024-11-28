@@ -3,6 +3,7 @@ import { Button, Modal, Select, Space, Switch, Table, Tag } from "antd";
 import moment from "moment";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
+import { printBill } from "../../user/printBill";
 
 const columns = (updateOrderActive, updateOrder, showModal) => [
   {
@@ -52,7 +53,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   {
     title: "Payment",
     key: "paymentStatus",
-    // width: 150,
     align: "left",
     render: (_, record) => {
       return record.paymentStatus === "PAID" ? (
@@ -185,7 +185,6 @@ const expandColumns = [
 
 const InvoicesList = ({
   invoices,
-  editInvoice,
   updateOrderActive,
   updateOrder,
 }) => {
@@ -215,31 +214,56 @@ const InvoicesList = ({
   };
 
   const expandedRowRender = (record) => {
-    const expandDataSource = (record.orderdetails || []).map(
-      (detail, index) => ({
-        key: detail.id.toString(),
-        id: index + 1,
-        productName: detail.productVariant.product.name,
-        quantity: detail.quantity,
-        price: detail.momentPrice,
-        size: detail.productVariant.size.name,
-        toppings: detail.orderDetailToppings
-          .map((topping) => topping.topping.name)
-          .join(", "),
-        note: detail.note,
-      })
-    );
     return (
-      <>
+      <div style={{ padding: '20px', background: '#f9f9f9' }}>
+        {record.fullAddress && (
+          <p>
+            <strong>Address: </strong>{record.fullAddress}
+          </p>
+        )}
+        {record.customer?.username && (
+          <p>
+            <strong>Customer ID: </strong>{record.customer.username}
+          </p>
+        )}
+        {record.shippingFee !== undefined && record.shippingFee > 0 && (
+          <p>
+            <strong>Shipping fee: </strong>
+            {record.shippingFee.toLocaleString() + ' VNĐ'}
+          </p>
+        )}
         <Table
           columns={expandColumns}
-          dataSource={expandDataSource}
+          dataSource={expandDataSource(record)}
           pagination={false}
-          style={{ paddingBottom: 20, paddingRight: 40, paddingTop: 20 }}
           bordered
         />
-      </>
+        <div style={{ marginTop: '20px', textAlign: 'right' }}>
+          <Button
+            type="primary"
+            onClick={() => printBill(record)} // Chức năng in hóa đơn
+          >
+            Print Bill
+          </Button>
+        </div>
+      </div>
     );
+  };
+  
+
+  const expandDataSource = (record) => {
+    return (record.orderDetails || []).map((detail, index) => ({
+      key: detail.id.toString(),
+      id: index + 1,
+      productName: detail.productVariant.product.name,
+      quantity: detail.quantity,
+      price: detail.momentPrice,
+      size: detail.productVariant.size.name,
+      toppings: detail.orderDetailToppings
+        .map(topping => `${topping.topping.name} ${topping.momentPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} x ${topping.quantity}`)
+        .join(", "),
+      note: detail.note,
+    }));
   };
 
   const fetchData = () => {
@@ -290,7 +314,7 @@ const InvoicesList = ({
         locale={{ emptyText: "No data available" }}
         expandable={{
           expandedRowRender,
-          defaultExpandedRowKeys: ["0"],
+          defaultExpandedRowKeys: [],
           expandIcon: ({ expanded, onExpand, record }) =>
             expanded ? (
               <EyeInvisibleOutlined onClick={(e) => onExpand(record, e)} />

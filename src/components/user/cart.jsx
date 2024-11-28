@@ -354,7 +354,6 @@ const Cart = () => {
     const stringFullAddress = `${fullAddress[0].fullAddress}`;
     console.log("Username", username);
     console.log("String full address: ", stringFullAddress);
-
     const order = {
       cashierId: "",
       totalAmount: grandTotal,

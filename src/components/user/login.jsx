@@ -60,87 +60,80 @@ const Login = () => {
               className="login-form"
               layout="vertical"
             >
-              <h3 className="mb-5 text-uppercase text-center">Đăng nhập</h3>
+              <h3 className="mb-5 text-uppercase text-center">LOGIN</h3>
 
               {error && <p className="error-message">{error}</p>}
 
               <Form.Item
                 name="username"
                 rules={[
-                  { required: true, message: "Vui lòng nhập tài khoản!" },
+                  { required: true, message: "Please enter username!" },
                 ]}
               >
                 <Input
                   prefix={<UserOutlined />}
-                  placeholder="Tài khoản"
+                  placeholder="Username"
                   className="form-control-md"
                 />
               </Form.Item>
 
-              <Form.Item
+              <Form.Item style={{ marginBottom: "0" }} 
                 name="password"
-                rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+                rules={[{ required: true, message: "Please enter password!" }]}
               >
                 <Input.Password
                   prefix={<FaLock />}
-                  placeholder="Mật khẩu"
+                  placeholder="Password"
                   className="form-control-md"
                 />
               </Form.Item>
 
               <Form.Item>
-                <Checkbox 
-                  defaultChecked={rememberMe} 
+                <Checkbox
+                  defaultChecked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 >
-                  Nhớ tài khoản
+                  Remember
                 </Checkbox>
                 <a href="/forgotpassword" style={{ float: "right" }}>
-                  Quên mật khẩu?
+                  Forgot password
                 </a>
               </Form.Item>
 
-              <Form.Item>
-  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-    <Button
-      type="primary"
-      htmlType="submit"
-      className="btn-block btn-form btn-sign"
-      loading={loading}
-    >
-      Đăng nhập
-    </Button>
-    <Button
-      type="default"
-      className="btn-block btn-form btn-back"
-      onClick={() => (window.location.href = "/")}
-    >
-      Trở lại
-    </Button>
-  </div>
-</Form.Item>
+              <Form.Item style={{ marginBottom: "0" }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="btn-block btn-form btn-sign"
+                  loading={loading}
+                >
+                  Login
+                </Button>
+              </Form.Item>
+              <label style={{   textAlign: "right", display: "block" }}>
+              New here? <a href="/register">Create an account</a>
+ 
+</label>
 
-         
-
-              <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
+              <p className="text-center fw-bold my-3 text-muted">OR</p>
 
               <Form.Item>
                 <GoogleOAuthProvider clientId="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com">
-                    <GoogleLogin
-                      useOneTap
-                      width={"360"}
-                      type="standard"
-                      size="medium"
-                      shape="square"
-                      theme="filled_black"
-                      text="continue_with"
-                      className="w-100"
-                      style={{ color: "red" }}
-                      onSuccess={handleGoogleLoginSuccess}
-                      onError={(error) => {
-                        console.error("Login Failed:", error);
-                      }}
-                    />
+                  <GoogleLogin
+                    useOneTap
+                    width={"360"}
+                    type="standard"
+                    size="medium"
+                    shape="square"
+                    theme="filled_black"
+                    text="continue_with"
+                    className="w-100"
+                    style={{ color: "red" }}
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={(error) => {
+                      console.error("Login Failed:", error);
+                    }}
+                  />
                 </GoogleOAuthProvider>
               </Form.Item>
             </Form>
