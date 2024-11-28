@@ -55,6 +55,11 @@ class AddOrEditProduct extends Component {
       productToppings: productToppings,
     };
 
+    if (updatedProductImages.length === 0) {
+      message.error("Vui lòng tải lên ít nhất một hình ảnh sản phẩm!");
+      return;
+    }
+
     if (!productData.id) {
       this.props.insertProduct(productData, navigate);
       console.log("Insert product:", productData);

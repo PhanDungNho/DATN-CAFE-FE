@@ -364,7 +364,7 @@ const Cart = () => {
       paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
       shippingFee: shippingfee,
-      orderType: 0,
+      orderType: 1,
       fullAddress: stringFullAddress,
       customerId: username || "test1",
       orderDetails: cartItems,
@@ -929,212 +929,202 @@ const Cart = () => {
                                 New Address
                               </Button>
                             </Modal>
-
-                            {/* Modal update address */}
-                            <Modal
-                              title={
-                                currentAddress
-                                  ? "Update address"
-                                  : "Add address"
-                              }
-                              open={isModalAddressOpen}
-                              onCancel={handleCancelAddress}
-                              footer={null}
-                            >
-                              <Form
-                                form={form}
-                                name="update-address"
-                                layout="vertical"
-                                onFinish={onFinish}
-                              >
-                                <Form.Item
-                                  label="Province/City"
-                                  name="cityCode"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Please select province/city!",
-                                    },
-                                  ]}
-                                >
-                                  <Select
-                                    placeholder="Select Province/City"
-                                    onChange={handleProvinceChange}
-                                  >
-                                    {provinces.map((province) => (
-                                      <Option
-                                        key={province.ProvinceID}
-                                        value={province.ProvinceID}
-                                      >
-                                        {province.ProvinceName}
-                                      </Option>
-                                    ))}
-                                  </Select>
-                                </Form.Item>
-
-                                <Form.Item
-                                  label="District/District"
-                                  name="districtCode"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Please select District!",
-                                    },
-                                  ]}
-                                >
-                                  <Select
-                                    placeholder="Select District/District"
-                                    onChange={handleDistrictChange}
-                                    value={currentAddress?.districtCode}
-                                    disabled={!districts.length}
-                                  >
-                                    {districts.map((district) => (
-                                      <Option
-                                        key={district.DistrictID}
-                                        value={district.DistrictID}
-                                      >
-                                        {district.DistrictName}
-                                      </Option>
-                                    ))}
-                                  </Select>
-                                </Form.Item>
-
-                                <Form.Item
-                                  label="Ward/Commune"
-                                  name="wardCode"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Please select ward/commune!",
-                                    },
-                                  ]}
-                                >
-                                  <Select
-                                    placeholder="Select Ward/Commune"
-                                    onChange={handleWardChange}
-                                    value={currentAddress?.wardCode}
-                                    disabled={!wards.length}
-                                  >
-                                    {wards.map((ward) => (
-                                      <Option
-                                        key={ward.WardCode}
-                                        value={ward.WardCode}
-                                      >
-                                        {ward.WardName}
-                                      </Option>
-                                    ))}
-                                  </Select>
-                                </Form.Item>
-                                <Form.Item
-                                  label="Detailed address"
-                                  name="street"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Please enter detailed address!",
-                                    },
-                                  ]}
-                                >
-                                  <Input />
-                                </Form.Item>
-
-                                <Button
-                                  type="primary"
-                                  htmlType="submit"
-                                  style={{ width: "100%" }}
-                                >
-                                  {currentAddress
-                                    ? "Update Address"
-                                    : "Add Address"}
-                                </Button>
-                              </Form>
-                            </Modal>
-
-                            {/* Modal finish */}
-                            <Modal
-                              open={isModalSuccessOpen}
-                              closable={false}
-                              centered={true}
-                              bodyStyle={{
-                                textAlign: "center",
-                                border: "1px solid #f6ffed", // Viền xanh nhạt
-                                borderRadius: "8px", // Bo góc
-                                padding: "20px", // Khoảng cách nội dung
-                              }}
-                              footer={[
-                                <button
-                                  key="close"
-                                  onClick={handleCancelFinish}
-                                  style={{
-                                    backgroundColor: "#fff",
-                                    color: "#595959",
-                                    border: "1px solid #d9d9d9",
-                                    padding: "6px 16px",
-                                    borderRadius: "6px",
-                                    fontSize: "14px",
-                                    cursor: "pointer",
-                                    transition: "all 0.3s",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.target.style.borderColor = "#40a9ff")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.target.style.borderColor = "#d9d9d9")
-                                  }
-                                >
-                                  Close
-                                </button>,
-                                <button
-                                  key="my-orders"
-                                  onClick={handleOkFinish} // Hàm xử lý khi bấm vào nút My Orders
-                                  style={{
-                                    backgroundColor: "#1677ff",
-                                    color: "#fff",
-                                    border: "1px solid #1677ff",
-                                    padding: "6px 16px",
-                                    borderRadius: "6px",
-                                    fontSize: "14px",
-                                    cursor: "pointer",
-                                    transition: "all 0.3s",
-                                    marginLeft: "5px",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.target.style.backgroundColor = "#1677ff")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.target.style.backgroundColor = "#1677ff")
-                                  }
-                                >
-                                  My Orders
-                                </button>,
-                              ]}
-                            >
-                              <div>
-                                <h3
-                                  style={{
-                                    fontSize: "24px",
-                                    fontWeight: "bold",
-                                    marginBottom: "10px",
-                                  }}
-                                >
-                                  Success!
-                                </h3>
-                                <p
-                                  style={{
-                                    color: "#595959", // Màu xám cho nội dung
-                                    fontSize: "16px",
-                                    margin: "0",
-                                  }}
-                                >
-                                  Order has been paid successfully.
-                                </p>
-                              </div>
-                            </Modal>
                           </span>
                         </Row>
                       </div>
                     ))
                 )}
+                {/* Modal update address */}
+                <Modal
+                  title={currentAddress ? "Update address" : "Add address"}
+                  open={isModalAddressOpen}
+                  onCancel={handleCancelAddress}
+                  footer={null}
+                >
+                  <Form
+                    form={form}
+                    name="update-address"
+                    layout="vertical"
+                    onFinish={onFinish}
+                  >
+                    <Form.Item
+                      label="Province/City"
+                      name="cityCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select province/city!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select Province/City"
+                        onChange={handleProvinceChange}
+                      >
+                        {provinces.map((province) => (
+                          <Option
+                            key={province.ProvinceID}
+                            value={province.ProvinceID}
+                          >
+                            {province.ProvinceName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      label="District/District"
+                      name="districtCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select District!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select District/District"
+                        onChange={handleDistrictChange}
+                        value={currentAddress?.districtCode}
+                        disabled={!districts.length}
+                      >
+                        {districts.map((district) => (
+                          <Option
+                            key={district.DistrictID}
+                            value={district.DistrictID}
+                          >
+                            {district.DistrictName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      label="Ward/Commune"
+                      name="wardCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select ward/commune!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select Ward/Commune"
+                        onChange={handleWardChange}
+                        value={currentAddress?.wardCode}
+                        disabled={!wards.length}
+                      >
+                        {wards.map((ward) => (
+                          <Option key={ward.WardCode} value={ward.WardCode}>
+                            {ward.WardName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      label="Detailed address"
+                      name="street"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter detailed address!",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ width: "100%" }}
+                    >
+                      {currentAddress ? "Update Address" : "Add Address"}
+                    </Button>
+                  </Form>
+                </Modal>
+
+                {/* Modal finish */}
+                <Modal
+                  open={isModalSuccessOpen}
+                  closable={false}
+                  centered={true}
+                  bodyStyle={{
+                    textAlign: "center",
+                    border: "1px solid #f6ffed", // Viền xanh nhạt
+                    borderRadius: "8px", // Bo góc
+                    padding: "20px", // Khoảng cách nội dung
+                  }}
+                  footer={[
+                    <button
+                      key="close"
+                      onClick={handleCancelFinish}
+                      style={{
+                        backgroundColor: "#fff",
+                        color: "#595959",
+                        border: "1px solid #d9d9d9",
+                        padding: "6px 16px",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "all 0.3s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.target.style.borderColor = "#40a9ff")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.borderColor = "#d9d9d9")
+                      }
+                    >
+                      Close
+                    </button>,
+                    <button
+                      key="my-orders"
+                      onClick={handleOkFinish} // Hàm xử lý khi bấm vào nút My Orders
+                      style={{
+                        backgroundColor: "#1677ff",
+                        color: "#fff",
+                        border: "1px solid #1677ff",
+                        padding: "6px 16px",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "all 0.3s",
+                        marginLeft: "5px",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.target.style.backgroundColor = "#1677ff")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.backgroundColor = "#1677ff")
+                      }
+                    >
+                      My Orders
+                    </button>,
+                  ]}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Success!
+                    </h3>
+                    <p
+                      style={{
+                        color: "#595959", // Màu xám cho nội dung
+                        fontSize: "16px",
+                        margin: "0",
+                      }}
+                    >
+                      Order has been paid successfully.
+                    </p>
+                  </div>
+                </Modal>
               </div>
             </Card>
             <Card
