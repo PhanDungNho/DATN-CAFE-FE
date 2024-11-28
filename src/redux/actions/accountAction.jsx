@@ -40,6 +40,22 @@ export const insertAccount = (account) => async (dispatch) => {
         type: COMMON_MESSAGE_SET,
         payload: "Thêm thành công",
       });
+    } else if (response.status === 400 && response.data.message === "Username is already in use") {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: "Username is already in use!",
+      });
+    } else if (response.status === 400 && response.data.message === "Phone number is already in use") {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: "Phone number is already in use!",
+      });
+    }
+    else if (response.status === 400 && response.data.message === "Email is already in use") {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: "Email is already in use!",
+      });
     } else {
       dispatch({
         type: COMMON_ERROR_SET,
@@ -50,9 +66,7 @@ export const insertAccount = (account) => async (dispatch) => {
     console.error("Error response:", error.response);
     dispatch({
       type: COMMON_ERROR_SET,
-      payload: error.response.data
-        ? error.response.data.message
-        : error.message,
+      payload: error.response?.data?.message || error.message,
     });
   }
 
@@ -61,6 +75,8 @@ export const insertAccount = (account) => async (dispatch) => {
     payload: false,
   });
 };
+
+
 
 export const updateAccount = (username, account) => async (dispatch) => {
   const service = new accountService();
@@ -93,6 +109,17 @@ export const updateAccount = (username, account) => async (dispatch) => {
       dispatch({
         type: COMMON_MESSAGE_SET,
         payload: "Cập nhật thành công",
+      });
+    }  else if (response.status === 400 && response.data.message === "Phone number is already in use") {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: "Phone number is already in use!",
+      });
+    }
+    else if (response.status === 400 && response.data.message === "Email is already in use") {
+      dispatch({
+        type: COMMON_ERROR_SET,
+        payload: "Email is already in use!",
       });
     } else {
       dispatch({
@@ -217,7 +244,7 @@ export const getAccount = (username) => async (dispatch) => {
         : error.message,
     });
   }
- 
+
 };
 
 export const clearAccountState = () => (dispatch) => {

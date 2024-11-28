@@ -74,6 +74,7 @@ function DashboardPage() {
       dispatch(setError(""));
       message.error(err);
     }
+
   }, [msg, err]);
 
   const selectedKey = () => {
@@ -113,6 +114,12 @@ function DashboardPage() {
 
     return "1"; // Mặc định là Home
   };
+  const userImage = LoginedUser && LoginedUser.image 
+  ? AccountService.getAccountLogoUrl(LoginedUser.image) 
+  : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
+
+const userName = LoginedUser ? LoginedUser.username : "Guest";
+  
   return (
     <Layout>
       <Sider
@@ -137,15 +144,17 @@ function DashboardPage() {
             textAlign: "center",
           }}
         >
-          <img
-            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
-            alt="Logo"
-            style={{
-              width: collapsed ? "90px" : "200px",
-              height: "60px",
-              transition: "width 0.2s",
-            }}
-          />
+          <a href="/">
+            <img
+              src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
+              alt="Logo"
+              style={{
+                width: collapsed ? "90px" : "200px",
+                height: "60px",
+                transition: "width 0.2s",
+              }}
+            />
+          </a>
         </div>
         <Menu
           theme="light" // Thay đổi theme thành light
@@ -160,7 +169,7 @@ function DashboardPage() {
               key: "1",
               icon: <MdOutlineHome />,
               label: "Home",
-              onClick: () => navigate("/admin"),
+              onClick: () => navigate("/admin/statistics/list"),
             },
             {
               key: "2",
@@ -229,8 +238,8 @@ function DashboardPage() {
               label: "Statistics",
               onClick: () => navigate("/admin/statistics/list"),
             },
-            
-            
+
+
             {
               key: "11",
               icon: <MdLogout />,
@@ -294,7 +303,7 @@ function DashboardPage() {
         >
           <div className="content-panel">
             <Routes>
-              <Route path="/" element={"Xin chào"}></Route>
+              <Route path="/admin/statistics/list" element={"Xin chào"}></Route>
               {/* Thêm các Route khác ở đây nếu cần */}
             </Routes>
             <Outlet></Outlet>

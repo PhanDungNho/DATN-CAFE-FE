@@ -74,8 +74,8 @@ const dispatch = useDispatch();
         });
         setSelectedVariants(initialSelectedVariants);
       } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        message.error("Không thể lấy sản phẩm.");
+        console.error("Error when retrieving product:", error);
+        message.error("Unable to get product.");
       }
     };
 
@@ -87,8 +87,8 @@ const dispatch = useDispatch();
         setAccounts(response.data);
         console.log(response.data);
       } catch (error) {
-        console.error("Lỗi khi lấy tài khoản:", error);
-        message.error("Không thể lấy tài khoản.");
+        console.error("Error while retrieving account:", error);
+        message.error("Unable to get account.");
       }
     };
 
@@ -180,7 +180,7 @@ const dispatch = useDispatch();
       localStorage.setItem("orders", JSON.stringify(newOrders));
   
       message.success(
-        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
+        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) has been added to the cart!`
       );
   
       // Reset số lượng topping về 0 cho sản phẩm đã thêm
@@ -192,12 +192,12 @@ const dispatch = useDispatch();
         }, {}),
       }));
     } else {
-      message.error("Không tìm thấy sản phẩm này.");
+      message.error("This product was not found.");
     }
   };
 
   const handleSearch = (value) => {
-    console.log("Tìm kiếm:", value);
+    console.log("Search:", value);
   };
   const handlePhoneNumberChange = (e, index) => {
     const enteredPhone = e.target.value;
@@ -210,7 +210,7 @@ const dispatch = useDispatch();
     setOrders((prevOrders) => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
-        message.success("Đã nhập đúng số điện thoại!");
+        message.success("Entered the correct phone number!");
        
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
@@ -283,8 +283,8 @@ const dispatch = useDispatch();
         handleSuccess(order, index,orderResponse.data);
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+      console.error("Error when processing order:", error);
+      message.error("An error occurred while processing the order. Please try again.");
     }
   };
   const handlePaymentMethodChange = (value, index) => {
@@ -299,7 +299,7 @@ const dispatch = useDispatch();
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        `Pay for the order ID: ${order.id}`,
         "d" // Thông tin đơn hàng
       );
 
@@ -321,13 +321,13 @@ const dispatch = useDispatch();
             const paymentStatus = localStorage.getItem(`payment_status_${order.id}`);
   
             if (paymentStatus === "success") {
-              message.success("Thanh toán thành công!");
+              message.success("Payment successful!");
               handleSuccess(order, index,orderResponse); // Đóng form bán hàng
               setPhoneNumberInput('');
               removeCustomer(index.toString()); 
             }else {
               dispatch(deleteOrderById(order.id));
-              message.error("Thanh toán thất bại hoặc bị hủy.");
+              message.error("Payment failed or canceled.");
             }
             console.log("first")
             console.log(order.id)
@@ -336,17 +336,17 @@ const dispatch = useDispatch();
           }
         }, 1000); // Kiểm tra mỗi giây
       } else {
-        throw new Error("Không thể tạo URL thanh toán.");
+        throw new Error("Unable to generate payment URL.");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo thanh toán:", error);
-      message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
+      console.error("Error creating payment:", error);
+      message.error("An error occurred while creating the payment. Please try again.");
     }
   };
 
   // Hàm xử lý thành công
   const handleSuccess = async (order, index,orderResponse) => {
-    message.success(`Thanh toán thành công cho ${orders[index].tabName}!`);
+    message.success(`Successful payment for ${orders[index].tabName}!`);
   
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
     const newOrders = [...orders];
@@ -376,13 +376,13 @@ const dispatch = useDispatch();
   
   const addNewOrder = () => {
     let newTabIndex = 1;
-    let newTabName = `Đơn ${newTabIndex}`;
+    let newTabName = `Order ${newTabIndex}`;
   
     while (
       orders.some((customer) => customer.tabName === newTabName)
     ) {
       newTabIndex++;
-      newTabName = `Đơn ${newTabIndex}`;
+      newTabName = `Order ${newTabIndex}`;
     }
   
     // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
@@ -432,13 +432,13 @@ const dispatch = useDispatch();
 
   const columns = [
     {
-      title: "Sản phẩm",
+      title: "Product",
       dataIndex: "productName",
       key: "productName",
       render: (text, record) => `${record.productName} - ${record.size.name}`,
     },
     {
-      title: "Đơn giá",
+      title: "Price",
       dataIndex: "price",
       key: "price",
       render: (text) => `${text.toLocaleString()}`,
@@ -516,13 +516,13 @@ const dispatch = useDispatch();
     //   render: (text) => `${text.toLocaleString()}`,
     // },
     {
-      title: "Ghi chú",
+      title: "Note",
       dataIndex: "note",
       key: "note",
       render: (text, record, index) => (
         <div>
           <Input
-            placeholder="Ghi chú"
+            placeholder="Note"
             value={text}
             onChange={(e) => {
               const newOrders = [...orders];
@@ -565,7 +565,7 @@ const dispatch = useDispatch();
     const newOrders = [...orders];
     newOrders[activeTab].cart.splice(index, 1);
     setOrders(newOrders);
-    message.success("Sản phẩm đã được xóa khỏi giỏ hàng!");
+    message.success("The product has been removed from the cart!");
   };
 
   return (

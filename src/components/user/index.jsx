@@ -129,15 +129,10 @@ function Index() {
         <div className="container">
           <Row justify="center" style={{ marginTop: "50px" }}>
             <Col span={16} style={{ textAlign: "center" }}>
-              <Title
-                level={2}
-                style={{ fontFamily: "Arial, sans-serif", fontWeight: "600" }}
-              >
-                <span className="orange-text">Sản phẩm</span> Best Seller
+              <Title level={2} style={{ fontFamily: "Arial, sans-serif", fontWeight: "600" }}>
+                <span className="orange-text">Best Selling</span> Product 
               </Title>
-              <Paragraph>
-                Mỗi ly trà là một cuộc hành trình qua thời gian và không gian.
-              </Paragraph>
+              <Paragraph>Every cup of tea is a journey through time and space.</Paragraph>
             </Col>
           </Row>
           <Row justify="center" align="middle" style={{ marginBottom: "20px" }}>
@@ -310,7 +305,7 @@ function Index() {
                       Free Shipping
                     </Title>
                     <Paragraph style={{}}>
-                      Free Ship đơn trên 150.000{" "}
+                    Free shipping for orders over 150,000{" "}
                     </Paragraph>
                   </Col>
                 </Row>
@@ -387,7 +382,7 @@ function Index() {
                     <Title level={3} style={{ fontWeight: "600" }}>
                       Refund
                     </Title>
-                    <Paragraph style={{}}>Get refund within 3 days!</Paragraph>
+                    <Paragraph style={{}}> can be exchanged</Paragraph>
                   </Col>
                 </Row>
               </Card>

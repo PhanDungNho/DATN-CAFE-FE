@@ -210,16 +210,25 @@ const Register = () => {
                   >
                     Reset all
                   </Button>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="submit-button"
-                  >
-                    Submit
-                  </Button>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+  <Button
+    type="primary"
+    htmlType="submit"
+    className="submit-button"
+  >
+    Submit
+  </Button>
+  <Button
+    type="default"
+    className="back-button"
+    onClick={() => (window.location.href = "/")}
+    icon={<HomeOutlined />}
+  />
+</div>
                 </div>
 
                 <Form.Item>
+                  
                   <p className="text-center fw-bold my-3 text-muted">OR</p>
 
                   <Form.Item>

@@ -5,14 +5,14 @@ const Queue = ({ ords }) => {
   // Define columns for the table
   const columns = [
     {
-      title: 'Sản phẩm',
+      title: 'Product',
       dataIndex: 'productName',
       key: 'productName',
     },
   
  
     {
-      title: 'Ghi chú',
+      title: 'Note',
       dataIndex: 'note',
       key: 'note',
     },
@@ -30,7 +30,7 @@ const Queue = ({ ords }) => {
         key: detail.id,
         productName: `${detail.productVariant.product.name} - ${detail.productVariant.size.name}`, // Nối chuỗi tên sản phẩm và kích thước
         
-        note: detail.note || 'Không có',
+        note: detail.note || 'Do not have',
         toppings: detail.orderdetailtoppings.map((topping) => ({
           name: topping.topping.name,
           price: topping.topping.price,
@@ -42,7 +42,7 @@ const Queue = ({ ords }) => {
     <Row gutter={[16, 16]}>
       {ords.map((order) => (
         <Col xs={24} sm={12} md={12} key={order.id}>
-          <Card title={`Hàng chờ ${order.id}`}>
+          <Card title={`Waiting line ${order.id}`}>
             <Table
               columns={columns}
               dataSource={mapOrderDetailsToTableData(order.orderdetails)}
