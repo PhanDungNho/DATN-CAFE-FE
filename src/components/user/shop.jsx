@@ -276,7 +276,6 @@ function Shop() {
                           .filter(
                             (product) =>
                               product.active &&
-                              product.category.active &&
                               product.productVariants.some(
                                 (variant) => variant.active
                               )
@@ -364,7 +363,6 @@ function Shop() {
                                             VNĐ
                                           </span>
                                         </div>
-                                        
                                       </>
                                     }
                                   />
