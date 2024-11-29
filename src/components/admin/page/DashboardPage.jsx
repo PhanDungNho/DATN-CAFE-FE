@@ -232,14 +232,7 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
               label: "Invoices",
               onClick: () => navigate("/admin/invoices"),
             },
-            {
-              key: "13",
-              icon: <ReconciliationOutlined />,
-              label: "Statistics",
-              onClick: () => navigate("/admin/statistics/list"),
-            },
-
-
+            
             {
               key: "11",
               icon: <MdLogout />,

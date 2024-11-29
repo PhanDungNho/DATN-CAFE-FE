@@ -201,15 +201,15 @@ function Product() {
       <div className="product mt-150 mb-150">
         <div className="container">
           <Row gutter={[16, 16]}>
-            <Col md={12}>
+            <Col md={10}>
               <div
                 style={{
                   position: "relative",
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                   borderRadius: "8px",
                   overflow: "hidden", 
-                  width: "500px",
-                  height: "500px", 
+                  width: "400px",
+                  height: "400px", 
                   display: "flex",
                   
                 }}

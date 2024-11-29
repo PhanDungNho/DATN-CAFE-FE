@@ -502,7 +502,7 @@ width: 180px;
                                 </Link>
                               ))
                             ) : (
-                              <div className="search-item">Không tìm thấy sản phẩm!</div>
+                              <div className="search-item">Product not found!</div>
                             )}
                             {/* Hiển thị từ khóa phổ biến */}
 
