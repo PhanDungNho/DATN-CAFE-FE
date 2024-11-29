@@ -220,7 +220,7 @@ export const updateProductActive =
 
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Cập nhật trạng thái thành công",
+          payload: "Status update successful",
         });
       } else {
         const previousActive = !active;

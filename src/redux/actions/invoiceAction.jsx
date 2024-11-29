@@ -110,7 +110,7 @@ export const updateOrderActive = (id, active) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật trạng thái thành công",
+        payload: "Status update successful",
       });
     } else {
       const prevActive = !active;
@@ -157,7 +157,7 @@ export const updateOrder = (id, order) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: `Cập nhật thành công cho order ID: ${id}`,
+        payload: `Successfully updated for order ID: ${id}`,
       });
     } else {
       dispatch({

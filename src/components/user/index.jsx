@@ -121,7 +121,7 @@ function Index() {
             src="assets/img/index/bannernew1.png"
             alt=""
             style={{
-              width: "1600px",
+              width: "100%",
               height: "670px",
             }}
           />

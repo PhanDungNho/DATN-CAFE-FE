@@ -275,11 +275,11 @@ const Cart = () => {
   // Hàm xử lý thanh toán
   const handleCheckout = () => {
     if (selectedRowKeys.length === 0) {
-      message.warning("Vui lòng chọn sản phẩm để thanh toán.");
+      message.warning("Please select product to pay.");
       return;
     }
 
-    message.success("Đã thực hiện thanh toán thành công!");
+    message.success("Payment has been made successfully!");
     const remainingItems = data.filter(
       (item) => !selectedRowKeys.includes(item.key)
     );
@@ -295,7 +295,7 @@ const Cart = () => {
     // Implement navigation to the product listing page
     // For example, using react-router:
     // history.push('/products');
-    message.info("Chuyển hướng đến trang sản phẩm...");
+    message.info("Redirect to product page...");
   };
 
   const calculateTotalAmount = (cartItems) => {
@@ -386,7 +386,7 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+      message.error("An error occurred while processing the order. Please try again.");
     }
   };
 
@@ -395,7 +395,7 @@ const Cart = () => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        `Payment for order ID: ${order.id}`,
         "wala"
       );
 
@@ -428,7 +428,7 @@ const Cart = () => {
               handleSuccess(order, index); // Đóng form bán hàng
             } else {
               dispatch(deleteOrderById(order.id));
-              message.error("Thanh toán thất bại hoặc bị hủy.");
+              message.error("Payment failed or canceled.");
             }
             console.log("first");
             console.log(order.id);
@@ -437,11 +437,11 @@ const Cart = () => {
           }
         }, 1000); // Kiểm tra mỗi giây
       } else {
-        throw new Error("Không thể tạo URL thanh toán.");
+        throw new Error("Unable to generate payment URL.");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo thanh toán:", error);
-      message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
+      console.error("Error creating payment:", error);
+      message.error("An error occurred while creating the payment. Please try again.");
     }
   };
 
@@ -723,10 +723,10 @@ const Cart = () => {
       >
         <Breadcrumb style={{ marginBottom: "20px" }}>
           <Breadcrumb.Item href="/">
-            <ShopOutlined /> Trang chủ
+            <ShopOutlined /> Home
           </Breadcrumb.Item>
           <Breadcrumb.Item>
-            <ShoppingCartOutlined /> Giỏ hàng
+            <ShoppingCartOutlined /> Shopping Cart
           </Breadcrumb.Item>
         </Breadcrumb>
         <Row gutter={[24, 24]}>
