@@ -407,7 +407,7 @@ function Product() {
                     }}
                     onClick={handleAddToCart}
                   >
-                    Thêm vào giỏ hàng
+                    Add to cart
                   </Button>
                 </div>
               </div>
