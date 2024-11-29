@@ -26,7 +26,7 @@ export const insertCartDetail = (cartDetail) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Insert successfully!",
+        payload: "Added to cart!",
       });
     } else {
       dispatch({
@@ -136,5 +136,5 @@ export const setSelectedItems = (items) => (dispatch) => {
 export const clearSelectedItems = () => (dispatch) => {
   dispatch({
     type: CLEAR_SELECTED_ITEMS,
-  })
+  });
 };

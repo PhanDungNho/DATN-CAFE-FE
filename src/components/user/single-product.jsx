@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom"; // Để lấy tham số URL
  
-import { getProduct } from "../../redux/actions/productAction";
+import { getProduct, getProductBySlug } from "../../redux/actions/productAction";
  
 import {
   getCartDetailsByUsername,
@@ -40,7 +40,7 @@ function Product() {
 
   useEffect(() => {
  
-    dispatch(getProduct(id));  
+    dispatch(getProductBySlug(id));  
  
   }, [dispatch, id]);
 

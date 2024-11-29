@@ -1167,13 +1167,15 @@ const Cart = () => {
                   justifyContent: "right",
                 }}
               >
-                <Button
-                  type="default"
-                  style={{ marginRight: 10 }}
-                  onClick={handleBuyMore}
-                >
-                  Mua thêm
-                </Button>
+                {/*
+                  <Button
+                    type="default"
+                    style={{ marginRight: 10 }}
+                    onClick={handleBuyMore}
+                  >
+                    Buy more
+                  </Button>
+                 */}
                 <Button
                   type="primary"
                   onClick={(value) => handleFinish(value)}
@@ -1181,7 +1183,7 @@ const Cart = () => {
                     selectedItemsArray.length === 0 || addresses.length === 0
                   }
                 >
-                  Thanh toán
+                  Checkout
                 </Button>
               </div>
             </Card>

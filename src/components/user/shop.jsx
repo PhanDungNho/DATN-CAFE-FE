@@ -289,7 +289,7 @@ function Shop() {
                               lg={8}
                               style={{ textAlign: "center" }}
                             >
-                              <Link to={`/single-product/${product.id}`}>
+                              <Link to={`/single-product/${product.slug}`}>
                                 <Card
                                   hoverable
                                   style={{

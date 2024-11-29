@@ -170,7 +170,7 @@ const ChatWidget = ({
                 {msg.sender === "bot" ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={`assets/img/logo1.png`}
+                      src={`/assets/img/logo1.png`}
                       alt="Avatar"
                       style={{
                         width: "40px",

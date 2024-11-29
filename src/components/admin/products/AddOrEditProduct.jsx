@@ -56,7 +56,7 @@ class AddOrEditProduct extends Component {
     };
 
     if (updatedProductImages.length === 0) {
-      message.error("Vui lòng tải lên ít nhất một hình ảnh sản phẩm!");
+      message.error("Please upload at least one product image!");
       return;
     }
 

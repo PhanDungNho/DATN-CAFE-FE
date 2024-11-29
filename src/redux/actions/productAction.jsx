@@ -42,17 +42,23 @@ export const insertProduct = (product, navigate) => async (dispatch) => {
     } else {
       dispatch({
         type: COMMON_ERROR_SET,
-        payload: response ? response.message : "Unknown error",
+        payload: response.message,
       });
     }
   } catch (error) {
     console.error("Error response:", error.response);
 
-    // Kiểm tra xem error.response có tồn tại trước khi truy cập
-    const errorMessage =
-      error.response && error.response.data
-        ? error.response.data.message
-        : error.message;
+    let errorMessage = "Unknown error";
+
+    if (error.response && error.response.data) {
+      if (typeof error.response.data === "string") {
+        errorMessage = error.response.data;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
 
     dispatch({
       type: COMMON_ERROR_SET,

@@ -564,13 +564,13 @@ width: 180px;
                             </>
                           ) : (
                             <>
-                              <Link to="/manager/*">
+                              <Link to="/manager/orders">
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
                                 Account
                               </Link>
-                              <Link to="/manager/*">
+                              <Link to="/manager/orders">
                                 <ShoppingOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}

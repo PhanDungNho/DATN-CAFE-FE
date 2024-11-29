@@ -175,9 +175,9 @@ function Index() {
             >
               {visibleProducts.length > 0 ? (
                 visibleProducts.map((product, index) => (
-                  <Col key={`${product.id}-${index}`}>
+                  <Col key={`${product.slug}-${index}`}>
                     <Link
-                      to={product.id ? `/single-product/${product.id}` : "#"}
+                      to={product.slug ? `/single-product/${product.slug}` : "#"}
                     >
                       <Card
                         cover={
