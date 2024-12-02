@@ -31,7 +31,7 @@ const Checkout = () => {
 
   const onFinish = (values) => {
     console.log("Form Values:", values);
-    message.success("Đặt hàng thành công!");
+    message.success("Order successful!");
     // Implement your checkout logic here
   };
 
@@ -69,13 +69,13 @@ const Checkout = () => {
       >
         <Breadcrumb style={{ marginBottom: "20px" }}>
           <Breadcrumb.Item href="/">
-            <HomeOutlined /> Trang chủ
+            <HomeOutlined /> Home page
           </Breadcrumb.Item>
           <Breadcrumb.Item  href="/cart">
-            <ShoppingCartOutlined/> Giỏ hàng
+            <ShoppingCartOutlined/> Shopping cart
           </Breadcrumb.Item>
           <Breadcrumb.Item>
-            <CreditCardOutlined /> Thanh toán
+            <CreditCardOutlined /> Pay
           </Breadcrumb.Item>
         </Breadcrumb>
 
@@ -83,7 +83,7 @@ const Checkout = () => {
           {/* Billing Information */}
           <Col xs={24} lg={16}>
             <Card
-              title="Thông tin khách hàng"
+              title="Customer information"
               bordered={false}
               style={{ background: "#fff" }}
             >
@@ -99,15 +99,15 @@ const Checkout = () => {
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="fullname"
-                      label="Họ tên"
+                      label="Fullname"
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng nhập họ tên!",
+                          message: "Please enter your full name!",
                         },
                       ]}
                     >
-                      <Input placeholder="Họ tên" />
+                      <Input placeholder="Fullname" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
@@ -118,7 +118,7 @@ const Checkout = () => {
                         {
                           required: true,
                           type: "email",
-                          message: "Vui lòng nhập email hợp lệ!",
+                          message: "Please enter a valid email!",
                         },
                       ]}
                     >
@@ -131,38 +131,38 @@ const Checkout = () => {
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="address"
-                      label="Địa chỉ"
+                      label="Address"
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng nhập địa chỉ!",
+                          message: "Please enter your address!",
                         },
                       ]}
                     >
-                      <Input placeholder="Địa chỉ" />
+                      <Input placeholder="Address" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="phone"
-                      label="Số điện thoại"
+                      label="Phone number"
                       rules={[
                         {
                           required: true,
                           pattern: /^[0-9]{10,11}$/,
                           message:
-                            "Vui lòng nhập số điện thoại hợp lệ (10-11 số)!",
+                            "Please enter a valid phone number (10-11 numbers)!",
                         },
                       ]}
                     >
-                      <Input placeholder="Số điện thoại" />
+                      <Input placeholder="Phone number" />
                     </Form.Item>
                   </Col>
                 </Row>
 
                 {/* Shipping Address Section */}
                 <Card
-                  title="Địa chỉ giao hàng"
+                  title="Delivery address"
                   bordered={false}
                   style={{ background: "#fafafa", marginTop: "20px" }}
                 >
@@ -172,16 +172,16 @@ const Checkout = () => {
 
                 {/* Payment Method */}
                 <Card
-                  title="Hình thức thanh toán"
+                  title="Payment method"
                   bordered={false}
                   style={{ background: "#fafafa", marginTop: "20px" }}
                 >
-                  <Form.Item name="payment" label="Chọn phương thức thanh toán">
+                  <Form.Item name="payment" label="Choose payment method">
                     <Radio.Group
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     >
-                      <Radio value="cash">Thanh toán khi nhận hàng</Radio>
-                      <Radio value="vnpay">Thanh toán bằng ví VNPay</Radio>
+                      <Radio value="cash">Payment upon receipt</Radio>
+                      <Radio value="vnpay">Pay with VNPay wallet</Radio>
                     </Radio.Group>
                   </Form.Item>
                 </Card>
@@ -189,7 +189,7 @@ const Checkout = () => {
                 {/* Submit Button */}
                 <Form.Item style={{ marginTop: "20px" }}>
                   <Button type="primary" htmlType="submit" block>
-                    Thanh toán
+                  Pay                  
                   </Button>
                 </Form.Item>
               </Form>
@@ -199,20 +199,21 @@ const Checkout = () => {
           {/* Order Summary */}
           <Col xs={24} lg={8}>
             <Card
-              title="Chi tiết đơn hàng"
+              title="Order details"
               bordered={false}
               style={{ background: "#fff" }}
             >
               <div className="order-details">
                 <Row justify="space-between" style={{ marginBottom: "10px" }}>
                   <Col span={4}>
-                    <Text>Sản phẩm</Text>
+                    <Text>Product</Text>
                   </Col>
                   <Col span={4}>
-                    <Text>Số lượng</Text>
+                    <Text>Quantity
+                    </Text>
                   </Col>
                   <Col span={8}>
-                    <Text>Giá</Text>
+                    <Text>Price</Text>
                   </Col>
                 </Row>
                 <Divider style={{ margin: "5px 0" }} />

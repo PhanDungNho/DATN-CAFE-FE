@@ -107,7 +107,7 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: "Không có dữ liệu" }}
+      locale={{ emptyText: "No data available" }}
     />
   );
 };

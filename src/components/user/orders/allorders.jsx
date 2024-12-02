@@ -52,7 +52,7 @@ const Allorder = () => {
         setTotalCount(total);
       } catch (error) {
         console.error("Failed to fetch invoices:", error);
-        message.error("Không thể lấy dữ liệu hóa đơn.");
+        message.error("Unable to get invoice data.");
       }
     };
 
@@ -129,7 +129,7 @@ const Allorder = () => {
       key: "action",
       render: (_, record) => (
         <Button type="primary" onClick={() => handleDetailClick(record)}>
-          Xem chi tiết
+         See details
         </Button>
       ),
     },
@@ -326,7 +326,7 @@ const Allorder = () => {
                     },
                   }),
                   render: (_, record) =>
-                    record.orderdetailtoppings.map((topping) => (
+                    record.orderDetailToppings.map((topping) => (
                       <div key={topping.id}>
                         <Tag color={getRandomColor()}>
                           {topping.topping.name} (

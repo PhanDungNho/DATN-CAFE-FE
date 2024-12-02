@@ -19,6 +19,7 @@ import {
   Input,
   Row,
   Skeleton,
+  message
 } from 'antd';
 import ContentHeader from '../common/ContentHeader';
 import withRouter from '../../../helpers/withRouter';
@@ -28,7 +29,7 @@ export class ListAccount extends Component {
     super(props);
 
     this.state = {
-      account: { username: "", fullName: "", amountPaid: "", phone: "", active: true, image: "" },
+      account: { username: "", fullName: "", phone: "", active: true, image: "" },
       open: false,
       query: "",
     };
@@ -51,9 +52,9 @@ export class ListAccount extends Component {
 
     if (account.username) {
       console.log(account.username)
-      this.props.updateAccount(account.username, values);
+       this.props.updateAccount(account.username, values).catch(this.handleError); // Handle errors here
     } else {
-      this.props.insertAccount(values);
+       this.props.insertAccount(values).catch(this.handleError); // Handle errors here
     }
 
     this.setState({ open: false });
@@ -82,7 +83,15 @@ export class ListAccount extends Component {
   closeModal = () => {
     this.setState({ open: false });
   };
-
+  handleError = (error) => {
+    // Handling errors from backend
+    if (error.response && error.response.data) {
+      const errorMessage = error.response.data.message || 'An error occurred';
+      message.error(errorMessage);  // Display an error message
+    } else {
+      message.error('An unexpected error occurred');
+    }
+  };
   render() {
     const { accounts, getAccounts, isLoading, router } = this.props;
     const { open, query } = this.state;
@@ -92,7 +101,7 @@ export class ListAccount extends Component {
         <>
           <ContentHeader
             navigate={navigate}
-            title="Danh sách tài khoản"
+            title="List of accounts"
             className="site-page-header"
           ></ContentHeader>
           <Skeleton active />
@@ -103,7 +112,7 @@ export class ListAccount extends Component {
       <>
         <ContentHeader
           navigate={navigate}
-          title="Danh sách tài khoản"
+          title="List of accounts"
           className="site-page-header"
         />
 
@@ -112,7 +121,7 @@ export class ListAccount extends Component {
             <Form layout="inline" name="searchForm" initialValues={{ query }}>
               <Form.Item name="query">
                 <Input
-                  placeholder="Tìm tài khoản "
+                  placeholder="Find accounts"
                   value={query}
                   onChange={this.handleSearch}
                 />
@@ -121,7 +130,7 @@ export class ListAccount extends Component {
           </Col>
           <Col md={6} style={{ textAlign: 'right', paddingRight: 5 }}>
             <Button type="primary" onClick={() => this.setState({ account: {}, open: true })}>
-              Thêm mới tài khoản
+            Add new account
             </Button>
           </Col>
         </Row>
@@ -144,6 +153,7 @@ export class ListAccount extends Component {
           onCancel={() => {
             this.setState({ ...this.state, open: false })
           }}
+          handleError={this.handleError}  
         />
       </>
     );

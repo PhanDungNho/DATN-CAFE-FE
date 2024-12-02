@@ -5,7 +5,7 @@ export default class ProductService {
   insertProduct(product) {
     const formData = new FormData();
 
-    const baseSlug = this.createSlug(product.name + Date.now() + Math.random());
+    const baseSlug = this.createSlug(product.name);
 
     // Append product fields to FormData
     formData.append("name", product.name);
@@ -67,7 +67,7 @@ export default class ProductService {
   updateProduct = async (id, product) => {
     const formData = new FormData();
 
-    const baseSlug = this.createSlug(product.name + Date.now() + Math.random());
+    const baseSlug = this.createSlug(product.name);
 
     // Append product fields to FormData
     formData.append("name", product.name);

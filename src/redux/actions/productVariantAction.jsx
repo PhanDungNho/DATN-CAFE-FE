@@ -38,7 +38,7 @@ export const insertProductVariant =
 
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Thêm thành công",
+          payload: "Added successfully",
         });
         navigate("/admin/productvariants/list");
       } else {

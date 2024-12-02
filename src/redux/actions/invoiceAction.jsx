@@ -110,7 +110,7 @@ export const updateOrderActive = (id, active) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật trạng thái thành công",
+        payload: "Status update successful",
       });
     } else {
       const prevActive = !active;
@@ -146,12 +146,6 @@ export const updateOrder = (id, order) => async (dispatch) => {
 
   try {
     console.log("Update order");
-
-    dispatch({
-      type: COMMON_LOADING_SET,
-      payload: true,
-    });
-
     const response = await services.updateOrderStatus(id, order);
     console.log("response order: ", response);
 
@@ -163,7 +157,7 @@ export const updateOrder = (id, order) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: `Cập nhật thành công cho order ID: ${id}`,
+        payload: `Successfully updated for order ID: ${id}`,
       });
     } else {
       dispatch({
@@ -177,8 +171,6 @@ export const updateOrder = (id, order) => async (dispatch) => {
       type: COMMON_ERROR_SET,
       payload: error.response?.data?.message || error.message,
     });
-  } finally {
-    dispatch({ type: COMMON_LOADING_SET, payload: false });
   }
 };
 

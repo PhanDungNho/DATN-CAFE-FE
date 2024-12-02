@@ -55,6 +55,11 @@ class AddOrEditProduct extends Component {
       productToppings: productToppings,
     };
 
+    if (updatedProductImages.length === 0) {
+      message.error("Please upload at least one product image!");
+      return;
+    }
+
     if (!productData.id) {
       this.props.insertProduct(productData, navigate);
       console.log("Insert product:", productData);

@@ -3,6 +3,7 @@ import { Button, Modal, Select, Space, Switch, Table, Tag } from "antd";
 import moment from "moment";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
+import { printBill } from "../../user/printBill";
 
 const columns = (updateOrderActive, updateOrder, showModal) => [
   {
@@ -52,7 +53,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
   {
     title: "Payment",
     key: "paymentStatus",
-    // width: 150,
     align: "left",
     render: (_, record) => {
       return record.paymentStatus === "PAID" ? (
@@ -70,7 +70,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
       const statusOptions = {
         UNCONFIRMED: [
           { value: "UNCONFIRMED", label: "UNCONFIRMED" },
-          { value: "PROCESSING", label: "" },
+          { value: "PROCESSING", label: "PROCESSING" },
           { value: "CANCELLED", label: "CANCELLED" },
         ],
         PROCESSING: [
@@ -96,7 +96,7 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
           style={{ width: 150 }}
           options={statusOptions[record.orderStatus]}
           onChange={(value) => {
-            updateOrder(record.id, { status: value });
+            updateOrder(record.id, { orderStatus: value });
           }}
         />
       );
@@ -127,7 +127,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     render: (_, record) => {
       return (
         <Space size="middle">
-
           {record.paymentMethod === "ONLINE" && (
             <Button
               onClick={() => {
@@ -165,7 +164,7 @@ const expandColumns = [
     title: "Price",
     dataIndex: "price",
     key: "price",
-    render: (text) => text.toLocaleString(),
+    render: (text) => (text ? text.toLocaleString() : "0"),
   },
   {
     title: "Size",
@@ -186,7 +185,6 @@ const expandColumns = [
 
 const InvoicesList = ({
   invoices,
-  editInvoice,
   updateOrderActive,
   updateOrder,
 }) => {
@@ -216,31 +214,56 @@ const InvoicesList = ({
   };
 
   const expandedRowRender = (record) => {
-    const expandDataSource = (record.orderdetails || []).map(
-      (detail, index) => ({
-        key: detail.id.toString(),
-        id: index + 1,
-        productName: detail.productVariant.product.name,
-        quantity: detail.quantity,
-        price: detail.momentprice,
-        size: detail.productVariant.size.name,
-        toppings: detail.orderdetailtoppings
-          .map((topping) => topping.topping.name)
-          .join(", "),
-        note: detail.note,
-      })
-    );
     return (
-      <>
+      <div style={{ padding: '20px', background: '#f9f9f9' }}>
+        {record.fullAddress && (
+          <p>
+            <strong>Address: </strong>{record.fullAddress}
+          </p>
+        )}
+        {record.customer?.username && (
+          <p>
+            <strong>Customer ID: </strong>{record.customer.username}
+          </p>
+        )}
+        {record.shippingFee !== undefined && record.shippingFee > 0 && (
+          <p>
+            <strong>Shipping fee: </strong>
+            {record.shippingFee.toLocaleString() + ' VNĐ'}
+          </p>
+        )}
         <Table
           columns={expandColumns}
-          dataSource={expandDataSource}
+          dataSource={expandDataSource(record)}
           pagination={false}
-          style={{ paddingBottom: 20, paddingRight: 40, paddingTop: 20 }}
           bordered
         />
-      </>
+        <div style={{ marginTop: '20px', textAlign: 'right' }}>
+          <Button
+            type="primary"
+            onClick={() => printBill(record)} // Chức năng in hóa đơn
+          >
+            Print Bill
+          </Button>
+        </div>
+      </div>
     );
+  };
+  
+
+  const expandDataSource = (record) => {
+    return (record.orderDetails || []).map((detail, index) => ({
+      key: detail.id.toString(),
+      id: index + 1,
+      productName: detail.productVariant.product.name,
+      quantity: detail.quantity,
+      price: detail.momentPrice,
+      size: detail.productVariant.size.name,
+      toppings: detail.orderDetailToppings
+        .map(topping => `${topping.topping.name} ${topping.momentPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} x ${topping.quantity}`)
+        .join(", "),
+      note: detail.note,
+    }));
   };
 
   const fetchData = () => {
@@ -288,10 +311,10 @@ const InvoicesList = ({
         onChange={handleTableChange}
         size="small"
         bordered
-        locale={{ emptyText: "Không có dữ liệu" }}
+        locale={{ emptyText: "No data available" }}
         expandable={{
           expandedRowRender,
-          defaultExpandedRowKeys: ["0"],
+          defaultExpandedRowKeys: [],
           expandIcon: ({ expanded, onExpand, record }) =>
             expanded ? (
               <EyeInvisibleOutlined onClick={(e) => onExpand(record, e)} />
@@ -304,7 +327,7 @@ const InvoicesList = ({
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        key={invoices.id + invoices.createtime}
+        key={invoices.id + invoices.createTime}
         width="90%"
       >
         {selectedOrder ? (
@@ -374,7 +397,7 @@ const InvoicesList = ({
                     align: "center",
                     render: (text) => (
                       <a href={text} target="_blank" rel="noopener noreferrer">
-                        Link thanh toán
+                        Payment link
                       </a>
                     ),
                   },

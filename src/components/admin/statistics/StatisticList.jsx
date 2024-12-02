@@ -118,7 +118,7 @@ const StatisticsDashboard = () => {
     labels: labels,
     datasets: [
       {
-        label: "Số lượng",
+        label: "Quantity",
         data: values,
         backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
         hoverBackgroundColor: [
@@ -203,7 +203,7 @@ const StatisticsDashboard = () => {
       setTotalRevenue(response.data.totalRevenue);
       setTotalOrders(response.data.totalOrders);
     } catch (error) {
-      console.error("Lỗi khi lấy thống kê:", error);
+      console.error("Error when getting statistics:", error);
     } finally {
       setLoading(false);
     }
@@ -221,21 +221,21 @@ const StatisticsDashboard = () => {
 
   const columns = [
     {
-      title: "Tên Sản Phẩm",
+      title: "Product Name",
       dataIndex: "productName",
       key: "productName",
       align: "center",
       width: 200,
     },
     {
-      title: "Số Lượng",
+      title: "Quantity",
       dataIndex: "totalQuantity",
       key: "totalQuantity",
       align: "center",
       width: 150,
     },
     {
-      title: "Tổng Tiền (VND)",
+      title: "Total (VND)",
       dataIndex: "totalAmount",
       key: "totalAmount",
       align: "center",
@@ -243,22 +243,22 @@ const StatisticsDashboard = () => {
       render: (amount) =>
         amount
           ? amount.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })
+            style: "currency",
+            currency: "VND",
+          })
           : "0 VND",
     },
   ];
 
   const statsData = [
     {
-      title: "Tổng Đơn Hàng",
+      title: "Total Order",
       value: orderCount || 0,
       icon: <ShoppingCartOutlined />,
       color: "#3b82f6",
     },
     {
-      title: "Tổng Doanh Thu",
+      title: "Total Revenue",
       value: loadingRevenue ? (
         <Spin />
       ) : (
@@ -268,13 +268,13 @@ const StatisticsDashboard = () => {
       color: "#f59e0b",
     },
     {
-      title: "Số Người Dùng",
+      title: "Number of Users",
       value: visitorCount || 0,
       icon: <UserOutlined />,
       color: "#10b981",
     },
     {
-      title: "Sản Phẩm",
+      title: "Product quantity",
       value: productCount || 0,
       icon: <ProductOutlined />,
       color: "#ef4444",
@@ -292,11 +292,11 @@ const StatisticsDashboard = () => {
     const [startDate, endDate] = dates;
     console.log(
       "Start Date:",
-      startDate ? startDate.format("YYYY-MM-DD") : "Không có ngày bắt đầu"
+      startDate ? startDate.format("YYYY-MM-DD") : "There is no start date"
     );
     console.log(
       "End Date:",
-      endDate ? endDate.format("YYYY-MM-DD") : "Không có ngày kết thúc"
+      endDate ? endDate.format("YYYY-MM-DD") : "There is no end date"
     );
     // Kiểm tra xem startDate và endDate có hợp lệ không
     if (!startDate || !endDate) {
@@ -334,9 +334,10 @@ const StatisticsDashboard = () => {
             totalAmount: item.totalAmount.toLocaleString("vi-VN", {
               style: "currency",
               currency: "VND",
-            }),            
+
+            }),
           }));
-  
+
           setFilteredData(formattedData);
           console.log("Formatted Data:", formattedData);
         } else {
@@ -345,7 +346,7 @@ const StatisticsDashboard = () => {
         setLoadingTable(false);
       })
       .catch((error) => {
-        console.error("Lỗi khi lọc dữ liệu theo ngày:", error);
+        console.error("Error filtering data by date:", error);
         setFilteredData([]); // Trả về dữ liệu rỗng nếu có lỗi
         setLoadingTable(false);
       });
@@ -354,7 +355,7 @@ const StatisticsDashboard = () => {
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
       <Title level={2} style={{ textAlign: "center" }}>
-        Thống Kê Dashboard
+      Dashboard Statistics
       </Title>
 
       <Row gutter={16} style={{ marginBottom: "20px" }}>
@@ -396,7 +397,7 @@ const StatisticsDashboard = () => {
       <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
         <Col span={16}>
           <Card
-            title="Danh Sách Giao Dịch (Top Sản Phẩm)"
+            title="Transaction List (Top Products)"
             bordered={false}
             style={{ minHeight: "400px" }}
           >
@@ -418,7 +419,7 @@ const StatisticsDashboard = () => {
 
         <Col span={8}>
           <Card
-            title="Top 5 Sản Phẩm Bán Chạy"
+            title="Top 5 Best Selling Products"
             bordered={false}
             style={{ minHeight: "400px" }}
           >
@@ -430,7 +431,7 @@ const StatisticsDashboard = () => {
       <Row gutter={16} style={{ marginBottom: "20px" }}>
         <Col span={24}>
           <Title level={5} style={{ marginBottom: "8px" }}>
-            Chọn Khoảng Thời Gian
+            Select Time Range
           </Title>
           <RangePicker
             format="YYYY-MM-DD"
@@ -455,7 +456,7 @@ const StatisticsDashboard = () => {
               level={5}
               style={{ margin: 0, fontSize: "14px", lineHeight: "1" }}
             >
-              Doanh Thu Chọn Ngày
+              Revenue Select Date
             </Title>
             <div style={{ fontSize: "16px", lineHeight: "1.2" }}>
               {loading ? <Spin /> : formatCurrency(totalRevenue)}
@@ -477,7 +478,7 @@ const StatisticsDashboard = () => {
               level={5}
               style={{ margin: 0, fontSize: "14px", lineHeight: "1" }}
             >
-              Đơn Hàng Chọn Ngày
+              Order Select Date
             </Title>
             <div style={{ fontSize: "16px", lineHeight: "1.2" }}>
               {loading ? <Spin /> : totalOrders}
@@ -488,7 +489,7 @@ const StatisticsDashboard = () => {
 
       {/* Selectors for Month and Year */}
       <Title level={5} style={{ marginBottom: "8px" }}>
-        Chọn Tháng và năm:
+      Select Month and year:
       </Title>
       <Row gutter={16} style={{ marginBottom: "20px" }}>
       <Col span={12}>
@@ -522,8 +523,39 @@ const StatisticsDashboard = () => {
       <Row gutter={16} style={{ marginBottom: "20px" }}>
 
         <Col span={12}>
+
+          <Select
+            defaultValue={selectedMonth}
+            style={{ width: "100%" }}
+            onChange={handleMonthChange}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
+              <Option key={month} value={month}>
+                {moment.months()[month - 1]}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+        <Col span={12}>
+          <Select
+            defaultValue={selectedYear}
+            style={{ width: "100%" }}
+            onChange={handleYearChange}
+          >
+            {[2022, 2023, 2024].map((year) => (
+              <Option key={year} value={year}>
+                {year}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginBottom: "20px" }}>
+
+        <Col span={12}>
           <Card>
-            <Title level={4}>Doanh Thu Hàng Ngày</Title>
+            <Title level={4}>Daily Revenue
+            </Title>
             <Column
               data={dailyRevenueData.map((item) => ({
                 ...item,
@@ -532,9 +564,9 @@ const StatisticsDashboard = () => {
               xField="day"
               yField="revenue"
               meta={{
-                day: { alias: "Ngày" },
+                day: { alias: "Day" },
                 revenue: {
-                  alias: "Doanh Thu (VND)",
+                  alias: "Revenue (VND)",
                   formatter: (value) => formatCurrency(value), // Format the value as currency
                 },
               }}
@@ -544,15 +576,16 @@ const StatisticsDashboard = () => {
 
         <Col span={12}>
           <Card>
-            <Title level={4}>Doanh Thu Hàng Tháng</Title>
+            <Title level={4}>Monthly Revenue
+            </Title>
             <Column
               data={monthlyRevenueData}
               xField="month"
               yField="revenue"
               meta={{
-                month: { alias: "Tháng" },
+                month: { alias: "month" },
                 revenue: {
-                  alias: "Doanh Thu (VND)",
+                  alias: "Revenue (VND)",
                   formatter: (value) => formatCurrency(value),
                 },
               }}

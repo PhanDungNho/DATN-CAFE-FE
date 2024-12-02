@@ -120,16 +120,16 @@ const ProductItem = ({
                                 variant.id === selectedVariants[product.id]
                             )
                             .price.toLocaleString()}`
-                        : "Chọn kích thước để xem giá"}
+                        : "Select size to see price"}
                     </p>
                   </Col>
 
                   <Col span={24}>
-                    <Collapse style={{backgroundColor:"white"}} bordered={false}>
+                    <Collapse style={{backgroundColor:"white",}} bordered={false}>
                       <style>
                         {`
 :where(.css-dev-only-do-not-override-11lehqq).ant-collapse>.ant-collapse-item >.ant-collapse-header {
-                  padding: 8px 16px;
+                  padding: 8px 0px;
                 // background-color:red
 }
                   :where(.css-dev-only-do-not-override-11lehqq).ant-collapse .ant-collapse-content>.ant-collapse-content-box {
@@ -139,14 +139,16 @@ const ProductItem = ({
                   padding: 0}
 `}
                       </style>
-                      <Panel header="Chọn topping" key="1">
+                      <Panel  header="Choose toppings" key="1" style={{     fontWeight:"bold",}}>
                         {product.productToppings.map((topping) => (
                           <Row
                             key={topping.topping.id}
                             style={{
                               alignItems: "center",
+                           fontWeight:"normal",
+                              
                               // marginBottom: "8px",
-                              padding: "2px 11px",
+                             padding: "2px 11px",
                             }}
                           >
                             <Col span={18}>
@@ -223,7 +225,7 @@ const ProductItem = ({
                       }
                       disabled={!selectedVariants[product.id]}
                     >
-                      Thêm
+                      Add
                     </Button>
                   </Col>
                 </Row>

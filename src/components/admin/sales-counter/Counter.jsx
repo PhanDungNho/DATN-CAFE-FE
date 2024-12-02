@@ -27,7 +27,7 @@ class Counter extends Component {
         this.setState({ isLoading: false });
       })
       .catch((error) => {
-        console.error("Lỗi khi tải dữ liệu:", error);
+        console.error("Error loading data:", error);
         // Xử lý lỗi, ví dụ: Hiển thị thông báo lỗi cho người dùng
       });
   }
@@ -42,33 +42,24 @@ class Counter extends Component {
     const { navigate } = this.props.router;
    
     const { isLoading, activeTab } = this.state;
-    if (isLoading) {
-      return (
-        <>
-          <ContentHeader
-            navigate={navigate}
-            title="List Categories"
-            className="site-page-header"
-          />
-          <Skeleton active />
-        </>
-      );
-    }
+   
 
     return (
       <Layout>
         <ContentHeader
           navigate={navigate}
-          title="List Category"
+          title="Orders"
           className="site-page-header"
+        
+        
         />
         <Content style={{ padding: "20px" }}>
 
         <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={this.handleTabChange}>
-          <TabPane tab="Quầy bán hàng" key="1">
+          <TabPane tab="Sales counter" key="1">
           <CounterForm />  
           </TabPane>
-          <TabPane tab="Đơn hàng" key="2">
+          <TabPane tab="Order" key="2">
         <ListInvoices />
           </TabPane>
          
@@ -77,7 +68,7 @@ class Counter extends Component {
         
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          Phần mềm quản lý quán cà phê ©2024
+        Coffee shop management software ©2024
         </Footer>
       </Layout>
     );

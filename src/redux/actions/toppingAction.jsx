@@ -72,7 +72,7 @@ export const updateToppingActive = (id, active) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật trạng thái thành công",
+        payload: "Status update successful",
       });
     } else {
       const previousActive = !active;
@@ -181,7 +181,7 @@ export const insertTopping = (topping) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Thêm thành công",
+        payload: "Added successfully",
       });
     } else {
       dispatch({
@@ -237,7 +237,7 @@ export const updateTopping = (id, topping) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật thành công",
+        payload: "Updated successfully",
       });
     } else {
       dispatch({

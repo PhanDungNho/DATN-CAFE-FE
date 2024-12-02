@@ -48,6 +48,7 @@ import {
   fetchProvinces,
   fetchWards,
 } from "../../services/constant";
+import { getAccount } from "../../redux/actions/accountAction";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -74,10 +75,8 @@ const Cart = () => {
   const [currentAddress, setCurrentAddress] = useState(null);
   const [wards, setWards] = useState([]);
 
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalSuccessOpen, setIsModalSuccessOpen] = useState(false);
   const [isModalAddressOpen, setIsModalAddressOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const orderService = new OrderService();
@@ -97,6 +96,7 @@ const Cart = () => {
   const [data, setData] = useState(selectedItemsArray);
   const [address, setAddress] = useState([]);
   const addresses = useSelector((state) => state.addressReducer.addresses);
+  const accountData = useSelector((state) => state.accountReducer.account);
 
   // State for selected row keys
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -125,6 +125,7 @@ const Cart = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user && user.username) {
       dispatch(getAddressByUsername(user.username));
+      dispatch(getAccount(user.username));
     }
   }, [dispatch]);
 
@@ -133,6 +134,12 @@ const Cart = () => {
       setAddress(addresses);
     }
   }, [addresses]);
+
+  // useEffect(() => {
+  //   if (accountData) {
+  //     setAccount(accountData);
+  //   }
+  // }, [accountData]);
 
   // Hàm xử lý khi thay đổi số lượng
   const handleQuantityChange = (value, key) => {
@@ -229,6 +236,12 @@ const Cart = () => {
           : "",
     },
     {
+      title: "Note",
+      dataIndex: "note",
+      key: "note",
+      width: "18%",
+    },
+    {
       title: "Price",
       dataIndex: ["productVariant", "price"],
       key: "price",
@@ -262,11 +275,11 @@ const Cart = () => {
   // Hàm xử lý thanh toán
   const handleCheckout = () => {
     if (selectedRowKeys.length === 0) {
-      message.warning("Vui lòng chọn sản phẩm để thanh toán.");
+      message.warning("Please select product to pay.");
       return;
     }
 
-    message.success("Đã thực hiện thanh toán thành công!");
+    message.success("Payment has been made successfully!");
     const remainingItems = data.filter(
       (item) => !selectedRowKeys.includes(item.key)
     );
@@ -282,7 +295,7 @@ const Cart = () => {
     // Implement navigation to the product listing page
     // For example, using react-router:
     // history.push('/products');
-    message.info("Chuyển hướng đến trang sản phẩm...");
+    message.info("Redirect to product page...");
   };
 
   const calculateTotalAmount = (cartItems) => {
@@ -326,7 +339,6 @@ const Cart = () => {
         quantity: topping.quantity,
         momentPrice: topping.topping.price,
       })),
-    
     }));
 
     console.log("CartItems", cartItems);
@@ -340,10 +352,10 @@ const Cart = () => {
     console.log("Full address is default: ", fullAddress);
 
     const stringFullAddress = `${fullAddress[0].fullAddress}`;
+    console.log("Username", username);
     console.log("String full address: ", stringFullAddress);
-
     const order = {
-      cashierId: JSON.parse(localStorage.getItem("user")).username,
+      cashierId: "",
       totalAmount: grandTotal,
       phone: selectedItemsArray.customerPhone || "", // || phoneNumberInput
       orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
@@ -351,9 +363,9 @@ const Cart = () => {
       paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
       shippingFee: shippingfee,
-      orderType: 0,
-      // fullAddress: stringFullAddress,
-      customerId: selectedItemsArray.customerId || "test1",
+      orderType: 1,
+      fullAddress: stringFullAddress,
+      customerId: username || "test1",
       orderDetails: cartItems,
     };
 
@@ -364,7 +376,7 @@ const Cart = () => {
       console.log("Order response:", orderResponse.data);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-      localStorage.setItem("billData", JSON.stringify(orderResponse.data));    
+
       console.log(order.id);
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
@@ -374,7 +386,7 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+      message.error("An error occurred while processing the order. Please try again.");
     }
   };
 
@@ -383,7 +395,7 @@ const Cart = () => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        `Payment for order ID: ${order.id}`,
         "wala"
       );
 
@@ -416,7 +428,7 @@ const Cart = () => {
               handleSuccess(order, index); // Đóng form bán hàng
             } else {
               dispatch(deleteOrderById(order.id));
-              message.error("Thanh toán thất bại hoặc bị hủy.");
+              message.error("Payment failed or canceled.");
             }
             console.log("first");
             console.log(order.id);
@@ -425,18 +437,20 @@ const Cart = () => {
           }
         }, 1000); // Kiểm tra mỗi giây
       } else {
-        throw new Error("Không thể tạo URL thanh toán.");
+        throw new Error("Unable to generate payment URL.");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo thanh toán:", error);
-      message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
+      console.error("Error creating payment:", error);
+      message.error("An error occurred while creating the payment. Please try again.");
     }
   };
 
   // // Hàm xử lý thành công
   const handleSuccess = async (order) => {
-    message.success("Thanh toán thành công!");
+    // message.success("Thanh toán thành công!");
     const selectedItemsIds = selectedItemsArray.map((item) => item.id);
+
+    setIsModalSuccessOpen(true);
 
     try {
       for (const id of selectedItemsIds) {
@@ -446,11 +460,8 @@ const Cart = () => {
       const username = JSON.parse(localStorage.getItem("user"));
       dispatch(getCartDetailsByUsername(username.username));
 
-
       dispatch(clearSelectedItems());
       setSelectedRowKeys([]);
-      navigate(`/bill/${order.id}`);
-
     } catch (error) {
       console.error("Error removing items after payment:", error);
     }
@@ -460,11 +471,13 @@ const Cart = () => {
     const fetchDefaultAddressAndCalculateShipping = async () => {
       const defaultAddress = addresses.find((address) => address.isDefault);
       const numberOfItems = Object.keys(selectedItems).length;
-      const weight = 500 * numberOfItems;
+      console.log("numberOfItems", numberOfItems);
+      const weightT = 500 * numberOfItems;
+      console.log("weightT", weightT);
 
       if (numberOfItems === 0) {
         setShippingfee(0);
-        return; 
+        return;
       }
 
       if (defaultAddress) {
@@ -475,20 +488,26 @@ const Cart = () => {
           to_ward_code: String(defaultAddress.wardCode),
           height: 20,
           length: 15,
-          weight: weight || 500,
+          weight: weightT,
           width: 15,
           insurance_value: 0,
           cod_failed_amount: 0,
           coupon: null,
         };
         const shippingFee = await calculateShippingFee(body);
-        console.log(shippingFee);
         setShippingfee(shippingFee.data.total);
       }
     };
 
     fetchDefaultAddressAndCalculateShipping();
   }, [addresses, selectedItems]);
+
+  useEffect(() => {
+    const defaultAddress = addresses.find((address) => address.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress(defaultAddress.id);
+    }
+  }, [addresses]);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -528,7 +547,6 @@ const Cart = () => {
   };
 
   //API Address
-
   useEffect(() => {
     const loadProvinces = async () => {
       const provincesData = await fetchProvinces();
@@ -587,19 +605,18 @@ const Cart = () => {
       fullAddress: fullAddressText,
     });
 
-    if (!currentAddress) {
+    if (currentAddress) {
+      dispatch(updateAddress(currentAddress.id, addressDto)).then(() => {
+        handleCancelAddress();
+      });
+    } else {
       addressDto.account = username;
       addressDto.active = true;
-    }
 
-    if (currentAddress) {
-      dispatch(updateAddress(currentAddress.id, addressDto));
-    } else {
-      dispatch(insertAddress(addressDto));
+      dispatch(insertAddress(addressDto)).then(() => {
+        handleCancelAddress();
+      });
     }
-
-    setIsModalOpen(true);
-    setIsModalAddressOpen(false);
   };
 
   const mapAddressWithNames = (address) => {
@@ -660,6 +677,23 @@ const Cart = () => {
     }
   };
 
+  //Payment Successfully
+  const handleOkFinish = () => {
+    setIsModalSuccessOpen(false);
+    navigate("/manager/orders");
+  };
+
+  const handleCancelFinish = () => {
+    setIsModalSuccessOpen(false);
+  };
+
+  const handleNewAddress = () => {
+    setCurrentAddress(null);
+    setIsModalAddressOpen(true);
+    setIsModalOpen(false);
+    form.resetFields();
+  };
+
   return (
     <Layout>
       <Header />
@@ -689,10 +723,10 @@ const Cart = () => {
       >
         <Breadcrumb style={{ marginBottom: "20px" }}>
           <Breadcrumb.Item href="/">
-            <ShopOutlined /> Trang chủ
+            <ShopOutlined /> Home
           </Breadcrumb.Item>
           <Breadcrumb.Item>
-            <ShoppingCartOutlined /> Giỏ hàng
+            <ShoppingCartOutlined /> Shopping Cart
           </Breadcrumb.Item>
         </Breadcrumb>
         <Row gutter={[24, 24]}>
@@ -749,245 +783,347 @@ const Cart = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {addresses
-                  .filter((address) => address.isDefault)
-                  .map((address) => (
-                    <div
-                      key={address.id}
+                {!addresses || addresses.length === 0 ? (
+                  <>
+                    <Title level={5} style={{ color: "red" }}>
+                      This account does not have a shipping address!
+                    </Title>
+                    <Button
+                      onClick={handleNewAddress}
+                      type="dashed"
+                      icon={<GoPlus />}
                       style={{
-                        alignItems: "center",
-                        marginBottom: 10,
+                        width: "100%",
+                        borderRadius: "8px",
+                        fontWeight: "bold",
                       }}
                     >
-                      <Row>
-                        <span style={{ fontWeight: "bold", marginRight: 20 }}>
-                          {address.account.fullName} (+84){" "}
-                          {address.account.phone}
-                        </span>
-                      </Row>
-                      <Row>
-                        <span style={{ marginRight: 20 }}>
-                          {address.fullAddress}
-                        </span>
-                        <span>
-                          <Button
-                            color="default"
-                            size={"small"}
-                            type="link"
-                            onClick={showModal}
-                            style={{
-                              padding: 0,
-                              color: "#1890ff",
-                              textDecoration: "underline",
-                            }}
-                          >
-                            Change Address
-                          </Button>
-
-                          {/* Modal list address */}
-                          <Modal
-                            title="Address"
-                            open={isModalOpen}
-                            onOk={handleOk}
-                            onCancel={handleCancel}
-                          >
-                            <Radio.Group
-                              onChange={onAddressChange}
-                              value={selectedAddress}
-                              style={{ width: "100%" }}
-                            >
-                              {addresses.map((address) => (
-                                <Card
-                                  key={address.id}
-                                  hoverable
-                                  style={{
-                                    marginBottom: "10px",
-                                    borderRadius: "8px",
-                                    boxShadow:
-                                      "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                                  }}
-                                  bodyStyle={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    padding: "15px 20px",
-                                  }}
-                                >
-                                  <Radio
-                                    value={address.id}
-                                    style={{ flex: "1" }}
-                                  >
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          fontWeight: "bold",
-                                          color: "#333",
-                                        }}
-                                      >
-                                        {address.account.fullName} (+84){" "}
-                                        {address.account.phone}
-                                      </span>
-                                      <span style={{ color: "#666" }}>
-                                        {address.fullAddress}
-                                      </span>
-                                    </div>
-                                  </Radio>
-                                  <Button
-                                    size="small"
-                                    type="link"
-                                    onClick={() => handleEdit(address)}
-                                    style={{
-                                      color: "#1890ff",
-                                      padding: 0,
-                                      marginLeft: "15px",
-                                      textDecoration: "underline",
-                                    }}
-                                  >
-                                    Update
-                                  </Button>
-                                </Card>
-                              ))}
-                            </Radio.Group>
-                            <Divider />
+                      New Address
+                    </Button>
+                  </>
+                ) : (
+                  addresses
+                    .filter((address) => address.isDefault)
+                    .map((address) => (
+                      <div
+                        key={address.id}
+                        style={{
+                          alignItems: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <Row>
+                          <span style={{ fontWeight: "bold", marginRight: 20 }}>
+                            {accountData.fullName} (+84) {accountData.phone}
+                          </span>
+                        </Row>
+                        <Row>
+                          <span style={{ marginRight: 20 }}>
+                            {address.fullAddress}
+                          </span>
+                          <span>
                             <Button
-                              onClick={() => navigate("/manager/address")}
-                              type="dashed"
-                              icon={<GoPlus />}
+                              color="default"
+                              size={"small"}
+                              type="link"
+                              onClick={showModal}
                               style={{
-                                width: "100%",
-                                borderRadius: "8px",
-                                fontWeight: "bold",
+                                padding: 0,
+                                color: "#1890ff",
+                                textDecoration: "underline",
                               }}
                             >
-                              New Address
+                              Change Address
                             </Button>
-                          </Modal>
 
-                          {/* Modal update address */}
-                          <Modal
-                            title={
-                              currentAddress ? "Update address" : "Add address"
-                            }
-                            open={isModalAddressOpen}
-                            onCancel={handleCancelAddress}
-                            footer={null}
-                          >
-                            <Form
-                              form={form}
-                              name="update-address"
-                              layout="vertical"
-                              onFinish={onFinish}
+                            {/* Modal list address */}
+                            <Modal
+                              title="Address"
+                              open={isModalOpen}
+                              onOk={handleOk}
+                              onCancel={handleCancel}
                             >
-                              <Form.Item
-                                label="Province/City"
-                                name="cityCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select province/city!",
-                                  },
-                                ]}
+                              <Radio.Group
+                                onChange={onAddressChange}
+                                value={selectedAddress}
+                                style={{
+                                  width: "100%",
+                                  maxHeight: "300px",
+                                  overflowY: "auto",
+                                }}
                               >
-                                <Select
-                                  placeholder="Select Province/City"
-                                  onChange={handleProvinceChange}
-                                >
-                                  {provinces.map((province) => (
-                                    <Option
-                                      key={province.ProvinceID}
-                                      value={province.ProvinceID}
+                                {[...addresses]
+                                  .sort(
+                                    (a, b) =>
+                                      (b.isDefault ? 1 : 0) -
+                                      (a.isDefault ? 1 : 0)
+                                  )
+                                  .map((address) => (
+                                    <Card
+                                      key={address.id}
+                                      hoverable
+                                      style={{
+                                        marginBottom: "10px",
+                                        borderRadius: "8px",
+                                        boxShadow:
+                                          "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                                      }}
+                                      bodyStyle={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: "15px 20px",
+                                      }}
                                     >
-                                      {province.ProvinceName}
-                                    </Option>
+                                      <Radio
+                                        value={address.id}
+                                        style={{ flex: "1" }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontWeight: "bold",
+                                              color: "#333",
+                                            }}
+                                          >
+                                            {accountData.fullName} (+84){" "}
+                                            {accountData.phone}
+                                          </span>
+                                          <span style={{ color: "#666" }}>
+                                            {address.fullAddress}
+                                          </span>
+                                        </div>
+                                      </Radio>
+                                      <Button
+                                        size="small"
+                                        type="link"
+                                        onClick={() => handleEdit(address)}
+                                        style={{
+                                          color: "#1890ff",
+                                          padding: 0,
+                                          marginLeft: "15px",
+                                          textDecoration: "underline",
+                                        }}
+                                      >
+                                        Update
+                                      </Button>
+                                    </Card>
                                   ))}
-                                </Select>
-                              </Form.Item>
-
-                              <Form.Item
-                                label="District/District"
-                                name="districtCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select District!",
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  placeholder="Select District/District"
-                                  onChange={handleDistrictChange}
-                                  value={currentAddress?.districtCode}
-                                  disabled={!districts.length}
-                                >
-                                  {districts.map((district) => (
-                                    <Option
-                                      key={district.DistrictID}
-                                      value={district.DistrictID}
-                                    >
-                                      {district.DistrictName}
-                                    </Option>
-                                  ))}
-                                </Select>
-                              </Form.Item>
-
-                              <Form.Item
-                                label="Ward/Commune"
-                                name="wardCode"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please select ward/commune!",
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  placeholder="Select Ward/Commune"
-                                  onChange={handleWardChange}
-                                  value={currentAddress?.wardCode}
-                                  disabled={!wards.length}
-                                >
-                                  {wards.map((ward) => (
-                                    <Option
-                                      key={ward.WardCode}
-                                      value={ward.WardCode}
-                                    >
-                                      {ward.WardName}
-                                    </Option>
-                                  ))}
-                                </Select>
-                              </Form.Item>
-                              <Form.Item
-                                label="Detailed address"
-                                name="street"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please enter detailed address!",
-                                  },
-                                ]}
-                              >
-                                <Input />
-                              </Form.Item>
-
+                              </Radio.Group>
+                              <Divider />
                               <Button
-                                type="primary"
-                                htmlType="submit"
-                                style={{ width: "100%" }}
+                                onClick={handleNewAddress}
+                                type="dashed"
+                                icon={<GoPlus />}
+                                style={{
+                                  width: "100%",
+                                  borderRadius: "8px",
+                                  fontWeight: "bold",
+                                }}
                               >
-                                {currentAddress
-                                  ? "Update Address"
-                                  : "Add Address"}
+                                New Address
                               </Button>
-                            </Form>
-                          </Modal>
-                        </span>{" "}
-                      </Row>
-                    </div>
-                  ))}
+                            </Modal>
+                          </span>
+                        </Row>
+                      </div>
+                    ))
+                )}
+                {/* Modal update address */}
+                <Modal
+                  title={currentAddress ? "Update address" : "Add address"}
+                  open={isModalAddressOpen}
+                  onCancel={handleCancelAddress}
+                  footer={null}
+                >
+                  <Form
+                    form={form}
+                    name="update-address"
+                    layout="vertical"
+                    onFinish={onFinish}
+                  >
+                    <Form.Item
+                      label="Province/City"
+                      name="cityCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select province/city!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select Province/City"
+                        onChange={handleProvinceChange}
+                      >
+                        {provinces.map((province) => (
+                          <Option
+                            key={province.ProvinceID}
+                            value={province.ProvinceID}
+                          >
+                            {province.ProvinceName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      label="District/District"
+                      name="districtCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select District!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select District/District"
+                        onChange={handleDistrictChange}
+                        value={currentAddress?.districtCode}
+                        disabled={!districts.length}
+                      >
+                        {districts.map((district) => (
+                          <Option
+                            key={district.DistrictID}
+                            value={district.DistrictID}
+                          >
+                            {district.DistrictName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      label="Ward/Commune"
+                      name="wardCode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select ward/commune!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select Ward/Commune"
+                        onChange={handleWardChange}
+                        value={currentAddress?.wardCode}
+                        disabled={!wards.length}
+                      >
+                        {wards.map((ward) => (
+                          <Option key={ward.WardCode} value={ward.WardCode}>
+                            {ward.WardName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      label="Detailed address"
+                      name="street"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter detailed address!",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ width: "100%" }}
+                    >
+                      {currentAddress ? "Update Address" : "Add Address"}
+                    </Button>
+                  </Form>
+                </Modal>
+
+                {/* Modal finish */}
+                <Modal
+                  open={isModalSuccessOpen}
+                  closable={false}
+                  centered={true}
+                  bodyStyle={{
+                    textAlign: "center",
+                    border: "1px solid #f6ffed", // Viền xanh nhạt
+                    borderRadius: "8px", // Bo góc
+                    padding: "20px", // Khoảng cách nội dung
+                  }}
+                  footer={[
+                    <button
+                      key="close"
+                      onClick={handleCancelFinish}
+                      style={{
+                        backgroundColor: "#fff",
+                        color: "#595959",
+                        border: "1px solid #d9d9d9",
+                        padding: "6px 16px",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "all 0.3s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.target.style.borderColor = "#40a9ff")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.borderColor = "#d9d9d9")
+                      }
+                    >
+                      Close
+                    </button>,
+                    <button
+                      key="my-orders"
+                      onClick={handleOkFinish} // Hàm xử lý khi bấm vào nút My Orders
+                      style={{
+                        backgroundColor: "#1677ff",
+                        color: "#fff",
+                        border: "1px solid #1677ff",
+                        padding: "6px 16px",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "all 0.3s",
+                        marginLeft: "5px",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.target.style.backgroundColor = "#1677ff")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.backgroundColor = "#1677ff")
+                      }
+                    >
+                      My Orders
+                    </button>,
+                  ]}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Success!
+                    </h3>
+                    <p
+                      style={{
+                        color: "#595959", // Màu xám cho nội dung
+                        fontSize: "16px",
+                        margin: "0",
+                      }}
+                    >
+                      Order has been paid successfully.
+                    </p>
+                  </div>
+                </Modal>
               </div>
             </Card>
             <Card
@@ -1031,19 +1167,23 @@ const Cart = () => {
                   justifyContent: "right",
                 }}
               >
-                <Button
-                  type="default"
-                  style={{ marginRight: 10 }}
-                  onClick={handleBuyMore}
-                >
-                  Mua thêm
-                </Button>
+                {/*
+                  <Button
+                    type="default"
+                    style={{ marginRight: 10 }}
+                    onClick={handleBuyMore}
+                  >
+                    Buy more
+                  </Button>
+                 */}
                 <Button
                   type="primary"
                   onClick={(value) => handleFinish(value)}
-                  disabled={selectedItemsArray.length === 0}
+                  disabled={
+                    selectedItemsArray.length === 0 || addresses.length === 0
+                  }
                 >
-                  Thanh toán
+                  Checkout
                 </Button>
               </div>
             </Card>

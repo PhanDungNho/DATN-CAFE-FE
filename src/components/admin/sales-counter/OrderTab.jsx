@@ -33,11 +33,11 @@ const OrderTab = ({
     >
       {orders.map((customer, index) => (
         <Tabs.TabPane
-          tab={customer.customerName}
+          tab={customer.tabName}
           key={index}
           closable={orders.length > 1}
         >
-          <Card title={`Giỏ hàng  ${customer.customerName}`}>
+          <Card title={`shopping cart ${customer.tabName}`}>
           <style>
   {`
   .ant-table-tbody {
@@ -51,17 +51,17 @@ const OrderTab = ({
   `}
             </style>
             {customer.cart.length === 0 ? (
-              <p>Giỏ hàng đang trống</p>
+              <p>The shopping cart is empty</p>
             ) : (
               <Table
                 columns={columns}
                 dataSource={orders[activeTab]?.cart}
                 pagination={false}
-                rowKey="id"
+                // rowKey="id"
                 summary={() => (
                   <Table.Summary.Row>
                     <Table.Summary.Cell index={0} colSpan={2}>
-                      Tổng
+                    Total
                     </Table.Summary.Cell>
                     <Table.Summary.Cell index={1}></Table.Summary.Cell>
                     <Table.Summary.Cell index={2}>
@@ -82,7 +82,7 @@ const OrderTab = ({
             <Form.Item name="phoneNumber">
               <Input
               id="phoneNumber"
-                placeholder="Số điện thoại khách hàng"
+                placeholder="Customer phone number"
                 value={phoneNumberInput}
                 onChange={(e) => handlePhoneNumberChange(e, index)}
               />
@@ -91,14 +91,14 @@ const OrderTab = ({
             {orders[index] && (
               <div>
                 <p style={{ color: "green" }}>
-                  Tên khách hàng: {orders[index].customerName}
+                Customer name: {orders[index].customerName}
                 </p>
                 <p style={{ color: "green" }}>
-                  Số điện thoại: {orders[index].customerPhone}
+                Phone number: {orders[index].customerPhone}
                 </p>
               </div>
             )}
-            <Form.Item name="paymentMethod" label="Hình thức thanh toán">
+            <Form.Item name="paymentMethod" label="Payment method">
               {console.log(
                 "Current Payment Method for tab:",
                 index,
@@ -109,8 +109,8 @@ const OrderTab = ({
                 value={orders[index].paymentMethod} // Giá trị từ orders
                 onChange={(value) => handlePaymentMethodChange(value, index)}
               >
-                <Option value="CASH">Tiền mặt</Option>
-                <Option value="ONLINE">Ví Momo</Option>
+                <Option value="CASH">Cash</Option>
+                <Option value="ONLINE">Momo wallet</Option>
               </Select>
             </Form.Item>
 
@@ -120,10 +120,10 @@ const OrderTab = ({
               block
               disabled={
                 orders[index].cart.length === 0 ||
-                (orders[index].customerPhone && !orders[index].customerName)
+                (orders[index].customerPhone && !orders[index].tabName)
               }
             >
-              Thanh toán
+              Pay
             </Button>
           </Form>
         </Tabs.TabPane>

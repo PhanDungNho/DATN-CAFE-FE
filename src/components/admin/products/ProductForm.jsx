@@ -69,27 +69,33 @@ export class ProductForm extends Component {
   // };
 
   renderCategoryOptions = () => {
-    return this.props.categories.map((item) => (
-      <Select.Option value={item.id} key={item.id}>
-        {item.name}
-      </Select.Option>
-    ));
+    return this.props.categories
+      .filter((item) => item.active)
+      .map((item) => (
+        <Select.Option value={item.id} key={item.id}>
+          {item.name}
+        </Select.Option>
+      ));
   };
 
   renderToppingOptions = () => {
-    return this.props.toppings.map((item) => (
-      <Select.Option value={item.id} key={item.id}>
-        {item.name}
-      </Select.Option>
-    ));
+    return this.props.toppings
+      .filter((item) => item.active)
+      .map((item) => (
+        <Select.Option value={item.id} key={item.id}>
+          {item.name}
+        </Select.Option>
+      ));
   };
 
   renderSizeOptions = () => {
-    return this.props.sizes.map((item) => (
-      <Select.Option value={item.id} key={item.id}>
-        {item.name}
-      </Select.Option>
-    ));
+    return this.props.sizes
+      .filter((item) => item.active)
+      .map((item) => (
+        <Select.Option value={item.id} key={item.id}>
+          {item.name}
+        </Select.Option>
+      ));
   };
 
   async onSearch(value) {

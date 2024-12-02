@@ -31,14 +31,15 @@ import PaymentService from "../../../services/PaymentService";
 import Queue from "./Queue";
 import { deleteOrderById } from "../../../redux/actions/invoiceAction";
 import { useDispatch } from "react-redux";
- 
+import { printBill } from "../../user/printBill";
+
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
 const { Option } = Select;
 
 const CounterForm = () => {
-const dispatch = useDispatch();
- 
+  const dispatch = useDispatch();
+
   const [activeTab, setActiveTab] = useState("0");
   // const [ords, setOrds] = useState([]);
   const [products, setProducts] = useState([]);
@@ -47,7 +48,7 @@ const dispatch = useDispatch();
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], customerName: "Đơn 1", customerId: "", paymentMethod: "CASH",  },
+    { cart: [], tabName: "Đơn 1", customerId: "", paymentMethod: "CASH" },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
@@ -73,12 +74,10 @@ const dispatch = useDispatch();
         });
         setSelectedVariants(initialSelectedVariants);
       } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        message.error("Không thể lấy sản phẩm.");
+        console.error("Error when retrieving product:", error);
+        message.error("Unable to get product.");
       }
     };
-
-  
 
     const fetchAccounts = async () => {
       try {
@@ -86,8 +85,8 @@ const dispatch = useDispatch();
         setAccounts(response.data);
         console.log(response.data);
       } catch (error) {
-        console.error("Lỗi khi lấy tài khoản:", error);
-        message.error("Không thể lấy tài khoản.");
+        console.error("Error while retrieving account:", error);
+        message.error("Unable to get account.");
       }
     };
 
@@ -105,8 +104,6 @@ const dispatch = useDispatch();
     fetchProducts();
     // fetchToppings();
     fetchAccounts();
- 
-   
   }, []);
 
   const handleToppingChange = (productId, toppingId, value) => {
@@ -128,23 +125,29 @@ const dispatch = useDispatch();
         }))
       )
       .find((variant) => variant.id === variantId);
-  
+
     if (selectedVariant) {
       const newOrders = [...orders];
       const currentCart = newOrders[activeTab].cart;
-  
+
       // Lấy topping hợp lệ cho sản phẩm
-      const validToppings = products.find(product => product.id === productId)?.productToppings || [];
-      
+      const validToppings =
+        products.find((product) => product.id === productId)?.productToppings ||
+        [];
+
       // Tìm topping đã chọn cho sản phẩm
       const toppingsWithQuantity = Object.entries(
         selectedToppings[productId] || {}
       )
-        .filter(([toppingId, quantity]) => 
-          quantity > 0 && validToppings.some(t => t.topping.id === parseInt(toppingId))
+        .filter(
+          ([toppingId, quantity]) =>
+            quantity > 0 &&
+            validToppings.some((t) => t.topping.id === parseInt(toppingId))
         )
         .map(([toppingId, quantity]) => {
-          const foundTopping = validToppings.find(t => t.topping.id === parseInt(toppingId));
+          const foundTopping = validToppings.find(
+            (t) => t.topping.id === parseInt(toppingId)
+          );
           return foundTopping
             ? {
                 id: foundTopping.topping.id,
@@ -155,13 +158,13 @@ const dispatch = useDispatch();
             : null;
         })
         .filter((topping) => topping !== null);
-  
+
       // Tính giá topping
       const toppingPrice = toppingsWithQuantity.reduce(
         (total, topping) => total + topping.price * topping.quantity,
         0
       );
-  
+
       // Tạo sản phẩm mới với topping đã chọn
       const newItem = {
         ...selectedVariant,
@@ -170,18 +173,18 @@ const dispatch = useDispatch();
         toppingPrice: toppingPrice,
         amount: selectedVariant.price + toppingPrice,
       };
-  
+
       // Thêm sản phẩm mới vào giỏ hàng
       currentCart.push(newItem);
-  
+
       // Cập nhật orders và localStorage
       setOrders(newOrders);
       localStorage.setItem("orders", JSON.stringify(newOrders));
-  
+
       message.success(
-        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
+        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) has been added to the cart!`
       );
-  
+
       // Reset số lượng topping về 0 cho sản phẩm đã thêm
       setSelectedToppings((prev) => ({
         ...prev,
@@ -191,12 +194,12 @@ const dispatch = useDispatch();
         }, {}),
       }));
     } else {
-      message.error("Không tìm thấy sản phẩm này.");
+      message.error("This product was not found.");
     }
   };
 
   const handleSearch = (value) => {
-    console.log("Tìm kiếm:", value);
+    console.log("Search:", value);
   };
   const handlePhoneNumberChange = (e, index) => {
     const enteredPhone = e.target.value;
@@ -209,12 +212,14 @@ const dispatch = useDispatch();
     setOrders((prevOrders) => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
-        message.success("Đã nhập đúng số điện thoại!");
-        // updatedOrders[index].customerName = foundAccount.fullName;
+        message.success("Entered the correct phone number!");
+
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
+        updatedOrders[index].customerName = foundAccount.fullName;
       } else {
-        // updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
+        updatedOrders[index].customerId = "";
+        updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
       }
       return updatedOrders;
@@ -224,7 +229,7 @@ const dispatch = useDispatch();
   const handleFinish = async (values, index) => {
     // Lấy phương thức thanh toán từ orders cho tab hiện tại
     const currentPaymentMethod = orders[index].paymentMethod;
-  
+
     const cartItems = orders[index].cart.map((item) => ({
       productVariant: { id: item.id },
       quantity: item.quantity,
@@ -246,12 +251,12 @@ const dispatch = useDispatch();
         momentPrice: topping.price,
       })),
     }));
-    
+
     const totalAmount = cartItems.reduce(
       (total, item) => total + item.totalPrice,
       0
     );
-  
+
     const order = {
       cashierId: JSON.parse(localStorage.getItem("user")).username,
       totalAmount: totalAmount,
@@ -266,23 +271,30 @@ const dispatch = useDispatch();
       customerId: orders[index].customerId || "test1",
       orderDetails: cartItems,
     };
-  
+
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
       console.log("Order not yet:", order);
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
-  
+
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
       if (currentPaymentMethod === "ONLINE") {
-        await handleOnlinePayment(order, totalAmount, index);
+        await handleOnlinePayment(
+          order,
+          totalAmount,
+          index,
+          orderResponse.data
+        );
       } else {
-        handleSuccess(order, index);
+        handleSuccess(order, index, orderResponse.data);
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+      console.error("Error when processing order:", error);
+      message.error(
+        "An error occurred while processing the order. Please try again."
+      );
     }
   };
   const handlePaymentMethodChange = (value, index) => {
@@ -293,11 +305,16 @@ const dispatch = useDispatch();
     });
   };
   // Hàm xử lý thanh toán online
-  const handleOnlinePayment = async (order, totalAmount, index) => {
+  const handleOnlinePayment = async (
+    order,
+    totalAmount,
+    index,
+    orderResponse
+  ) => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        `Pay for the order ID: ${order.id}`,
         "d" // Thông tin đơn hàng
       );
 
@@ -309,83 +326,93 @@ const dispatch = useDispatch();
         });
 
         console.log("Payment URL created:", response);
-       const paymentWindow =  window.open(response.data.payUrl, "_blank", "width=800,height=600");
+        const paymentWindow = window.open(
+          response.data.payUrl,
+          "_blank",
+          "width=800,height=600"
+        );
 
         const checkPaymentStatus = setInterval(() => {
           if (paymentWindow.closed) {
             clearInterval(checkPaymentStatus);
-  
+
             // Kiểm tra trạng thái thanh toán từ localStorage
-            const paymentStatus = localStorage.getItem(`payment_status_${order.id}`);
-  
+            const paymentStatus = localStorage.getItem(
+              `payment_status_${order.id}`
+            );
+
             if (paymentStatus === "success") {
-              message.success("Thanh toán thành công!");
-              handleSuccess(order, index); // Đóng form bán hàng
-              removeCustomer(index.toString()); 
-            }else {
+              message.success("Payment successful!");
+              handleSuccess(order, index, orderResponse); // Đóng form bán hàng
+              setPhoneNumberInput("");
+              removeCustomer(index.toString());
+            } else {
               dispatch(deleteOrderById(order.id));
-              message.error("Thanh toán thất bại hoặc bị hủy.");
+              message.error("Payment failed or canceled.");
             }
-            console.log("first")
-            console.log(order.id)
-            console.log(order)
-            console.log(index)
+            console.log("first");
+            console.log(order.id);
+            console.log(order);
+            console.log(index);
           }
         }, 1000); // Kiểm tra mỗi giây
       } else {
-        throw new Error("Không thể tạo URL thanh toán.");
+        throw new Error("Unable to generate payment URL.");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo thanh toán:", error);
-      message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
+      console.error("Error creating payment:", error);
+      message.error(
+        "An error occurred while creating the payment. Please try again."
+      );
     }
   };
 
   // Hàm xử lý thành công
-  const handleSuccess = async (order, index) => {
-    message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
-  
+  const handleSuccess = async (order, index, orderResponse) => {
+    message.success(`Successful payment for ${orders[index].tabName}!`);
+
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
     const newOrders = [...orders];
-  
+    setPhoneNumberInput("");
     // Xóa giỏ hàng của đơn hàng đã thanh toán
     newOrders[index].cart = []; // Giỏ hàng sẽ được làm sạch
-  
+
     // Làm sạch số điện thoại và ID khách hàng
     newOrders[index].customerPhone = ""; // Reset số điện thoại
     newOrders[index].customerId = ""; // Reset ID nếu cần
-  
-    // Reset input số điện thoại trong trạng thái
-    setPhoneNumberInput("");
+    newOrders[index].customerName = ""; // Reset ID nếu cần
 
-  
+    // Reset input số điện thoại trong trạng thái
+
     // Cập nhật trạng thái đơn hàng mà không xóa tab
     setOrders(newOrders);
-  
+
     // Cập nhật Local Storage
     localStorage.setItem("orders", JSON.stringify(newOrders));
-  
+    printBill(orderResponse);
     // Không gọi removeCustomer để giữ nguyên tab
   };
 
-
-  
   const addNewOrder = () => {
-    let newCustomerIndex = 1;
-    let newCustomerName = `Đơn ${newCustomerIndex}`;
-  
-    while (
-      orders.some((customer) => customer.customerName === newCustomerName)
-    ) {
-      newCustomerIndex++;
-      newCustomerName = `Đơn ${newCustomerIndex}`;
+    let newTabIndex = 1;
+    let newTabName = `Order ${newTabIndex}`;
+
+    while (orders.some((customer) => customer.tabName === newTabName)) {
+      newTabIndex++;
+      newTabName = `Order ${newTabIndex}`;
     }
-  
+
     // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
-    const newOrder = { cart: [], customerName: newCustomerName, paymentMethod: "CASH",   customerPhone: "", // Reset số điện thoại
-      customerId: "", };
+    const newOrder = {
+      cart: [],
+      tabName: newTabName,
+      paymentMethod: "CASH",
+      customerPhone: "", // Reset số điện thoại
+      customerId: "",
+      customerName: "",
+    };
     setOrders([...orders, newOrder]);
-    
+
     console.log("New order added:", newOrder); // log giá trị của đơn hàng mới
     console.log("Orders after add:", orders); // log giá trị orders hiện tại
     setActiveTab(`${orders.length}`);
@@ -428,13 +455,13 @@ const dispatch = useDispatch();
 
   const columns = [
     {
-      title: "Sản phẩm",
+      title: "Product",
       dataIndex: "productName",
       key: "productName",
       render: (text, record) => `${record.productName} - ${record.size.name}`,
     },
     {
-      title: "Đơn giá",
+      title: "Price",
       dataIndex: "price",
       key: "price",
       render: (text) => `${text.toLocaleString()}`,
@@ -512,13 +539,13 @@ const dispatch = useDispatch();
     //   render: (text) => `${text.toLocaleString()}`,
     // },
     {
-      title: "Ghi chú",
+      title: "Note",
       dataIndex: "note",
       key: "note",
       render: (text, record, index) => (
         <div>
           <Input
-            placeholder="Ghi chú"
+            placeholder="Note"
             value={text}
             onChange={(e) => {
               const newOrders = [...orders];
@@ -561,14 +588,13 @@ const dispatch = useDispatch();
     const newOrders = [...orders];
     newOrders[activeTab].cart.splice(index, 1);
     setOrders(newOrders);
-    message.success("Sản phẩm đã được xóa khỏi giỏ hàng!");
+    message.success("The product has been removed from the cart!");
   };
 
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
-    
-      <ProductItem
+        <ProductItem
           products={products}
           selectedVariants={selectedVariants}
           handleSelectVariant={handleSelectVariant}
@@ -576,16 +602,13 @@ const dispatch = useDispatch();
           handleAddToCart={handleAddToCart}
           selectedToppings={selectedToppings}
         />
-    
-        
       </Col>
 
       <Col xs={24} md={12}>
         {/* Code hiển thị giỏ hàng */}
         <OrderTab
-     
           orders={orders}
-          handlePaymentMethodChange = {handlePaymentMethodChange}
+          handlePaymentMethodChange={handlePaymentMethodChange}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           addNewOrder={addNewOrder}

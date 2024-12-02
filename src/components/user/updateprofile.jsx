@@ -1,43 +1,50 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Form, Input, Button, Upload, message } from "antd";
+import { Form, Input, Button, Upload, Modal, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import AvatarEditor from "react-avatar-editor";
 
 const UpdateProfile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [imageFileList, setImageFileList] = useState([]); // Biến trạng thái lưu tệp hình ảnh
+  const [imageFileList, setImageFileList] = useState([]); // To store the uploaded image list
+  const [editor, setEditor] = useState(null); // State for AvatarEditor
+  const [cropModalVisible, setCropModalVisible] = useState(false); // Modal visibility for cropping
+  const [croppedImage, setCroppedImage] = useState(null); // Cropped image blob
+  const [account, setAccount] = useState(null); // State to hold account info, including image
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token"); // Lấy JWT token từ localStorage
+        const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:8081/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const profileData = response.data;
+        setAccount(profileData); // Set the account data in state
+
         form.setFieldsValue({
           name: profileData.fullName,
           email: profileData.email,
           phone: profileData.phone,
-          password: "", // Để trống mật khẩu ban đầu
+          password: "", // Optional field for new password
         });
 
-        // Hiển thị ảnh hiện tại nếu có
+        // If the profile has an image, set it in the imageFileList
         if (profileData.image) {
           setImageFileList([
             {
-              uid: "-1", // ID giả lập cho ảnh hiện tại
-              name: profileData.image, // Tên tệp ảnh
+              uid: "-1",
+              name: profileData.image,
               status: "done",
-              url: `http://localhost:8081/uploads/${profileData.image}`, // Đường dẫn tới ảnh trên server
+              url: `http://localhost:8081/api/files/logo/${profileData.image}`, // Full URL to the image
             },
           ]);
         }
       } catch (error) {
-        message.error("Cannot load account data."); // Thông báo lỗi
+        message.error("Cannot load account data.");
       } finally {
         setLoading(false);
       }
@@ -58,9 +65,9 @@ const UpdateProfile = () => {
         formData.append("password", values.password);
       }
 
-      // Gửi tệp mới nếu có
-      if (imageFileList.length > 0 && imageFileList[0].originFileObj) {
-        formData.append("imageFile", imageFileList[0].originFileObj);
+      // If there's a cropped image, append it to the form data
+      if (croppedImage) {
+        formData.append("imageFile", croppedImage, "profile.jpg");
       }
 
       const response = await axios.put(
@@ -74,33 +81,35 @@ const UpdateProfile = () => {
         }
       );
 
-      message.success(response.data);
+      message.success("Profile updated successfully!");
     } catch (error) {
-      console.error("Error details:", error);
-
-      // Kiểm tra xem có phản hồi từ backend
       const errorResponse = error.response?.data;
-
-      // Kiểm tra cấu trúc phản hồi để lấy thông báo
       const errorMessage =
-        errorResponse &&
-        typeof errorResponse === "object" &&
-        errorResponse.message
-          ? errorResponse.message // Lấy thông điệp từ đối tượng
-          : "Failed to update information. Please try again."; // Thông báo lỗi chung
+        errorResponse && errorResponse.message
+          ? errorResponse.message
+          : "Failed to update information. Please try again.";
 
-      // Hiển thị thông báo lỗi cho người dùng
       if (errorMessage === "Email đã tồn tại.") {
-        message.error("Email already exists."); // Thông báo cụ thể cho trường hợp email đã tồn tại
+        message.error("Email already exists.");
       } else {
-        message.error(errorMessage); // Thông báo lỗi chung
+        message.error(errorMessage);
       }
+    }
+  };
+
+  const handleCropImage = () => {
+    if (editor) {
+      // Convert the cropped image to Blob and save it
+      editor.getImageScaledToCanvas().toBlob((blob) => {
+        setCroppedImage(blob); // Save the cropped image
+        setCropModalVisible(false); // Close the crop modal
+        message.success("Cropped image saved successfully!");
+      });
     }
   };
 
   return (
     <div style={{ maxWidth: "100%", padding: "20px" }}>
-      <h2>Update Information</h2>
       <Form
         form={form}
         name="update-profile"
@@ -108,6 +117,8 @@ const UpdateProfile = () => {
         onFinish={onFinish}
         initialValues={{ name: "", email: "", phone: "" }}
       >
+      
+
         <Form.Item
           label="Full Name"
           name="name"
@@ -145,43 +156,50 @@ const UpdateProfile = () => {
           label="New Password"
           name="password"
           rules={[
-            { min: 6, message: "Password must be at least 6 characters!" },
+            { min: 8, message: "Password must be at least 8 characters!" },
+            {
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+              message:
+                "Password must contain at least one uppercase letter, one lowercase letter, and one number!",
+            },
           ]}
         >
           <Input.Password placeholder="Enter new password (optional)" />
         </Form.Item>
 
-        <Form.Item
-          label="Select Profile Picture (optional)"
-          name="imageFile"
-          valuePropName="fileList"
-          getValueFromEvent={(e) => {
-            if (Array.isArray(e)) {
-              return e;
-            }
-            return e && e.fileList ? e.fileList : [];
-          }}
-        >
-         <Upload
-            name="imageFile"
-            listType="picture"
-            maxCount={1} // Giới hạn 1 ảnh
-            defaultFileList={imageFileList} // Hiển thị ảnh hiện tại
-            accept=".jpg,.jpeg,.png,.gif" // Chỉ cho phép các định dạng ảnh
-            beforeUpload={() => false} // Ngăn chặn upload tự động
-            onChange={(info) => {
-              // Giữ lại chỉ một hình ảnh mới nhất
-              setImageFileList(info.fileList.slice(-1));
-              if (info.file.status === "done") {
-                message.success(`${info.file.name} has been uploaded successfully.`);
-              } else if (info.file.status === "error") {
-                message.error(`${info.file.name} upload failed.`);
-              }
-            }}
-          >
-            <Button icon={<UploadOutlined />}>Choose Image</Button>
-          </Upload>
-        </Form.Item>
+        <Form.Item label="Profile Picture">
+  <Upload
+    name="imageFile"
+    listType="picture"
+    maxCount={1}
+    accept="image/*"  // Chỉ chấp nhận các file hình ảnh
+    beforeUpload={(file) => {
+      setCropModalVisible(true); // Mở modal cắt ảnh
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageFileList([
+          {
+            uid: file.uid,
+            name: file.name,
+            status: "done",
+            url: reader.result,
+            originFileObj: file,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+      return false; // Ngừng tải lên tự động
+    }}
+    fileList={imageFileList}
+    onRemove={() => {
+      setImageFileList([]);
+      setCroppedImage(null); // Xóa hình đã cắt khi xóa ảnh
+    }}
+  >
+    <Button icon={<UploadOutlined />}>Upload Image</Button>
+  </Upload>
+</Form.Item>
+
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
@@ -189,6 +207,24 @@ const UpdateProfile = () => {
           </Button>
         </Form.Item>
       </Form>
+
+      {/* Crop Modal */}
+      <Modal
+        title="Crop Image"
+        visible={cropModalVisible}
+        onOk={handleCropImage}
+        onCancel={() => setCropModalVisible(false)}
+      >
+        <AvatarEditor
+          ref={(ref) => setEditor(ref)}
+          image={imageFileList[0]?.url}
+          width={350}
+          height={350}
+          border={50}
+          scale={1.25} // Zoom level
+          rotate={0} // No rotation
+        />
+      </Modal>
     </div>
   );
 };
