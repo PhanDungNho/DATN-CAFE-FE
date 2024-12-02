@@ -248,13 +248,6 @@ const StatisticsDashboard = () => {
             })
           : "0 VND",
     },
-    {
-      title: "Ngày Bán",
-      dataIndex: "saleDate",
-      key: "saleDate",
-      align: "center",
-      render: (date) => moment(date).format("DD/MM/YYYY"),
-    },
   ];
 
   const statsData = [
@@ -283,7 +276,7 @@ const StatisticsDashboard = () => {
     {
       title: "Sản Phẩm",
       value: productCount || 0,
-      icon: < ProductOutlined /> ,
+      icon: <ProductOutlined />,
       color: "#ef4444",
     },
   ];
@@ -326,19 +319,26 @@ const StatisticsDashboard = () => {
             startDate: formattedStartDate,
             endDate: formattedEndDate,
           },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       )
       .then((response) => {
         // Kiểm tra dữ liệu trả về có hợp lệ không
         if (response.data && Array.isArray(response.data)) {
-          const formattedData = response.data.map((item) => ({
-            key: item.productName,
+          const formattedData = response.data.map((item, index) => ({
+            key: index, // Dùng chỉ số làm key (hoặc sử dụng unique ID nếu có)
             productName: item.productName,
             totalQuantity: item.totalQuantity,
-            totalAmount: item.totalAmount,
-            saleDate: item.saleDate,
+            totalAmount: item.totalAmount.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }),            
           }));
+  
           setFilteredData(formattedData);
+          console.log("Formatted Data:", formattedData);
         } else {
           setFilteredData([]); // Trường hợp không có dữ liệu
         }
@@ -403,16 +403,16 @@ const StatisticsDashboard = () => {
             <RangePicker
               onChange={handleDateRangeChange}
               format="YYYY-MM-DD"
-              style={{ marginTop: "30px",marginBottom: "8px" }}
+              style={{ marginTop: "30px", marginBottom: "8px" }}
             />
             <Table
               columns={columns}
               dataSource={filteredData}
-              pagination={tableParams.pagination}
-              onChange={({ pagination }) => setTableParams({ pagination })}
+              // pagination={tableParams.pagination}
+              // onChange={({ pagination }) => setTableParams({ pagination })}
               loading={loadingTable}
+              pagination={false}
             />
-            
           </Card>
         </Col>
 
@@ -491,6 +491,36 @@ const StatisticsDashboard = () => {
         Chọn Tháng và năm:
       </Title>
       <Row gutter={16} style={{ marginBottom: "20px" }}>
+      <Col span={12}>
+        
+        <Select
+          defaultValue={selectedMonth}
+          style={{ width: "100%" }}
+          onChange={handleMonthChange}
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
+            <Option key={month} value={month}>
+              {moment.months()[month - 1]}
+            </Option>
+          ))}
+        </Select>
+      </Col>
+      <Col span={12}>
+        <Select
+          defaultValue={selectedYear}
+          style={{ width: "100%" }}
+          onChange={handleYearChange}
+        >
+          {[2022, 2023, 2024].map((year) => (
+            <Option key={year} value={year}>
+              {year}
+            </Option>
+          ))}
+        </Select>
+      </Col>
+    </Row>
+      <Row gutter={16} style={{ marginBottom: "20px" }}>
+
         <Col span={12}>
           <Card>
             <Title level={4}>Doanh Thu Hàng Ngày</Title>
@@ -506,18 +536,6 @@ const StatisticsDashboard = () => {
                 revenue: {
                   alias: "Doanh Thu (VND)",
                   formatter: (value) => formatCurrency(value), // Format the value as currency
-                },
-              }}
-              tooltip={{
-                formatter: (data) => {
-                  // Ensure we use the numeric revenue for tooltip
-                  if (data && data.revenue != null) {
-                    return {
-                      name: "Doanh Thu",
-                      value: formatCurrency(data.revenue), // Format numeric revenue value for display
-                    };
-                  }
-                  return null; // If no revenue, return null
                 },
               }}
             />
@@ -536,18 +554,6 @@ const StatisticsDashboard = () => {
                 revenue: {
                   alias: "Doanh Thu (VND)",
                   formatter: (value) => formatCurrency(value),
-                },
-              }}
-              tooltip={{
-                formatter: (data) => {
-                  console.log("Tooltip data:", data); // Xem dữ liệu nhận được từ tooltip
-                  if (data && data.revenue != null) {
-                    return {
-                      name: "Doanh Thu",
-                      value: formatCurrency(data.revenue),
-                    };
-                  }
-                  return null;
                 },
               }}
             />

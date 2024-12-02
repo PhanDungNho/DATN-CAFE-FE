@@ -72,13 +72,16 @@ return matchesSearch && (selectedCategory === "All" || product.category.name ===
       return minPrice >= priceRange[0] && maxPrice <= priceRange[1];
     });
 
-  const sortedProducts = sortOrder
+    const sortedProducts = sortOrder
     ? [...filteredProducts].sort((a, b) => {
-      const priceA = Math.min(...a.productVariants.map(v => v.price)) || 0;
-      const priceB = Math.min(...b.productVariants.map(v => v.price)) || 0;
-      return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
-    })
+        const priceA = Math.min(...a.productVariants.map(v => v.price));
+        const priceB = Math.min(...b.productVariants.map(v => v.price));
+  
+        // Đảm bảo sort giá trị từ thấp đến cao nếu sortOrder là "asc", hoặc từ cao đến thấp nếu "desc"
+        return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
+      })
     : filteredProducts;
+  
 
   const paginatedProducts = sortedProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -93,8 +96,10 @@ return matchesSearch && (selectedCategory === "All" || product.category.name ===
   };
 
   const handleSortChange = (value) => {
-    setSortOrder(value);
+    setSortOrder(value); // Thay đổi sortOrder khi người dùng thay đổi
+    setCurrentPage(1); // Reset lại trang khi thay đổi sắp xếp
   };
+  
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
