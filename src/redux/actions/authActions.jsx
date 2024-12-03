@@ -80,8 +80,14 @@ export const login = (username, password) => async (dispatch) => {
     console.log("Login response:", data);
 
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
-      window.location.href = "/admin";
-    } else {
+   
+      window.location.href = "/admin/orders";
+    
+    } else if( data.roles.includes("ROLE_SUPERADMIN")){
+      window.location.href = "/admin/authorities/list";
+
+    }
+    else {
       window.location.href = "/";
     }
 
@@ -152,9 +158,13 @@ export const handleGoogleLoginSuccess = async (credentialResponse) => {
     });
     if (data.roles.includes("ROLE_STAFF") || data.roles.includes("ROLE_ADMIN")) {
    
-      window.location.href = "/admin";
+      window.location.href = "/admin/orders";
     
-    } else {
+    } else if( data.roles.includes("ROLE_SUPERADMIN")){
+      window.location.href = "/admin/authorities/list";
+
+    }
+    else {
       window.location.href = "/";
     }
     localStorage.setItem("token", data.accessToken);

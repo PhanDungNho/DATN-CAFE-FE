@@ -139,7 +139,16 @@ const ProductItem = ({
                   padding: 0}
 `}
                       </style>
-                      <Panel  header="Choose toppings" key="1" style={{     fontWeight:"bold",}}>
+                      <Panel
+                      header="Choose toppings"
+                      key="1"
+                      style={{
+                        fontWeight: "bold",
+                        opacity: product.productToppings.length === 0 ? 0 : 1,
+                        pointerEvents: product.productToppings.length === 0 ? "none" : "auto", // Ngăn tương tác nếu không có topping
+                      }}
+                    >
+                    
                         {product.productToppings.map((topping) => (
                           <Row
                             key={topping.topping.id}

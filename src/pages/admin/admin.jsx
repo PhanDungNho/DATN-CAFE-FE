@@ -22,27 +22,94 @@ function NotFoundDashBoard() {
 }
 
 function Admin() {
- 
-
   return (
     <>
       <Routes>
         <Route path="*" element={<DashboardPage />}>
-          <Route path="categories/list" element={<ListCategory />} />
-          <Route path="orders" element={<Counter />} />
-          <Route path="invoices" element={<ListInvoices />} />
-          <Route path="products/list" element={<ListProduct />} />
-          <Route path="products/add" element={<AddOrEditProduct />} />
-          <Route path="products/update/:id" element={<AddOrEditProduct />} />
           <Route path="productvariants/list" element={<ListProductVariant />} />
           <Route path="productvariants/add" element={<AddorEditVariant />} />
+
+          <Route
+            path="categories/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <ListCategory />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="orders"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <Counter />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="invoices"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <ListInvoices />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="products/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <ListProduct />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="products/add"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <AddOrEditProduct />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="products/update/:id"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <AddOrEditProduct />
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="productvariants/update/:id"
-            element={<AddorEditVariant />}
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <AddorEditVariant />
+              </PrivateRoute>
+            }
           />
-          <Route path="sizes/list" element={<ListSize />} />
-          <Route path="toppings/list" element={<ListTopping />} />
-          {/* Kiểm tra quyền truy cập trước khi render route authorities */}
+
+          <Route
+            path="sizes/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <ListSize />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="toppings/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_STAFF", "ROLE_ADMIN"]}>
+                <ListTopping />
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="authorities/list"
             element={
@@ -51,8 +118,24 @@ function Admin() {
               </PrivateRoute>
             }
           />
-          <Route path="accounts/list" element={<ListAccount />} />
-          <Route path="statistics/list" element={<Statistic />} />
+
+          <Route
+            path="accounts/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_SUPERADMIN", "ROLE_ADMIN"]}>
+                <ListAccount />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="statistics/list"
+            element={
+              <PrivateRoute requiredRoles={[ "ROLE_ADMIN"]}>
+                <Statistic />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<NotFoundDashBoard />} />
         </Route>
       </Routes>
