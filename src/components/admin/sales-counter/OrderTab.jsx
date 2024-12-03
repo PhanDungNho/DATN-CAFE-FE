@@ -37,7 +37,7 @@ const OrderTab = ({
           key={index}
           closable={orders.length > 1}
         >
-          <Card title={`shopping cart ${customer.tabName}`}>
+          <Card title={`${customer.tabName}`}>
           <style>
   {`
   .ant-table-tbody {

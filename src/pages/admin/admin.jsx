@@ -1,5 +1,6 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { message } from "antd"; // Import thông báo
 import ListProduct from "../../components/admin/products/ListProduct";
 import DashboardPage from "../../components/admin/page/DashboardPage";
 import ListCategory from "../../components/admin/categories/ListCategory";
@@ -14,11 +15,15 @@ import ListProductVariant from "../../components/admin/productvariants/ListProdu
 import AddorEditVariant from "../../components/admin/productvariants/AddorEditVariant";
 import Statistic from "../../components/admin/statistics/StatisticList";
 import NotFound from "../../components/user/404";
+import PrivateRoute from "../../components/admin/protected/ProtectedRoute";
 
 function NotFoundDashBoard() {
-  return <h1 style={{textAlign: "center"}}>404 - Page Not Found</h1>;
+  return <h1 style={{ textAlign: "center" }}>You do not have permission</h1>;
 }
+
 function Admin() {
+ 
+
   return (
     <>
       <Routes>
@@ -37,9 +42,18 @@ function Admin() {
           />
           <Route path="sizes/list" element={<ListSize />} />
           <Route path="toppings/list" element={<ListTopping />} />
+          {/* Kiểm tra quyền truy cập trước khi render route authorities */}
+          <Route
+            path="authorities/list"
+            element={
+              <PrivateRoute requiredRoles={["ROLE_SUPERADMIN"]}>
+                <ListAuthority />
+              </PrivateRoute>
+            }
+          />
           <Route path="accounts/list" element={<ListAccount />} />
-          <Route path="authorities/list" element={<ListAuthority />} />
           <Route path="statistics/list" element={<Statistic />} />
+          <Route path="*" element={<NotFoundDashBoard />} />
         </Route>
       </Routes>
     </>

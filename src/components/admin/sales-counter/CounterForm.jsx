@@ -48,7 +48,7 @@ const CounterForm = () => {
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], tabName: "Đơn 1", customerId: "", paymentMethod: "CASH" },
+    { cart: [], tabName: "Tab 1", customerId: "", paymentMethod: "CASH" },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
@@ -115,6 +115,42 @@ const CounterForm = () => {
       },
     }));
   };
+  const handleRemoveTopping = (productId, toppingId) => {
+    setSelectedToppings((prev) => {
+      const updatedToppings = { ...prev };
+
+      // Xóa topping từ selectedToppings
+      if (updatedToppings[productId] && updatedToppings[productId][toppingId]) {
+        delete updatedToppings[productId][toppingId]; // Xóa topping
+      }
+
+      // Cập nhật giỏ hàng
+      const newOrders = [...orders];
+      const currentCart = newOrders[activeTab].cart;
+
+      // Tìm sản phẩm trong giỏ hàng
+      const productInCart = currentCart.find((item) => item.id === productId);
+
+      if (productInCart) {
+        // Cập nhật topping và giá
+        productInCart.toppings = productInCart.toppings.filter(
+          (topping) => topping.id !== toppingId
+        );
+        productInCart.toppingPrice = productInCart.toppings.reduce(
+          (total, topping) => total + topping.price * topping.quantity,
+          0
+        );
+        // Cập nhật amount
+        productInCart.amount = productInCart.price + productInCart.toppingPrice;
+      }
+
+      // Cập nhật state và local storage
+      setOrders(newOrders);
+      localStorage.setItem("orders", JSON.stringify(newOrders));
+
+      return updatedToppings; // Trả lại updatedToppings
+    });
+  };
 
   const handleAddToCart = (variantId, productId) => {
     const selectedVariant = products
@@ -150,6 +186,7 @@ const CounterForm = () => {
           );
           return foundTopping
             ? {
+                productId, // Lưu productId để sử dụng khi xóa topping
                 id: foundTopping.topping.id,
                 name: foundTopping.topping.name,
                 price: foundTopping.topping.price,
@@ -492,43 +529,35 @@ const CounterForm = () => {
       title: "Toppings",
       dataIndex: "toppings",
       key: "toppings",
-      render: (toppings) =>
+      render: (
+        toppings,
+        record // record được thêm vào để lấy productId
+      ) =>
         toppings
           .filter((topping) => topping !== null)
-
           .map((topping) => {
-            // Hàm tạo màu ngẫu nhiên
-            const getRandomColor = () => {
-              const colors = [
-                "magenta",
-                "red",
-                "volcano",
-                "orange",
-                "gold",
-                "lime",
-                "green",
-                "cyan",
-                "blue",
-                "geekblue",
-                "purple",
-              ];
-              return colors[Math.floor(Math.random() * colors.length)];
-            };
+            // const getRandomColor = () => {
+            //   const colors = [
+            //     "magenta", "red", "volcano", "orange", "gold",
+            //     "lime", "green", "cyan", "blue", "geekblue", "purple",
+            //   ];
+            //   return colors[Math.floor(Math.random() * colors.length)];
+            // };
 
             return (
               <p key={topping.id}>
-                <Tag color={getRandomColor()}>
+                <Tag>
                   {topping.name} ({topping.price.toLocaleString()})
+                  <span
+                    style={{ marginLeft: 8, cursor: "pointer", color: "red" }}
+                    onClick={() => handleRemoveTopping(record.id, topping.id)} // Gọi đúng hàm xóa topping
+                  >
+                    X
+                  </span>
                 </Tag>{" "}
                 x {topping.quantity}
               </p>
             );
-            // return (
-            //   <p key={topping.id}>
-            //     <Tag color={getRandomColor()}>{topping.name}</Tag>{" "}
-            //     x {topping.quantity}
-            //   </p>
-            // );
           }),
     },
 
@@ -620,6 +649,7 @@ const CounterForm = () => {
           setPaymentMethod={setPaymentMethod}
           columns={columns}
           handleRemoveItem={handleRemoveItem}
+          handleRemoveTopping={handleRemoveTopping} // Thêm vào đây
         />
       </Col>
     </Row>
