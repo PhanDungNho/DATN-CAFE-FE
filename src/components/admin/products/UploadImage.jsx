@@ -4,6 +4,8 @@ import { Image, message, Modal, Upload } from "antd";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { API_PRODUCT } from "../../../services/constant";
+import { useNavigate, useParams } from "react-router-dom";
+import { param } from "jquery";
 
 const UploadImage = (props) => {
   const [preViewOpen, setPreviewOpen] = useState(false);
@@ -20,9 +22,25 @@ const UploadImage = (props) => {
   };
 
   const handleChange = (info) => {
-    const { fileList } = info;
-    const status = info.file.status;
+    let { fileList } = info;
 
+    if (fileList.length > 4) {
+      if (!handleChange.hasShownWarning) {
+        message.warning("You can only upload up to 4 photos.");
+        fileList = fileList.slice(0, 4); // Chỉ lấy 4 file đầu tiên
+        props.setIsFileCountExceeded(true);
+        handleChange.hasShownWarning = true;
+      }
+      return;
+    } else {
+      props.setIsFileCountExceeded(false);
+      handleChange.hasShownWarning = false;
+    }
+
+    // Cập nhật fileList lên cha
+    props.onUpdateFileList(fileList);
+
+    const status = info.file.status;
     if (status === "done") {
       message.success(`${info.file.name} file uploaded successfully`);
     } else if (status === "removed") {
@@ -30,8 +48,6 @@ const UploadImage = (props) => {
     } else if (status === "error") {
       message.error(`${info.file.name} file upload failed`);
     }
-
-    props.onUpdateFileList(fileList.slice());
   };
 
   const handleCancel = () => {
@@ -54,6 +70,7 @@ const UploadImage = (props) => {
     return new Promise((resolve) => {
       Modal.confirm({
         title: "Are you sure to delete this file?",
+        centered: true,
         onOk: async () => {
           try {
             props.onUpdateFileList(
@@ -72,7 +89,7 @@ const UploadImage = (props) => {
           }
         },
         onCancel: () => {
-          message.error("File removal canceled");
+          // message.error("File removal canceled");
           resolve(false);
         },
       });
@@ -93,9 +110,10 @@ const UploadImage = (props) => {
   };
 
   const handleUploadClick = (e) => {
-    if (fileList.length >= 8) {
+    if (fileList.length >= 4) {
       e.preventDefault();
-      message.warning("You can only upload up to 8 files.");
+      message.warning("You can only upload up to 4 files.");
+      return;
     }
   };
 
@@ -113,9 +131,7 @@ const UploadImage = (props) => {
         accept=".jpg, .png, .gif"
         beforeUpload={() => false}
       >
-        <div onClick={handleUploadClick}>
-          {fileList.length >= 8 ? null : uploadButton}
-        </div>
+        {uploadButton}
       </Upload>
 
       <Modal

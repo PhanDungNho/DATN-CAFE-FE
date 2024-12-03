@@ -28,20 +28,30 @@ const ProductVariantForm = forwardRef((props, ref) => {
   }));
 
   const handleAdd = () => {
-    const newData = {
-      id: 0,
-      key: Date.now() + Math.random(),
-      sizeId: sizes[0]?.id || 1,
-      price: 0,
-      sizes: {
-        id: sizes[0].id,
-        name: sizes[0].name,
-      },
-      active: true,
-    };
-    console.log(newData);
-    setDataSource((prev) => [...prev, newData]);
+    // Lấy danh sách các sizeId đã được chọn
+    const selectedSizeIds = dataSource.map((item) => item.sizeId);
+
+    // Tìm size chưa được chọn
+    const availableSize = sizes.find(
+      (size) => !selectedSizeIds.includes(size.id) && size.active
+    );
+
+    if (availableSize) {
+      const newData = {
+        id: 0,
+        key: Date.now() + Math.random(),
+        sizeId: availableSize.id, // Chọn size tiếp theo chưa được sử dụng
+        price: 0,
+        active: true,
+      };
+      setDataSource((prev) => [...prev, newData]);
+    }
   };
+
+  // Kiểm tra tất cả các size đã được chọn để vô hiệu hóa nút Add
+  const allSizesSelected = sizes.every((size) =>
+    dataSource.some((item) => item.sizeId === size.id)
+  );
 
   const handleDelete = (key) => {
     setDataSource((prev) => prev.filter((item) => item.key !== key));
@@ -64,22 +74,28 @@ const ProductVariantForm = forwardRef((props, ref) => {
     {
       title: "Size",
       dataIndex: "sizeId",
-      width: "35%", // Chiều rộng 30%
-      render: (text, record) => (
-        <Select
-          defaultValue={record.sizeId}
-          style={{ width: "100%" }}
-          onChange={(value) => handleSave({ ...record, sizeId: value })}
-        >
-          {sizes
-            .filter((item) => item.active)
-            .map((size) => (
-              <Select.Option key={size.id} value={size.id}>
-                {size.name}
-              </Select.Option>
-            ))}
-        </Select>
-      ),
+      width: "35%",
+      render: (text, record) => {
+        const selectedSizes = dataSource
+          .filter((item) => item.key !== record.key)
+          .map((item) => item.sizeId);
+
+        return (
+          <Select
+            defaultValue={record.sizeId}
+            style={{ width: "100%" }}
+            onChange={(value) => handleSave({ ...record, sizeId: value })}
+          >
+            {sizes
+              .filter((item) => item.active && !selectedSizes.includes(item.id)) // Ẩn size đã chọn ở các hàng khác
+              .map((size) => (
+                <Select.Option key={size.id} value={size.id}>
+                  {size.name}
+                </Select.Option>
+              ))}
+          </Select>
+        );
+      },
     },
     {
       title: "Price",
@@ -145,9 +161,15 @@ const ProductVariantForm = forwardRef((props, ref) => {
 
   return (
     <>
-      <Button onClick={handleAdd} type="dashed" style={{ marginBottom: 16 }}>
+      <Button
+        onClick={handleAdd}
+        type="dashed"
+        style={{ marginBottom: 16 }}
+        disabled={allSizesSelected} // Vô hiệu hóa nếu tất cả các size đã được chọn
+      >
         Add Variant
       </Button>
+
       <Table
         columns={columns}
         dataSource={dataSource}

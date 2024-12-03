@@ -3,6 +3,7 @@ import {
   CARTDETAIL_DELETE,
   CARTDETAIL_SET,
   CARTDETAILS_SET,
+  CARTDETAILTOPPING_DELETE,
   CLEAR_SELECTED_ITEMS,
   COMMON_ERROR_SET,
   COMMON_MESSAGE_SET,
@@ -112,6 +113,29 @@ export const removeCartDetail = (id) => async (dispatch) => {
     if (response.status === 200) {
       dispatch({
         type: CARTDETAIL_DELETE,
+        payload: id,
+      });
+    }
+  } catch (error) {
+    console.log("Error: ", error);
+    dispatch({
+      type: COMMON_ERROR_SET,
+      payload: error.response.data
+        ? error.response.data.message
+        : error.message,
+    });
+  }
+};
+
+export const deleteCartDetailTopping = (id) => async (dispatch) => {
+  try {
+    console.log("Delete cart detail topping with: ", id);
+    const response = await service.deleteCartDetailTopping(id);
+    console.log("API response delete: ", response);
+
+    if (response.status === 200) {
+      dispatch({
+        type: CARTDETAILTOPPING_DELETE,
         payload: id,
       });
     }

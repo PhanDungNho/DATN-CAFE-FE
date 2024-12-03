@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import PropTypes from "prop-types";
 import { Col, Form, Input, Row, Select, Button, Divider } from "antd";
 import TextArea from "antd/es/input/TextArea";
@@ -21,6 +21,7 @@ export class ProductForm extends Component {
       productVariants: Array.isArray(props.product.productVariant)
         ? props.product.productVariant
         : [],
+      isFileCountExceeded: false,
     };
   }
 
@@ -63,10 +64,6 @@ export class ProductForm extends Component {
     };
     this.props.onSubmitForm(combinedData);
   };
-
-  // handleSubmit = (values) => {
-  //   this.props.onSubmitForm(values);
-  // };
 
   renderCategoryOptions = () => {
     return this.props.categories
@@ -124,8 +121,13 @@ export class ProductForm extends Component {
     navigate("/admin/products/add");
   };
 
+  handleFileCountExceeded = (isExceeded) => {
+    this.setState({ isFileCountExceeded: isExceeded });
+  };
+
   render() {
     const { product, onDeleteProductImage, sizes } = this.props;
+    const { isFileCountExceeded } = this.state;
     return (
       <Form
         ref={this.formRef}
@@ -231,6 +233,7 @@ export class ProductForm extends Component {
             <UploadImage
               onUpdateFileList={this.props.onUpdateFileList}
               onDeleteProductImage={onDeleteProductImage}
+              setIsFileCountExceeded={this.handleFileCountExceeded}
               fileList={this.state.images.map((image) => ({
                 uid: image.id || image.url,
                 name: image.filename || image.url.split("/").pop(),
@@ -239,6 +242,11 @@ export class ProductForm extends Component {
                 originFileObj: null,
               }))}
             />
+            {isFileCountExceeded && (
+              <p style={{ fontSize: 13, color: "red" }}>
+                You can only upload up to 4 photos!
+              </p>
+            )}
           </Col>
         </Row>
 
@@ -259,23 +267,21 @@ export class ProductForm extends Component {
           <Col span={24}>
             <Row justify="end" style={{ paddingTop: 40 }}>
               <Col>
-                {!product.id ? (
-                  <Button type="primary" htmlType="submit">
-                    Thêm sản phẩm
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={isFileCountExceeded} // Disable nếu fileCount vượt quá
+                >
+                  {product.id ? "Update" : "Add new product"}
+                </Button>
+                {product.id && (
+                  <Button
+                    type="default"
+                    onClick={this.resetForm}
+                    style={{ marginLeft: 5 }}
+                  >
+                    Reset
                   </Button>
-                ) : (
-                  <>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{ marginRight: 10 }}
-                    >
-                      Cập nhật
-                    </Button>
-                    <Button type="default" onClick={this.resetForm}>
-                      Reset
-                    </Button>
-                  </>
                 )}
               </Col>
             </Row>

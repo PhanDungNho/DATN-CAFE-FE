@@ -74,7 +74,6 @@ function DashboardPage() {
       dispatch(setError(""));
       message.error(err);
     }
-
   }, [msg, err]);
 
   const selectedKey = () => {
@@ -108,18 +107,16 @@ function DashboardPage() {
     if (location.pathname === "/admin/authorities/list") {
       return "9";
     }
-    if (location.pathname === "/admin/invoices") {
-      return "10";
-    }
-
+   
     return "1"; // Mặc định là Home
   };
-  const userImage = LoginedUser && LoginedUser.image 
-  ? AccountService.getAccountLogoUrl(LoginedUser.image) 
-  : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
+  const userImage =
+    LoginedUser && LoginedUser.image
+      ? AccountService.getAccountLogoUrl(LoginedUser.image)
+      : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
 
-const userName = LoginedUser ? LoginedUser.username : "Guest";
-  
+  const userName = LoginedUser ? LoginedUser.username : "Guest";
+
   return (
     <Layout>
       <Sider
@@ -146,7 +143,9 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
         >
           <a href="/">
             <img
-              src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
+              src={
+                collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"
+              }
               alt="Logo"
               style={{
                 width: collapsed ? "90px" : "200px",
@@ -226,15 +225,15 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
               label: "Authorities",
               onClick: () => navigate("/admin/authorities/list"),
             },
-            {
+              /*
+              {
               key: "10",
               icon: <ReconciliationOutlined />,
               label: "Invoices",
               onClick: () => navigate("/admin/invoices"),
-            },
-            
+             */
             {
-              key: "11",
+              key: "10",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,

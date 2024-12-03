@@ -18,6 +18,7 @@ export const GG_CLIENT_ID =
 export const API_INVOICE = API + "/api/v1/orders";
 export const API_AUTHORITY = API + "/api/v1/authorities";
 export const API_CARTDETAIL = API + "/api/v1/cartDetails";
+export const API_CARTDETAILTOPPING = API + "/api/v1/cartDetailToppings";
 export const API_ADDRESS = API + "/api/v1/address";
 export const API_GHN_PROVINCE =
   "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";

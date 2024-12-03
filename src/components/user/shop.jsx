@@ -383,6 +383,7 @@ function Shop() {
                       </div>
                     )}
 
+                    {/*
                     <Row justify="end" style={{ marginTop: 20 }}>
                       <Select
                         defaultValue={pageSize}
@@ -393,7 +394,7 @@ function Shop() {
                         <Option value={12}>12 / page</Option>
                       </Select>
                     </Row>
-
+ */}
                     <Row justify="center" style={{ marginTop: 50 }}>
                       <Pagination
                         current={currentPage}

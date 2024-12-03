@@ -283,7 +283,7 @@ const Allorder = () => {
 
             {/* Bảng thứ hai */}
             <Table
-              dataSource={selectedRecord.orderdetails}
+              dataSource={selectedRecord.orderDetails}
               columns={[
                 {
                   title: "Product",
@@ -291,7 +291,7 @@ const Allorder = () => {
                   render: (_, record) => {
                     const productName = record.productVariant.product.name;
                     const sizeName = record.productVariant.size.name;
-                    const productUrl = `/products/${record.productVariant.product.id}`;
+                    const productUrl = `/single-product/${record.productVariant.product.slug}`;
 
                     return (
                       <a
