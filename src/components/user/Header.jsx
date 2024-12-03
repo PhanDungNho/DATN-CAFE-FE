@@ -49,7 +49,6 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 function Header() {
-  const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -229,7 +228,6 @@ function Header() {
     }
 
     const timer = setTimeout(() => {
-      setIsLoading(false);
     }, 1000);
 
     const handleScroll = () => {
@@ -263,7 +261,7 @@ function Header() {
     } else {
       setData([]);
     }
-    setIsLoading(false);
+  
   }, [cartDetails]);
 
   const handleLogout = () => {
@@ -341,13 +339,7 @@ function Header() {
 
   return (
     <>
-      {isLoading && (
-        <div className="loader">
-          <div className="loader-inner">
-            <div className="circle"></div>
-          </div>
-        </div>
-      )}
+       
       <style>
         {`
   .search-dropdown {

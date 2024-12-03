@@ -42,12 +42,15 @@ export default class authorityService {
 
   // Tước quyền (xóa quyền) của tài khoản
   deleteAuthority = async (id) => {
+
+    
     try {
       const response = await axios.delete(`${API_AUTHORITY}/${id}`, {
         headers: {
           "Authorization": "Bearer " + localStorage.getItem("token"),
         },
       });
+      alert(response.data)
       return response.data;
     } catch (error) {
       console.error("Error deleting authority", error);
