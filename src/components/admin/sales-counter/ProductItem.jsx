@@ -47,7 +47,7 @@ const ProductItem = ({
             {category}
           </Button>
         ))}
-        <Button onClick={() => setSelectedCategory(null)}>Tất cả</Button>
+        <Button onClick={() => setSelectedCategory(null)}>All</Button>
       </div>
 
       <Row gutter={[16, 16]}>

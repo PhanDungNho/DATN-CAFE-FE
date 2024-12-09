@@ -66,7 +66,9 @@ const Login = () => {
 
               <Form.Item
                 name="username"
-                rules={[{ required: true, message: "Please enter username!" }]}
+                rules={[
+                  { required: true, message: "Please enter username!" },
+                ]}
               >
                 <Input
                   prefix={<UserOutlined />}
@@ -75,14 +77,13 @@ const Login = () => {
                 />
               </Form.Item>
 
-              <Form.Item
-                style={{ marginBottom: "0" }}
+              <Form.Item style={{ marginBottom: "0" }} 
                 name="password"
                 rules={[{ required: true, message: "Please enter password!" }]}
               >
                 <Input.Password
                   prefix={<FaLock />}
-                  placeholder="Password"
+                  placeholder="Password "
                   className="form-control-md"
                 />
               </Form.Item>
@@ -109,9 +110,10 @@ const Login = () => {
                   Login
                 </Button>
               </Form.Item>
-              <label style={{ textAlign: "right", display: "block" }}>
-                New here? <a href="/register">Create an account</a>
-              </label>
+              <label style={{   textAlign: "right", display: "block" }}>
+              New here? <a href="/register">Create an account</a>
+ 
+</label>
 
               <p className="text-center fw-bold my-3 text-muted">OR</p>
 
