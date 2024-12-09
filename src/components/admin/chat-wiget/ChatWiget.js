@@ -213,7 +213,7 @@ const ChatWidget = ({ apiUrl }) => {
                 transition: "background-color 0.3s",
               }}
             >
-              Gửi
+              Send
             </button>
           </div>
         </div>

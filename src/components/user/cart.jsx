@@ -179,19 +179,7 @@ const Cart = () => {
     },
   ];
 
-  const colors = [
-    "magenta",
-    "red",
-    "volcano",
-    "orange",
-    "gold",
-    "lime",
-    "green",
-    "cyan",
-    "blue",
-    "geekblue",
-    "purple",
-  ];
+
 
   const columnsSelectedItems = [
     {
@@ -227,7 +215,7 @@ const Cart = () => {
         toppings && toppings.length > 0
           ? toppings.map((topping) => (
               <div key={topping.topping.id}>
-                <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
+                <Tag>
                   {topping.topping.name} ({topping.topping.price}) x{" "}
                   {topping.quantity}
                 </Tag>
