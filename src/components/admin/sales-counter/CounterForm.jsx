@@ -548,12 +548,7 @@ const CounterForm = () => {
               <p key={topping.id}>
                 <Tag>
                   {topping.name} ({topping.price.toLocaleString()})
-                  <span
-                    style={{ marginLeft: 8, cursor: "pointer", color: "red" }}
-                    onClick={() => handleRemoveTopping(record.id, topping.id)} // Gọi đúng hàm xóa topping
-                  >
-                    X
-                  </span>
+                
                 </Tag>{" "}
                 x {topping.quantity}
               </p>
