@@ -269,8 +269,7 @@ function Header() {
       dispatch(getCartDetailsByUsername(user.username));
     }
 
-    const timer = setTimeout(() => {
-    }, 1000);
+    const timer = setTimeout(() => {}, 1000);
 
     const handleScroll = () => {
       if (!stickerRef.current) return;
@@ -303,7 +302,6 @@ function Header() {
     } else {
       setData([]);
     }
-  
   }, [cartDetails]);
 
   const handleLogout = () => {
@@ -617,7 +615,7 @@ width: 180px;
                             </>
                           ) : (
                             <>
-                              <Link to="/manager/orders">
+                              <Link to="/manager/info">
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
@@ -631,16 +629,20 @@ width: 180px;
                               </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
-                                JSON.parse(
+                                (JSON.parse(
                                   localStorage.getItem("user")
-                                )?.roles.includes("ROLE_ADMIN") && (
-                                  <Link to="/admin">
+                                )?.roles.includes("ROLE_ADMIN") ||
+                                  JSON.parse(
+                                    localStorage.getItem("user")
+                                  )?.roles.includes("ROLE_STAFF")) && (
+                                  <Link to="/admin/orders">
                                     <TeamOutlined
                                       style={{ marginRight: "8px" }}
                                     />{" "}
                                     Admin
                                   </Link>
                                 )}
+
                               <Link to="/" onClick={handleLogout}>
                                 <LogoutOutlined
                                   style={{ marginRight: "8px" }}

@@ -533,7 +533,7 @@ const StatisticsDashboard = () => {
 
         <Col span={12}>
           <Card>
-            <Title level={4}>Doanh Thu Hàng Tháng</Title>
+            <Title level={4}>Monthly Revenue</Title>
             <Column
               data={monthlyRevenueData}
               xField="month"

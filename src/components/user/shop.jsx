@@ -229,7 +229,7 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    <UnorderedListOutlined /> Loại sản phẩm
+                    <UnorderedListOutlined /> Categories
                   </h5>
                   <Menu
                     mode="inline"
@@ -425,7 +425,7 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    Lọc theo giá
+                    Sort by price
                   </h4>
                   <Slider
                     range
@@ -446,7 +446,7 @@ function Shop() {
                     style={{ width: "100%" }}
                   />
                   <p>
-                    Giá: {priceRange[0].toLocaleString("vi-VN")} VNĐ -{" "}
+                    Price: {priceRange[0].toLocaleString("vi-VN")} VNĐ -{" "}
                     {priceRange[1].toLocaleString("vi-VN")} VNĐ
                   </p>
                 </div>
@@ -467,16 +467,16 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    Sắp xếp theo giá
+                    Sort by price
                   </h4>
                   <Select
                     style={{ width: "100%" }}
                     onChange={handleSortChange}
                     allowClear
-                    placeholder="Hiển thị"
+                    placeholder="Sort"
                   >
-                    <Option value="asc">Giá: Từ thấp đến cao</Option>
-                    <Option value="desc">Giá: Từ cao đến thấp </Option>
+                    <Option value="asc">Price: Ascending</Option>
+                    <Option value="desc">Price: Descending  </Option>
                   </Select>
                 </div>
               </Col>
