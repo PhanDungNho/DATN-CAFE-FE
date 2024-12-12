@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, Card, message, Row, Col } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Navigation hook
+import {API} from '../../services/constant'
 
 const VerifyOtp = () => {
   const [form] = Form.useForm();
@@ -11,7 +12,7 @@ const VerifyOtp = () => {
   const onFinish = async (values) => {
     setIsSubmitting(true); // Start the form submission process
     try {
-      const response = await axios.get(`http://localhost:8081/api/verify?otp=${values.otp}`, {
+      const response = await axios.get(API + `/api/verify?otp=${values.otp}`, {
         headers: {
           'Content-Type': 'application/json',
         },

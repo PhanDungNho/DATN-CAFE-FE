@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import 'antd/dist/reset.css'; // Ant Design CSS
+import {API} from '../../services/constant'
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ const ForgotPassword = () => {
   const onFinish = async (values) => {
     setLoading(true); // Start loading
     try {
-      const response = await fetch('http://localhost:8081/api/forgot-password', {
+      const response = await fetch(API + '/api/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

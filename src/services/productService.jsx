@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_PRODUCT } from "./constant";
+import { API, API_PRODUCT } from "./constant";
 
 export default class ProductService {
   insertProduct(product) {
@@ -196,7 +196,7 @@ export default class ProductService {
 
   async uploadImages(formData) {
     const response = await axios.post(
-      "http://localhost:8081/api/v1/products/images/", // Địa chỉ API của bạn
+      API +  "/api/v1/products/images/", // Địa chỉ API của bạn
       formData,
       {
         headers: {

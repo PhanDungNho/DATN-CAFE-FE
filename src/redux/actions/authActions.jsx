@@ -65,7 +65,8 @@
 
 import axios from "axios";
 import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT } from "./actionType";
-import { API_LOGIN, API_GOOGLE_LOGIN } from "../../services/constant";
+import { API, API_LOGIN, API_GOOGLE_LOGIN } from "../../services/constant";
+
 
 // Hàm đăng nhập với username và password
 export const login = (username, password) => async (dispatch) => {
@@ -181,7 +182,7 @@ export   const handleGoogleAuth = async (response) => {
     console.log(response)
 
     // Gửi token này lên backend để xác thực và nhận JWT token
-    const authResponse = await axios.get("http://localhost:8081/api/v1/auth/google", {
+    const authResponse = await axios.get(API +  "/api/v1/auth/google", {
       token: googleToken,
     });
     

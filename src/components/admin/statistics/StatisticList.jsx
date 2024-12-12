@@ -20,6 +20,7 @@ import axios from "axios";
 import { Column } from "@ant-design/charts";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {API} from '../../../services/constant'
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -69,13 +70,11 @@ const StatisticsDashboard = () => {
           visitorCountRes,
           mostPurchasedProductsRes,
         ] = await Promise.all([
-          axios.get("http://localhost:8081/api/v1/orders/orderCount"),
-          axios.get("http://localhost:8081/api/v1/orders/revenue"),
-          axios.get("http://localhost:8081/api/v1/products/productCount"),
-          axios.get("http://localhost:8081/api/v1/orders/accountCount"),
-          axios.get(
-            "http://localhost:8081/api/v1/orders/most-purchased-products"
-          ),
+          axios.get(API + "/api/v1/orders/orderCount"),
+          axios.get(API + "/api/v1/orders/revenue"),
+          axios.get(API + "/api/v1/products/productCount"),
+          axios.get(API + "/api/v1/orders/accountCount"),
+          axios.get(API + "/api/v1/orders/most-purchased-products"),
         ]);
 
         setOrderCount(orderCountRes.data);
@@ -182,15 +181,12 @@ const StatisticsDashboard = () => {
     setLoading(true);
     const [startDate, endDate] = dates;
     try {
-      const response = await axios.get(
-        "http://localhost:8081/api/v1/orders/totals",
-        {
-          params: {
-            startDate: startDate.format("YYYY-MM-DD"),
-            endDate: endDate.format("YYYY-MM-DD"),
-          },
-        }
-      );
+      const response = await axios.get(API + "/api/v1/orders/totals", {
+        params: {
+          startDate: startDate.format("YYYY-MM-DD"),
+          endDate: endDate.format("YYYY-MM-DD"),
+        },
+      });
       setTotalRevenue(response.data.totalRevenue);
       setTotalOrders(response.data.totalOrders);
     } catch (error) {
@@ -303,18 +299,15 @@ const StatisticsDashboard = () => {
 
     // Gửi yêu cầu đến API với tham số ngày
     axios
-      .get(
-        "http://localhost:8081/api/v1/orders/most-purchased-products/by-date",
-        {
-          params: {
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-          },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
+      .get(API + "/api/v1/orders/most-purchased-products/by-date", {
+        params: {
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((response) => {
         // Kiểm tra dữ liệu trả về có hợp lệ không
         if (response.data && Array.isArray(response.data)) {
