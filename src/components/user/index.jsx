@@ -130,7 +130,7 @@ function Index() {
             }}
           />
         </div>
-        <div className="container">
+        <div className="container-fluid">
           <Row justify="center" style={{ marginTop: "50px" }}>
             <Col span={16} style={{ textAlign: "center" }}>
               <Title level={2} style={{ fontFamily: "Arial, sans-serif", fontWeight: "600" }}>
@@ -173,8 +173,8 @@ function Index() {
               justify="center"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)", // Bố cục 3 sản phẩm
-                gap: "20px", // Khoảng cách giữa các sản phẩm
+                gridTemplateColumns: "repeat(5, 1fr)", // Bố cục 3 sản phẩm
+                gap: "35px", // Khoảng cách giữa các sản phẩm
               }}
             >
               {visibleProducts.length > 0 ? (
@@ -263,7 +263,7 @@ function Index() {
               src="assets/img/index/bannernew2.png"
               alt=""
               style={{
-                width: "1600px",
+                width: "1800px",
                 height: "500px",
               }}
             />
