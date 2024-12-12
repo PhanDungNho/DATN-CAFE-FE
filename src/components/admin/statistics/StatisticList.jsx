@@ -188,8 +188,14 @@ const StatisticsDashboard = () => {
   };
 
   const fetchTotalStatistics = async (dates) => {
+    if (!dates || dates.length !== 2) {
+      console.warn("Dates are invalid or not selected");
+      return;
+    }
+  
     setLoading(true);
     const [startDate, endDate] = dates;
+  
     try {
       const response = await axios.get(
         "http://localhost:8081/api/v1/orders/totals",
@@ -208,6 +214,7 @@ const StatisticsDashboard = () => {
       setLoading(false);
     }
   };
+  
 
   const handleYearChange = (value) => {
     setSelectedYear(value);
@@ -283,33 +290,24 @@ const StatisticsDashboard = () => {
 
   // Hàm lọc dữ liệu dựa trên ngày
   const handleDateRangeChange = (dates) => {
-    // Kiểm tra nếu dates là mảng và có đủ 2 giá trị
     if (!dates || dates.length !== 2) {
-      setFilteredData(tableData); // Nếu không có khoảng thời gian, trả về toàn bộ dữ liệu
+      setFilteredData(tableData); // Reset lại dữ liệu nếu không có ngày chọn
       return;
     }
-
+  
     const [startDate, endDate] = dates;
-    console.log(
-      "Start Date:",
-      startDate ? startDate.format("YYYY-MM-DD") : "There is no start date"
-    );
-    console.log(
-      "End Date:",
-      endDate ? endDate.format("YYYY-MM-DD") : "There is no end date"
-    );
-    // Kiểm tra xem startDate và endDate có hợp lệ không
+  
     if (!startDate || !endDate) {
-      setFilteredData(tableData); // Nếu ngày không hợp lệ, trả về toàn bộ dữ liệu
+      setFilteredData(tableData);
       return;
     }
-
+  
     setLoadingTable(true);
-
+  
     // Định dạng ngày theo kiểu "YYYY-MM-DD"
     const formattedStartDate = startDate.format("YYYY-MM-DD");
     const formattedEndDate = endDate.format("YYYY-MM-DD");
-
+  
     // Gửi yêu cầu đến API với tham số ngày
     axios
       .get(
@@ -325,31 +323,27 @@ const StatisticsDashboard = () => {
         }
       )
       .then((response) => {
-        // Kiểm tra dữ liệu trả về có hợp lệ không
-        if (response.data && Array.isArray(response.data)) {
-          const formattedData = response.data.map((item, index) => ({
-            key: index, // Dùng chỉ số làm key (hoặc sử dụng unique ID nếu có)
-            productName: item.productName,
-            totalQuantity: item.totalQuantity,
-            totalAmount: item.totalAmount.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            }),
-          }));
-
-          setFilteredData(formattedData);
-          console.log("Formatted Data:", formattedData);
-        } else {
-          setFilteredData([]); // Trường hợp không có dữ liệu
-        }
-        setLoadingTable(false);
+        const formattedData = response.data.map((item, index) => ({
+          key: index,
+          productName: item.productName,
+          totalQuantity: item.totalQuantity,
+          totalAmount: item.totalAmount.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }),
+        }));
+  
+        setFilteredData(formattedData);
       })
       .catch((error) => {
         console.error("Error filtering data by date:", error);
-        setFilteredData([]); // Trả về dữ liệu rỗng nếu có lỗi
+        setFilteredData([]);
+      })
+      .finally(() => {
         setLoadingTable(false);
       });
   };
+  
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
@@ -401,10 +395,14 @@ const StatisticsDashboard = () => {
             style={{ minHeight: "400px" }}
           >
             <RangePicker
-              onChange={handleDateRangeChange}
-              format="YYYY-MM-DD"
-              style={{ marginTop: "30px", marginBottom: "8px" }}
-            />
+  onChange={(dates) => {
+    handleDateRangeChange(dates); // Lọc dữ liệu theo ngày
+    fetchTotalStatistics(dates); // Tính toán tổng
+  }}
+  format="YYYY-MM-DD"
+  style={{ marginTop: "30px", marginBottom: "8px" }}
+/>
+
             <Table
               columns={columns}
               dataSource={filteredData}
