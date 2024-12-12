@@ -84,7 +84,7 @@ function Index() {
   const infiniteProducts = [...topProducts, ...topProducts];
   const visibleProducts = infiniteProducts.slice(
     startIndex,
-    startIndex + 4 // Hiển thị 4 sản phẩm
+    startIndex + 5 // Hiển thị 4 sản phẩm
   );
 
   useEffect(() => {
