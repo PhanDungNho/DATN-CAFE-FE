@@ -20,6 +20,7 @@ import axios from "axios";
 import { Column } from "@ant-design/charts";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {API} from '../../../services/constant'
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -51,15 +52,6 @@ const StatisticsDashboard = () => {
   console.log(dailyRevenueData);
   console.log(monthlyRevenueData);
 
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 5,
-      total: 0,
-      position: ["bottomRight"],
-    },
-  });
-
   // Fetch dữ liệu ban đầu
   useEffect(() => {
     if (selectedYear && selectedMonth) {
@@ -78,13 +70,11 @@ const StatisticsDashboard = () => {
           visitorCountRes,
           mostPurchasedProductsRes,
         ] = await Promise.all([
-          axios.get("http://localhost:8081/api/v1/orders/orderCount"),
-          axios.get("http://localhost:8081/api/v1/orders/revenue"),
-          axios.get("http://localhost:8081/api/v1/products/productCount"),
-          axios.get("http://localhost:8081/api/v1/orders/accountCount"),
-          axios.get(
-            "http://localhost:8081/api/v1/orders/most-purchased-products"
-          ),
+          axios.get(API + "/api/v1/orders/orderCount"),
+          axios.get(API + "/api/v1/orders/revenue"),
+          axios.get(API + "/api/v1/products/productCount"),
+          axios.get(API + "/api/v1/orders/accountCount"),
+          axios.get(API + "/api/v1/orders/most-purchased-products"),
         ]);
 
         setOrderCount(orderCountRes.data);
@@ -118,7 +108,7 @@ const StatisticsDashboard = () => {
     labels: labels,
     datasets: [
       {
-        label: "Quantity",
+        label: "Số lượng",
         data: values,
         backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
         hoverBackgroundColor: [
@@ -191,19 +181,16 @@ const StatisticsDashboard = () => {
     setLoading(true);
     const [startDate, endDate] = dates;
     try {
-      const response = await axios.get(
-        "http://localhost:8081/api/v1/orders/totals",
-        {
-          params: {
-            startDate: startDate.format("YYYY-MM-DD"),
-            endDate: endDate.format("YYYY-MM-DD"),
-          },
-        }
-      );
+      const response = await axios.get(API + "/api/v1/orders/totals", {
+        params: {
+          startDate: startDate.format("YYYY-MM-DD"),
+          endDate: endDate.format("YYYY-MM-DD"),
+        },
+      });
       setTotalRevenue(response.data.totalRevenue);
       setTotalOrders(response.data.totalOrders);
     } catch (error) {
-      console.error("Error when getting statistics:", error);
+      console.error("Error when retrieving statistics: ", error);
     } finally {
       setLoading(false);
     }
@@ -221,7 +208,7 @@ const StatisticsDashboard = () => {
 
   const columns = [
     {
-      title: "Product Name",
+      title: "Product name",
       dataIndex: "productName",
       key: "productName",
       align: "center",
@@ -235,7 +222,7 @@ const StatisticsDashboard = () => {
       width: 150,
     },
     {
-      title: "Total (VND)",
+      title: "Total amount (VND)",
       dataIndex: "totalAmount",
       key: "totalAmount",
       align: "center",
@@ -243,22 +230,22 @@ const StatisticsDashboard = () => {
       render: (amount) =>
         amount
           ? amount.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })
+              style: "currency",
+              currency: "VND",
+            })
           : "0 VND",
     },
   ];
 
   const statsData = [
     {
-      title: "Total Order",
+      title: "Total orders",
       value: orderCount || 0,
       icon: <ShoppingCartOutlined />,
       color: "#3b82f6",
     },
     {
-      title: "Total Revenue",
+      title: "Total revenue",
       value: loadingRevenue ? (
         <Spin />
       ) : (
@@ -274,7 +261,7 @@ const StatisticsDashboard = () => {
       color: "#10b981",
     },
     {
-      title: "Product quantity",
+      title: "Product",
       value: productCount || 0,
       icon: <ProductOutlined />,
       color: "#ef4444",
@@ -292,11 +279,11 @@ const StatisticsDashboard = () => {
     const [startDate, endDate] = dates;
     console.log(
       "Start Date:",
-      startDate ? startDate.format("YYYY-MM-DD") : "There is no start date"
+      startDate ? startDate.format("YYYY-MM-DD") : "No start date"
     );
     console.log(
       "End Date:",
-      endDate ? endDate.format("YYYY-MM-DD") : "There is no end date"
+      endDate ? endDate.format("YYYY-MM-DD") : "No end date."
     );
     // Kiểm tra xem startDate và endDate có hợp lệ không
     if (!startDate || !endDate) {
@@ -312,18 +299,15 @@ const StatisticsDashboard = () => {
 
     // Gửi yêu cầu đến API với tham số ngày
     axios
-      .get(
-        "http://localhost:8081/api/v1/orders/most-purchased-products/by-date",
-        {
-          params: {
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-          },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
+      .get(API + "/api/v1/orders/most-purchased-products/by-date", {
+        params: {
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((response) => {
         // Kiểm tra dữ liệu trả về có hợp lệ không
         if (response.data && Array.isArray(response.data)) {
@@ -345,7 +329,7 @@ const StatisticsDashboard = () => {
         setLoadingTable(false);
       })
       .catch((error) => {
-        console.error("Error filtering data by date:", error);
+        console.error("Error filtering data by date: ", error);
         setFilteredData([]); // Trả về dữ liệu rỗng nếu có lỗi
         setLoadingTable(false);
       });
@@ -354,7 +338,7 @@ const StatisticsDashboard = () => {
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
       <Title level={2} style={{ textAlign: "center" }}>
-      Dashboard Statistics
+        Dashboard Statistics
       </Title>
 
       <Row gutter={16} style={{ marginBottom: "20px" }}>
@@ -418,7 +402,7 @@ const StatisticsDashboard = () => {
 
         <Col span={8}>
           <Card
-            title="Top 5 Best Selling Products"
+            title="Top 5 Best-Selling Products"
             bordered={false}
             style={{ minHeight: "400px" }}
           >
@@ -455,7 +439,7 @@ const StatisticsDashboard = () => {
               level={5}
               style={{ margin: 0, fontSize: "14px", lineHeight: "1" }}
             >
-              Revenue Select Date
+              Revenue for Selected Date
             </Title>
             <div style={{ fontSize: "16px", lineHeight: "1.2" }}>
               {loading ? <Spin /> : formatCurrency(totalRevenue)}
@@ -477,7 +461,7 @@ const StatisticsDashboard = () => {
               level={5}
               style={{ margin: 0, fontSize: "14px", lineHeight: "1" }}
             >
-              Order Select Date
+              Orders for Selected Date.
             </Title>
             <div style={{ fontSize: "16px", lineHeight: "1.2" }}>
               {loading ? <Spin /> : totalOrders}
@@ -488,11 +472,10 @@ const StatisticsDashboard = () => {
 
       {/* Selectors for Month and Year */}
       <Title level={5} style={{ marginBottom: "8px" }}>
-      Select Month and year:
+        Select Month and Year
       </Title>
       <Row gutter={16} style={{ marginBottom: "20px" }}>
         <Col span={12}>
-
           <Select
             defaultValue={selectedMonth}
             style={{ width: "100%" }}
@@ -520,11 +503,9 @@ const StatisticsDashboard = () => {
         </Col>
       </Row>
       <Row gutter={16} style={{ marginBottom: "20px" }}>
-
         <Col span={12}>
           <Card>
-            <Title level={4}>Daily Revenue
-            </Title>
+            <Title level={4}>Daily Revenue</Title>
             <Column
               data={dailyRevenueData.map((item) => ({
                 ...item,
@@ -533,7 +514,7 @@ const StatisticsDashboard = () => {
               xField="day"
               yField="revenue"
               meta={{
-                day: { alias: "Day" },
+                day: { alias: "Date" },
                 revenue: {
                   alias: "Revenue (VND)",
                   formatter: (value) => formatCurrency(value), // Format the value as currency
@@ -545,14 +526,13 @@ const StatisticsDashboard = () => {
 
         <Col span={12}>
           <Card>
-            <Title level={4}>Monthly Revenue
-            </Title>
+            <Title level={4}>Monthly Revenue</Title>
             <Column
               data={monthlyRevenueData}
               xField="month"
               yField="revenue"
               meta={{
-                month: { alias: "month" },
+                month: { alias: "Month" },
                 revenue: {
                   alias: "Revenue (VND)",
                   formatter: (value) => formatCurrency(value),

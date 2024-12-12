@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { Button, Form, Input, message, Modal, Upload } from "antd";
 import axios from "axios";
-import { Form, Input, Button, Upload, Modal, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
+import { useState } from "react";
 import AvatarEditor from "react-avatar-editor";
+import { TiUploadOutline } from "react-icons/ti";
+import {API} from '../../services/constant'
 
 const UpdateProfile = () => {
   const [form] = Form.useForm();
@@ -13,11 +15,12 @@ const UpdateProfile = () => {
   const [croppedImage, setCroppedImage] = useState(null); // Cropped image blob
   const [account, setAccount] = useState(null); // State to hold account info, including image
 
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8081/api/profile", {
+        const response = await axios.get(API + "/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -39,7 +42,7 @@ const UpdateProfile = () => {
               uid: "-1",
               name: profileData.image,
               status: "done",
-              url: `http://localhost:8081/api/files/logo/${profileData.image}`, // Full URL to the image
+              url: API + `/api/files/logo/${profileData.image}`, // Full URL to the image
             },
           ]);
         }
@@ -70,16 +73,12 @@ const UpdateProfile = () => {
         formData.append("imageFile", croppedImage, "profile.jpg");
       }
 
-      const response = await axios.put(
-        "http://localhost:8081/api/profile/update",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.put(API + "/api/profile/update", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       message.success("Profile updated successfully!");
     } catch (error) {
@@ -117,8 +116,6 @@ const UpdateProfile = () => {
         onFinish={onFinish}
         initialValues={{ name: "", email: "", phone: "" }}
       >
-      
-
         <Form.Item
           label="Full Name"
           name="name"
@@ -168,38 +165,37 @@ const UpdateProfile = () => {
         </Form.Item>
 
         <Form.Item label="Profile Picture">
-  <Upload
-    name="imageFile"
-    listType="picture"
-    maxCount={1}
-    accept="image/*"  // Chỉ chấp nhận các file hình ảnh
-    beforeUpload={(file) => {
-      setCropModalVisible(true); // Mở modal cắt ảnh
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageFileList([
-          {
-            uid: file.uid,
-            name: file.name,
-            status: "done",
-            url: reader.result,
-            originFileObj: file,
-          },
-        ]);
-      };
-      reader.readAsDataURL(file);
-      return false; // Ngừng tải lên tự động
-    }}
-    fileList={imageFileList}
-    onRemove={() => {
-      setImageFileList([]);
-      setCroppedImage(null); // Xóa hình đã cắt khi xóa ảnh
-    }}
-  >
-    <Button icon={<UploadOutlined />}>Upload Image</Button>
-  </Upload>
-</Form.Item>
-
+          <Upload
+            name="imageFile"
+            listType="picture"
+            maxCount={1}
+            accept="image/*" // Chỉ chấp nhận các file hình ảnh
+            beforeUpload={(file) => {
+              setCropModalVisible(true); // Mở modal cắt ảnh
+              const reader = new FileReader();
+              reader.onload = () => {
+                setImageFileList([
+                  {
+                    uid: file.uid,
+                    name: file.name,
+                    status: "done",
+                    url: reader.result,
+                    originFileObj: file,
+                  },
+                ]);
+              };
+              reader.readAsDataURL(file);
+              return false; // Ngừng tải lên tự động
+            }}
+            fileList={imageFileList}
+            onRemove={() => {
+              setImageFileList([]);
+              setCroppedImage(null); // Xóa hình đã cắt khi xóa ảnh
+            }}
+          >
+            <Button icon={<TiUploadOutline />}>Upload Image</Button>
+          </Upload>
+        </Form.Item>
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>

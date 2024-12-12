@@ -4,10 +4,16 @@ const ChatWidget = ({ apiUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const chatBoxRef = useRef(null);
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
+    setTimeout(() => {
+      if (!isOpen && chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
+    }, 0);
   };
 
   const handleSendMessage = () => {
@@ -16,6 +22,7 @@ const ChatWidget = ({ apiUrl }) => {
     const userMessage = userInput;
     setMessages((prev) => [...prev, { sender: "user", message: userMessage }]);
     setUserInput("");
+    setIsLoading(true);
 
     fetch(apiUrl, {
       method: "POST",
@@ -30,16 +37,17 @@ const ChatWidget = ({ apiUrl }) => {
           ...prev,
           {
             sender: "bot",
-            message: data.response || "Xin lỗi, bot chưa phản hồi.",
+            message: data.response || "Sorry, the bot hasn't responded yet.",
           },
         ]);
       })
       .catch(() => {
         setMessages((prev) => [
           ...prev,
-          { sender: "bot", message: "Xin lỗi, có lỗi xảy ra!" },
+          { sender: "bot", message: "Sorry, the bot hasn't responded yet!" },
         ]);
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleKeyDown = (event) => {
@@ -132,9 +140,11 @@ const ChatWidget = ({ apiUrl }) => {
             style={{
               flexGrow: 1,
               padding: "15px",
-              overflowY: "scroll",  // Cho phép cuộn nhưng không hiển thị thanh cuộn
+              paddingBottom: "40px",
+              overflowY: "scroll",
               background: "white",
               borderTop: "1px solid #eee",
+              position: "relative",
             }}
           >
             {messages.map((msg, index) => (
@@ -176,6 +186,21 @@ const ChatWidget = ({ apiUrl }) => {
                 />
               </div>
             ))}
+            {isLoading && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  left: "15px",
+                  color: "#888",
+                  fontStyle: "italic",
+                  fontSize: "14px",
+                  animation: "typingEffect 1.5s infinite",
+                }}
+              >
+                Bot is typing...
+              </div>
+            )}
           </div>
           <div
             style={{
@@ -190,7 +215,7 @@ const ChatWidget = ({ apiUrl }) => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Nhập câu hỏi của bạn..."
+              placeholder="Enter your question...."
               style={{
                 flexGrow: 1,
                 padding: "10px",
@@ -213,7 +238,7 @@ const ChatWidget = ({ apiUrl }) => {
                 transition: "background-color 0.3s",
               }}
             >
-              Gửi
+              Send
             </button>
           </div>
         </div>
@@ -221,8 +246,15 @@ const ChatWidget = ({ apiUrl }) => {
       <style>
         {`
           div::-webkit-scrollbar {
-            width: 0px; /* Ẩn thanh cuộn */
-            background: transparent; /* Thanh cuộn không hiển thị */
+            width: 0px;
+            background: transparent;
+          }
+
+          @keyframes typingEffect {
+            0% { content: 'Bot is typing.'; }
+            33% { content: 'Bot is typing..'; }
+            66% { content: 'Bot is typing...'; }
+            100% { content: 'Bot is typing.'; }
           }
         `}
       </style>

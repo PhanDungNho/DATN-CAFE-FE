@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Add useNavigate import
 import 'antd/dist/reset.css'; // Ant Design CSS
+import {API} from '../../services/constant'
 
 const OTPForm = () => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ const OTPForm = () => {
       // Assuming the email was sent previously and stored somewhere in the state
       const email = localStorage.getItem('email'); // Get email from local storage or state
       
-      const response = await fetch('http://localhost:8081/api/verify-otp', {
+      const response = await fetch(API + '/api/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

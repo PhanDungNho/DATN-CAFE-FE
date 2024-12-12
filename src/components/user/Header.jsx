@@ -32,6 +32,7 @@ import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import {API} from '../../services/constant'
 
 // Custom hook để debounce
 function useDebounce(value, delay) {
@@ -61,6 +62,7 @@ function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
   const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
+  
   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
   useEffect(() => {
     if (debouncedSearchQuery.trim() === "") {
@@ -70,12 +72,9 @@ function Header() {
     }
     const handleSearch = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8081/api/v1/products/search`,
-          {
-            params: { name: debouncedSearchQuery },
-          }
-        );
+        const response = await axios.get(API + `/api/v1/products/search`, {
+          params: { name: debouncedSearchQuery },
+        });
         setProducts(response.data);
         setShowDropdown(true);
       } catch (error) {
@@ -89,12 +88,9 @@ function Header() {
   const handleKeywordClick = async (keyword) => {
     try {
       // Gọi API tìm kiếm sản phẩm theo từ khóa
-      const response = await axios.get(
-        `http://localhost:8081/api/v1/products/search`,
-        {
-          params: { name: keyword },
-        }
-      );
+      const response = await axios.get(API + `/api/v1/products/search`, {
+        params: { name: keyword },
+      });
 
       if (response.data.length > 0) {
         // Nếu tìm thấy sản phẩm, điều hướng đến trang chi tiết của sản phẩm đầu tiên
@@ -269,8 +265,7 @@ function Header() {
       dispatch(getCartDetailsByUsername(user.username));
     }
 
-    const timer = setTimeout(() => {
-    }, 1000);
+    const timer = setTimeout(() => {}, 1000);
 
     const handleScroll = () => {
       if (!stickerRef.current) return;
@@ -303,7 +298,6 @@ function Header() {
     } else {
       setData([]);
     }
-  
   }, [cartDetails]);
 
   const handleLogout = () => {
@@ -617,7 +611,7 @@ width: 180px;
                             </>
                           ) : (
                             <>
-                              <Link to="/manager/orders">
+                              <Link to="/manager/info">
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
@@ -631,16 +625,20 @@ width: 180px;
                               </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
-                                JSON.parse(
+                                (JSON.parse(
                                   localStorage.getItem("user")
-                                )?.roles.includes("ROLE_ADMIN") && (
-                                  <Link to="/admin">
+                                )?.roles.includes("ROLE_ADMIN") ||
+                                  JSON.parse(
+                                    localStorage.getItem("user")
+                                  )?.roles.includes("ROLE_STAFF")) && (
+                                  <Link to="/admin/orders">
                                     <TeamOutlined
                                       style={{ marginRight: "8px" }}
                                     />{" "}
                                     Admin
                                   </Link>
                                 )}
+
                               <Link to="/" onClick={handleLogout}>
                                 <LogoutOutlined
                                   style={{ marginRight: "8px" }}

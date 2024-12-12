@@ -13,6 +13,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { handleGoogleLoginSuccess } from "../../redux/actions/authActions";
+import {API} from '../../services/constant'
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -23,7 +24,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/api/register",
+        API + "/api/register",
         values,
         {
           headers: {

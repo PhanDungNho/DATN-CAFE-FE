@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ProductService from "../../services/productService";
 import { useNavigate } from "react-router-dom";
+import {API} from '../../services/constant'
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -31,7 +32,7 @@ function Index() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/v1/products"
+         API + "/api/v1/products"
         );
 
         // Xử lý sản phẩm để lấy ra top 10 sản phẩm bán chạy nhất
@@ -63,7 +64,6 @@ function Index() {
     fetchProducts();
   }, []);
 
-  //tự động chạy ảnh
   useEffect(() => {
     let interval;
     if (topProducts && topProducts.length > 0) {
@@ -76,17 +76,22 @@ function Index() {
   }, [topProducts]);
 
   const handleNextFirstRow = () =>
-    setStartIndex((prev) => (prev + 1) % products.length);
+    setStartIndex((prev) => (prev + 1) % (topProducts.length));
 
   const handlePrevFirstRow = () =>
-    setStartIndex((prev) => (prev - 1 + products.length) % products.length);
+    setStartIndex((prev) => (prev - 1 + topProducts.length) % topProducts.length);
 
-  const visibleProducts = topProducts.slice(startIndex, startIndex + 3);
+  // Tạo mảng vòng lặp vô hạn bằng cách nối mảng
+  const infiniteProducts = [...topProducts, ...topProducts];
+  const visibleProducts = infiniteProducts.slice(
+    startIndex,
+    startIndex + 5 // Hiển thị 4 sản phẩm
+  );
 
   useEffect(() => {
     // Gọi API để lấy danh sách sản phẩm bán chạy
     axios
-      .get("http://localhost:8081/api/v1/products/top-selling")
+      .get( API + "/api/v1/products/top-selling")
       .then((response) => {
         setTopProducts(response.data); // Lưu dữ liệu sản phẩm vào state
         setLoading(false);
@@ -126,7 +131,7 @@ function Index() {
             }}
           />
         </div>
-        <div className="container">
+        <div className="container-fluid">
           <Row justify="center" style={{ marginTop: "50px" }}>
             <Col span={16} style={{ textAlign: "center" }}>
               <Title level={2} style={{ fontFamily: "Arial, sans-serif", fontWeight: "600" }}>
@@ -169,8 +174,8 @@ function Index() {
               justify="center"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)", // Bố cục 3 sản phẩm
-                gap: "20px", // Khoảng cách giữa các sản phẩm
+                gridTemplateColumns: "repeat(5, 1fr)", // Bố cục 3 sản phẩm
+                gap: "35px", // Khoảng cách giữa các sản phẩm
               }}
             >
               {visibleProducts.length > 0 ? (
@@ -259,7 +264,7 @@ function Index() {
               src="assets/img/index/bannernew2.png"
               alt=""
               style={{
-                width: "1600px",
+                width: "1800px",
                 height: "500px",
               }}
             />
@@ -271,7 +276,7 @@ function Index() {
       <Content style={{ padding: "30px 0", backgroundColor: "#ffff" }}>
         <div className="container">
           <Row gutter={[16, 16]} justify="center">
-            <Col span={8}>
+          <Col span={8}>
               <Card
                 style={{
                   textAlign: "center",
@@ -286,11 +291,7 @@ function Index() {
                 <Row align="middle" justify="center">
                   <Col
                     span={4}
-                    style={{
-                      borderRadius: "100%",
-                      background: "#f0f0f0",
-                      padding: "8px",
-                    }}
+              
                   >
                     <RocketOutlined
                       style={{
@@ -299,14 +300,13 @@ function Index() {
                         marginBottom: "20px",
                       }}
                     />
+
                   </Col>
                   <Col span={20}>
                     <Title level={3} style={{ fontWeight: "600" }}>
-                      Free Shipping
+                    Free Shipping
                     </Title>
-                    <Paragraph style={{}}>
-                    Free shipping for orders over 150,000{" "}
-                    </Paragraph>
+                    <Paragraph style={{}}>Free shipping over 150,000</Paragraph>
                   </Col>
                 </Row>
               </Card>
@@ -326,11 +326,7 @@ function Index() {
                 <Row align="middle" justify="center">
                   <Col
                     span={4}
-                    style={{
-                      borderRadius: "100%",
-                      background: "#f0f0f0",
-                      padding: "8px",
-                    }}
+              
                   >
                     <PhoneOutlined
                       style={{
@@ -364,11 +360,7 @@ function Index() {
                 <Row align="middle" justify="center">
                   <Col
                     span={4}
-                    style={{
-                      borderRadius: "100%",
-                      background: "#f0f0f0",
-                      padding: "8px",
-                    }}
+              
                   >
                     <SyncOutlined
                       style={{

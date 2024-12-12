@@ -38,7 +38,7 @@ export const insertAccount = (account) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Thêm thành công",
+        payload: "Insert successful!",
       });
     } else if (response.status === 400 && response.data.message === "Username is already in use") {
       dispatch({
@@ -108,7 +108,7 @@ export const updateAccount = (username, account) => async (dispatch) => {
       });
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật thành công",
+        payload: "Update successful!",
       });
     }  else if (response.status === 400 && response.data.message === "Phone number is already in use") {
       dispatch({
@@ -276,7 +276,7 @@ export const updateAccountActive =
 
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Cập nhật trạng thái thành công",
+          payload: "Update active successful!",
         });
       } else {
         const previousActive = !active;

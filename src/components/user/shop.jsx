@@ -103,10 +103,10 @@ function Shop() {
 
   const sortedProducts = sortOrder
     ? [...filteredProducts].sort((a, b) => {
-        const priceA = Math.min(...a.productVariants.map((v) => v.price)) || 0;
-        const priceB = Math.min(...b.productVariants.map((v) => v.price)) || 0;
-        return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
-      })
+      const priceA = Math.min(...a.productVariants.map((v) => v.price)) || 0;
+      const priceB = Math.min(...b.productVariants.map((v) => v.price)) || 0;
+      return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
+    })
     : filteredProducts;
 
   const paginatedProducts = sortedProducts.slice(
@@ -229,7 +229,7 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    <UnorderedListOutlined /> Loại sản phẩm
+                    <UnorderedListOutlined /> Categories
                   </h5>
                   <Menu
                     mode="inline"
@@ -316,12 +316,12 @@ function Shop() {
                                     />
                                   }
                                   onMouseEnter={(e) =>
-                                    (e.currentTarget.style.transform =
-                                      "scale(1.02)")
+                                  (e.currentTarget.style.transform =
+                                    "scale(1.02)")
                                   }
                                   onMouseLeave={(e) =>
-                                    (e.currentTarget.style.transform =
-                                      "scale(1)")
+                                  (e.currentTarget.style.transform =
+                                    "scale(1)")
                                   }
                                 >
                                   <Card.Meta
@@ -379,7 +379,7 @@ function Shop() {
                           color: "#888",
                         }}
                       >
-                        Không tìm thấy sản phẩm nào thỏa mãn.
+                        No satisfactory products were found.
                       </div>
                     )}
 
@@ -393,8 +393,8 @@ function Shop() {
                         <Option value={6}>6 / page</Option>
                         <Option value={12}>12 / page</Option>
                       </Select>
-                    </Row>
- */}
+                    </Row> */}
+
                     <Row justify="center" style={{ marginTop: 50 }}>
                       <Pagination
                         current={currentPage}
@@ -425,7 +425,7 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    Lọc theo giá
+                    Filter by price
                   </h4>
                   <Slider
                     range
@@ -446,7 +446,7 @@ function Shop() {
                     style={{ width: "100%" }}
                   />
                   <p>
-                    Giá: {priceRange[0].toLocaleString("vi-VN")} VNĐ -{" "}
+                    Price: {priceRange[0].toLocaleString("vi-VN")} VNĐ -{" "}
                     {priceRange[1].toLocaleString("vi-VN")} VNĐ
                   </p>
                 </div>
@@ -467,16 +467,16 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    Sắp xếp theo giá
+                    Sort by price
                   </h4>
                   <Select
                     style={{ width: "100%" }}
                     onChange={handleSortChange}
                     allowClear
-                    placeholder="Hiển thị"
+                    placeholder="show"
                   >
-                    <Option value="asc">Giá: Từ thấp đến cao</Option>
-                    <Option value="desc">Giá: Từ cao đến thấp </Option>
+                    <Option value="asc">Price: From low to high</Option>
+                    <Option value="desc">Price: From high to low</Option>
                   </Select>
                 </div>
               </Col>
