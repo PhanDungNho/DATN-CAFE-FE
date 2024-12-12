@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { Button, Form, Input, message, Modal, Upload } from "antd";
 import axios from "axios";
-import { Form, Input, Button, Upload, Modal, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
+import { useState } from "react";
 import AvatarEditor from "react-avatar-editor";
+import { TiUploadOutline } from "react-icons/ti";
 
 const UpdateProfile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [imageFileList, setImageFileList] = useState([]);
-  const [editor, setEditor] = useState(null); // Trạng thái cho AvatarEditor
-  const [cropModalVisible, setCropModalVisible] = useState(false); // Hiển thị modal cắt ảnh
-  const [croppedImage, setCroppedImage] = useState(null); // Lưu hình ảnh đã cắt
+  const [imageFileList, setImageFileList] = useState([]); // To store the uploaded image list
+  const [editor, setEditor] = useState(null); // State for AvatarEditor
+  const [cropModalVisible, setCropModalVisible] = useState(false); // Modal visibility for cropping
+  const [croppedImage, setCroppedImage] = useState(null); // Cropped image blob
+  const [account, setAccount] = useState(null); // State to hold account info, including image
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -22,20 +24,23 @@ const UpdateProfile = () => {
           },
         });
         const profileData = response.data;
+        setAccount(profileData); // Set the account data in state
+
         form.setFieldsValue({
           name: profileData.fullName,
           email: profileData.email,
           phone: profileData.phone,
-          password: "",
+          password: "", // Optional field for new password
         });
 
+        // If the profile has an image, set it in the imageFileList
         if (profileData.image) {
           setImageFileList([
             {
               uid: "-1",
               name: profileData.image,
               status: "done",
-              url: `http://localhost:8081/uploads/${profileData.image}`,
+              url: `http://localhost:8081/api/files/logo/${profileData.image}`, // Full URL to the image
             },
           ]);
         }
@@ -61,8 +66,9 @@ const UpdateProfile = () => {
         formData.append("password", values.password);
       }
 
+      // If there's a cropped image, append it to the form data
       if (croppedImage) {
-        formData.append("imageFile", croppedImage);
+        formData.append("imageFile", croppedImage, "profile.jpg");
       }
 
       const response = await axios.put(
@@ -76,13 +82,13 @@ const UpdateProfile = () => {
         }
       );
 
-      message.success(response.data);
+      message.success("Profile updated successfully!");
     } catch (error) {
       const errorResponse = error.response?.data;
       const errorMessage =
-        errorResponse &&
-        typeof errorResponse === "object" &&
-        errorResponse.message
+        errorResponse && errorResponse.message
+
+
           ? errorResponse.message
           : "Failed to update information. Please try again.";
 
@@ -96,10 +102,10 @@ const UpdateProfile = () => {
 
   const handleCropImage = () => {
     if (editor) {
-      // Chuyển hình ảnh cắt thành Blob
+      // Convert the cropped image to Blob and save it
       editor.getImageScaledToCanvas().toBlob((blob) => {
-        setCroppedImage(blob); // Lưu Blob của hình ảnh
-        setCropModalVisible(false); // Đóng modal cắt ảnh
+        setCroppedImage(blob); // Save the cropped image
+        setCropModalVisible(false); // Close the crop modal
         message.success("Cropped image saved successfully!");
       });
     }
@@ -114,6 +120,8 @@ const UpdateProfile = () => {
         onFinish={onFinish}
         initialValues={{ name: "", email: "", phone: "" }}
       >
+      
+
         <Form.Item
           label="Full Name"
           name="name"
@@ -148,54 +156,56 @@ const UpdateProfile = () => {
         </Form.Item>
 
         <Form.Item
-  label="New Password"
-  name="password"
-  rules={[
-    { 
-      min: 8, 
-      message: "Password must be at least 8 characters!" 
-    },
-    { 
-      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-      message: "Password must contain at least one uppercase letter, one lowercase letter, and one number!" 
-    }
-  ]}
->
-  <Input.Password placeholder="Enter new password (optional)" />
-</Form.Item>
+          label="New Password"
+          name="password"
+          rules={[
+            { min: 8, message: "Password must be at least 8 characters!" },
+            {
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+              message:
+                "Password must contain at least one uppercase letter, one lowercase letter, and one number!",
+            },
+          ]}
+        >
+          <Input.Password placeholder="Enter new password (optional)" />
+        </Form.Item>
+
+
 
 
         <Form.Item label="Profile Picture">
-          <Upload
-            name="imageFile"
-            listType="picture"
-            maxCount={1}
-            beforeUpload={(file) => {
-              setCropModalVisible(true); // Mở modal cắt ảnh
-              const reader = new FileReader();
-              reader.onload = () => {
-                setImageFileList([
-                  {
-                    uid: file.uid,
-                    name: file.name,
-                    status: "done",
-                    url: reader.result,
-                    originFileObj: file,
-                  },
-                ]);
-              };
-              reader.readAsDataURL(file);
-              return false; // Ngăn không upload tự động
-            }}
-            fileList={imageFileList}
-            onRemove={() => {
-              setImageFileList([]);
-              setCroppedImage(null);
-            }}
-          >
-            <Button icon={<UploadOutlined />}>Upload Image</Button>
-          </Upload>
-        </Form.Item>
+  <Upload
+    name="imageFile"
+    listType="picture"
+    maxCount={1}
+    accept="image/*"  // Chỉ chấp nhận các file hình ảnh
+    beforeUpload={(file) => {
+      setCropModalVisible(true); // Mở modal cắt ảnh
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageFileList([
+          {
+            uid: file.uid,
+            name: file.name,
+            status: "done",
+            url: reader.result,
+            originFileObj: file,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+      return false; // Ngừng tải lên tự động
+    }}
+    fileList={imageFileList}
+    onRemove={() => {
+      setImageFileList([]);
+      setCroppedImage(null); // Xóa hình đã cắt khi xóa ảnh
+    }}
+  >
+    <Button icon={<TiUploadOutline/>}>Upload Image</Button>
+  </Upload>
+</Form.Item>
+
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
@@ -204,7 +214,7 @@ const UpdateProfile = () => {
         </Form.Item>
       </Form>
 
-      {/* Modal Cắt Ảnh */}
+      {/* Crop Modal */}
       <Modal
         title="Crop Image"
         visible={cropModalVisible}
@@ -217,8 +227,8 @@ const UpdateProfile = () => {
           width={350}
           height={350}
           border={50}
-          scale={1.25} // Độ zoom
-          rotate={0} // Xoay
+          scale={1.25} // Zoom level
+          rotate={0} // No rotation
         />
       </Modal>
     </div>
