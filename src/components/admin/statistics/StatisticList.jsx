@@ -44,6 +44,8 @@ const StatisticsDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [pieChartData, setPieChartData] = useState({ labels: [], values: [] }); // Dữ liệu biểu đồ
+
 
   const [dailyRevenueData, setDailyRevenueData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(moment().year());
@@ -84,6 +86,7 @@ const StatisticsDashboard = () => {
           axios.get("http://localhost:8081/api/v1/orders/accountCount"),
           axios.get(
             "http://localhost:8081/api/v1/orders/most-purchased-products"
+            
           ),
         ]);
 
@@ -102,6 +105,9 @@ const StatisticsDashboard = () => {
         setProductData(formattedData);
         setTableData(formattedData);
         setFilteredData(formattedData);
+        const labels = formattedData.map((item) => item.productName);
+      const values = formattedData.map((item) => parseInt(item.totalQuantity, 10));
+      setPieChartData({ labels, values });
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
       }
@@ -113,23 +119,18 @@ const StatisticsDashboard = () => {
   // Dữ liệu biểu đồ tròn
   const labels = productData.map((item) => item.productName);
   const values = productData.map((item) => parseInt(item.totalQuantity, 10));
-
-  const chartData = {
-    labels: labels,
+  
+  const pieData = {
+    labels: pieChartData.labels,
     datasets: [
       {
         label: "Quantity",
-        data: values,
+        data: pieChartData.values,
         backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
-        hoverBackgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "orange",
-          "red",
-        ],
+        hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
       },
     ],
+    
   };
 
   const fetchDailyRevenueData = async (year, month) => {
@@ -255,8 +256,9 @@ const StatisticsDashboard = () => {
           })
           : "0 VND",
     },
+    
   ];
-
+  
   const statsData = [
     {
       title: "Total Order",
@@ -288,10 +290,13 @@ const StatisticsDashboard = () => {
     },
   ];
 
-  // Hàm lọc dữ liệu dựa trên ngày
   const handleDateRangeChange = (dates) => {
     if (!dates || dates.length !== 2) {
+      // Nếu không có ngày lọc, hiển thị dữ liệu mặc định là 5 sản phẩm bán chạy
       setFilteredData(tableData); // Reset lại dữ liệu nếu không có ngày chọn
+      const labels = productData.map((item) => item.productName);
+      const values = productData.map((item) => item.totalQuantity);
+      setPieChartData({ labels, values }); // Cập nhật biểu đồ tròn với 5 sản phẩm bán chạy
       return;
     }
   
@@ -310,18 +315,15 @@ const StatisticsDashboard = () => {
   
     // Gửi yêu cầu đến API với tham số ngày
     axios
-      .get(
-        "http://localhost:8081/api/v1/orders/most-purchased-products/by-date",
-        {
-          params: {
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-          },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
+      .get("http://localhost:8081/api/v1/orders/most-purchased-products", {
+        params: {
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((response) => {
         const formattedData = response.data.map((item, index) => ({
           key: index,
@@ -334,15 +336,20 @@ const StatisticsDashboard = () => {
         }));
   
         setFilteredData(formattedData);
+        const labels = formattedData.map((item) => item.productName);
+        const values = formattedData.map((item) => item.totalQuantity);
+        setPieChartData({ labels, values });
       })
       .catch((error) => {
         console.error("Error filtering data by date:", error);
         setFilteredData([]);
+        setPieChartData({ labels: [], values: [] }); // Reset biểu đồ khi lỗi
       })
       .finally(() => {
         setLoadingTable(false);
       });
   };
+  
   
 
   return (
@@ -418,9 +425,9 @@ const StatisticsDashboard = () => {
           <Card
             title="Top 5 Best Selling Products"
             bordered={false}
-            style={{ minHeight: "400px" }}
+            style={{ minHeight: "500px" }}
           >
-            <Pie data={chartData} />
+            <Pie data={pieData} />
           </Card>
         </Col>
       </div>
@@ -546,7 +553,10 @@ const StatisticsDashboard = () => {
             <Title level={4}>Monthly Revenue
             </Title>
             <Column
-              data={monthlyRevenueData}
+            data={monthlyRevenueData.map((item) => ({
+              ...item,
+              revenue: item.revenue || 0, // Ensure revenue is numeric
+            }))}
               xField="month"
               yField="revenue"
               meta={{
