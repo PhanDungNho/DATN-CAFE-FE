@@ -50,7 +50,7 @@ export default class authorityService {
           "Authorization": "Bearer " + localStorage.getItem("token"),
         },
       });
-      alert(response.data)
+      // alert(response.data)
       return response.data;
     } catch (error) {
       console.error("Error deleting authority", error);

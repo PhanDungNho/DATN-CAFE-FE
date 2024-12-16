@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Select, Space, Switch, Table, Tag } from "antd";
+import { Button, message, Modal, Select, Space, Switch, Table, Tag } from "antd";
 import moment from "moment";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
 import { printBill } from "../../user/printBill";
-
+import PaymentService from "../../../services/PaymentService";
+  const paymentService = new PaymentService();
 const columns = (updateOrderActive, updateOrder, showModal) => [
   {
     title: "ID",
@@ -55,13 +56,16 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     key: "paymentStatus",
     align: "left",
     render: (_, record) => {
-      return record.paymentStatus === "PAID" ? (
-        <Tag color="green">PAID</Tag>
-      ) : (
-        <Tag color="volcano">UNPAID</Tag>
-      );
+      if (record.paymentStatus === "PAID") {
+        return <Tag color="green">PAID</Tag>;
+      } else if (record.paymentStatus === "REFUND") {
+        return <Tag color="grey">REFUND</Tag>;
+      } else {
+        return <Tag color="volcano">UNPAID</Tag>;
+      }
     },
   },
+  
   {
     title: "Order Status",
     key: "orderStatus",
@@ -90,13 +94,33 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
         CANCELLED: [{ value: "CANCELLED", label: "CANCELLED" }],
       };
 
+      const handleStatusChange = async (record, value) => {
+        try {
+          await updateOrder(record.id, { orderStatus: value });
+      
+          if (value === "CANCELLED") {
+            // Giả sử bạn có response từ một dịch vụ trước đó
+            const response = await paymentService.refund(record.transactions[0]);
+      
+            // Xử lý phản hồi sau khi hoàn tiền nếu cần
+            if (response.status === 200) {
+              message.success('Refund successful');
+            } else {
+               message.error('Refund failed');
+            }
+          }
+        } catch (error) {
+        message.error('Error processing refund');
+        }
+      };
+
       return (
         <Select
           defaultValue={record.orderStatus}
           style={{ width: 150 }}
           options={statusOptions[record.orderStatus]}
           onChange={(value) => {
-            updateOrder(record.id, { orderStatus: value });
+            handleStatusChange(record, value);
           }}
         />
       );
