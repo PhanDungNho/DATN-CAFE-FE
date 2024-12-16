@@ -336,7 +336,7 @@ const StatisticsDashboard = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
+    <div style={{ padding: "20px", margin: "auto" }}>
       <Title level={2} style={{ textAlign: "center" }}>
         Dashboard Statistics
       </Title>
