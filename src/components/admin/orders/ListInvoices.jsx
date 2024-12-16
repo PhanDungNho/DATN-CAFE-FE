@@ -22,6 +22,7 @@ class ListInvoices extends Component {
         createdTime: "",
         totalAmount: "",
         orderStatus: "",
+        paymentStatus: "",
         orderType: "",
         paymentMethod: "",
       },

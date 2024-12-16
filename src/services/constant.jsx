@@ -1,4 +1,6 @@
-const API = "http://103.166.183.216:8080"
+// export const API = "https://api.walacafe.io.vn"
+export const API = "http://localhost:8080"
+
 
 
 export const API_PRODUCT = API + "/api/v1/products";

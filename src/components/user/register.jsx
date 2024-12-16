@@ -27,7 +27,9 @@ const Register = () => {
         API + "/api/register",
         values,
         {
+          
           headers: {
+            "Access-Control-Allow-Origin": "*",
             "Content-Type": "application/json",
           },
         }

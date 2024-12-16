@@ -100,11 +100,7 @@ const AuthorityList = ({ accounts, authorities }) => {
             key: 'staff',
             render: (_, record) => renderCheckbox(record, { id: 2, name: 'Staff' }), // Role ID 2 is STAFF
         },
-        {
-            title: 'User',
-            key: 'user',
-            render: (_, record) => renderCheckbox(record, { id: 3, name: 'User' }), // Role ID 3 is USER
-        },
+    
     ];
 
     return (

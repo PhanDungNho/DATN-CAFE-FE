@@ -3,7 +3,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { API_TRANSACTION, API_MOMO } from "./constant";
 
-const ngrok = "https://147e-14-241-166-117.ngrok-free.app";
+const ngrok = "https://cc2f-113-161-210-31.ngrok-free.app";
 
 export default class PaymentService extends Component {
   constructor(props) {
@@ -19,7 +19,7 @@ export default class PaymentService extends Component {
   // Hàm tạo giao dịch thanh toán
   createPayment = (amount, orderInfo, orderId) => {
     const partnerCode = "MOMO";
-    const redirectUrl = "http://localhost:3000/paymentresult";
+    const redirectUrl = "http://localhost:80/paymentresult";
     const ipnUrl = ngrok + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
@@ -58,6 +58,42 @@ export default class PaymentService extends Component {
         "Content-Type": "application/json",
       },
     });
+  };
+
+
+  refund = function (transaction) {
+    const partnerCode = "MOMO";
+    const requestId = partnerCode + new Date().getTime();
+    const orderId = partnerCode + new Date().getTime();
+    const description = "Refund for transaction"; // Description được thêm vào rawSignature
+
+    const rawSignature = `accessKey=${this.accessKey}&amount=${transaction.amount}&description=${description}&orderId=${orderId}&partnerCode=${partnerCode}&requestId=${requestId}&transId=${transaction.transId}`;
+    const signature = CryptoJS.HmacSHA256(
+      rawSignature,
+      this.secretKey
+    ).toString();
+
+    const requestBody = {
+      partnerCode: partnerCode,
+      requestId: requestId,
+      orderId: orderId,
+      amount: transaction.amount,
+      transId: transaction.transId,
+      lang: "vi",
+      description: "Refund for transaction",
+      signature: signature,
+    };
+
+    console.log("Request Body:", requestBody);
+    return axios.post(
+      "http://localhost:2999/momo/refund",
+      requestBody,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   };
 
   insertTransaction = async (transaction) => {
