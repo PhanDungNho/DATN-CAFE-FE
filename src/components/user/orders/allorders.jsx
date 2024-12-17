@@ -82,40 +82,43 @@ const Allorder = () => {
     setSelectedRecord(null);
   };
 
-const handleStatusChange = async (record, status) => {
-  // Dispatch action updateOrder
-  dispatch(updateOrder(record.id, { orderStatus: status }));
+  const handleStatusChange = async (record, status) => {
+    // Dispatch action updateOrder
+    dispatch(updateOrder(record.id, { orderStatus: status }));
 
-  // Cập nhật dữ liệu trong state sau khi dispatch
-  const updatedData = filteredData.map((order) =>
-    order.id === record.id ? { ...order, orderStatus: status } : order
-  );
-  setFilteredData(updatedData);
+    // Cập nhật dữ liệu trong state sau khi dispatch
+    const updatedData = filteredData.map((order) =>
+      order.id === record.id ? { ...order, orderStatus: status } : order
+    );
+    setFilteredData(updatedData);
 
-  // Hiển thị alert với trạng thái mới
-  // alert(`New status for order ID ${record.id}: ${status}`);
+    // Hiển thị alert với trạng thái mới
+    // alert(`New status for order ID ${record.id}: ${status}`);
 
-  // Kiểm tra nếu trạng thái là "CANCELLED", thực hiện hoàn tiền
-  if (status === "CANCELLED"&& record.transactions[0]) {
-    try {
-      // Giả sử bạn có response từ một dịch vụ trước đó
-      const response = await paymentService.refund(record.transactions[0]);
-    
+    // Kiểm tra nếu trạng thái là "CANCELLED", thực hiện hoàn tiền
+    if (status === "CANCELLED" && record.transactions[0]) {
+      try {
+        const response = await paymentService.refund(record.transactions[0]);
 
-      // Xử lý phản hồi sau khi hoàn tiền nếu cần
-      if (response.status === 200) {
-        message.success('Refund successful');
-      } else {
-        message.error('Refund failed');
+        // Xử lý phản hồi sau khi hoàn tiền nếu cần
+        if (response.status === 200) {
+          // Cập nhật paymentStatus thành REFUND
+          const updatedWithRefundStatus = updatedData.map((order) =>
+            order.id === record.id
+              ? { ...order, paymentStatus: "REFUND" }
+              : order
+          );
+          setFilteredData(updatedWithRefundStatus);
+          message.success("Refund successful");
+        } else {
+          message.error("Refund failed");
+        }
+      } catch (error) {
+        console.error("Refund error:", error);
+        message.error("Error processing refund");
       }
-    } catch (error) {
-      console.error("Refund error:", error);
-      message.error('Error processing refund');
     }
-  }
-};
-
-
+  };
   const handleFilterChange = (status) => {
     setStatusFilter(status);
     if (status === "ALL") {

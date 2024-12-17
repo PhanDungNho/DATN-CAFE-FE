@@ -96,7 +96,7 @@ function User() {
           <Route path="orders/completed" element={<SuccessOrder />} />
           <Route path="orders/canceled" element={<CancelOrder />} /> */}
         </Route>
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<Index />} />
       </Routes>
     </Layout>
   );

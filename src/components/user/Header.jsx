@@ -32,7 +32,7 @@ import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {API} from '../../services/constant'
+import { API } from "../../services/constant";
 
 // Custom hook để debounce
 function useDebounce(value, delay) {
@@ -62,7 +62,7 @@ function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
   const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
-  
+
   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
   useEffect(() => {
     if (debouncedSearchQuery.trim() === "") {
@@ -515,9 +515,6 @@ width: 180px;
                       <Link to="/about">About</Link>
                     </li>
                     <li>
-                      <Link to="#">Pages</Link>
-                    </li>
-                    <li>
                       <Link to="/shop">Products</Link>
                     </li>
                     <li>
@@ -625,20 +622,23 @@ width: 180px;
                               </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
-                                (JSON.parse(
-                                  localStorage.getItem("user")
-                                )?.roles.includes("ROLE_ADMIN") ||
-                                  JSON.parse(
-                                    localStorage.getItem("user")
-                                  )?.roles.includes("ROLE_STAFF")) && (
+                                (() => {
+                                  const userRoles =
+                                    JSON.parse(localStorage.getItem("user"))
+                                      ?.roles || [];
+                                  return (
+                                    userRoles.includes("ROLE_ADMIN") ||
+                                    userRoles.includes("ROLE_STAFF") ||
+                                    userRoles.includes("ROLE_SUPERADMIN") 
+                                  );
+                                })() && (
                                   <Link to="/admin/orders">
                                     <TeamOutlined
                                       style={{ marginRight: "8px" }}
-                                    />{" "}
+                                    />
                                     Admin
                                   </Link>
                                 )}
-
                               <Link to="/" onClick={handleLogout}>
                                 <LogoutOutlined
                                   style={{ marginRight: "8px" }}

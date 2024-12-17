@@ -32,6 +32,11 @@ function Product() {
   const [price, setPrice] = useState(50000);
   const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0);
   const navigate = useNavigate();
+  const username = JSON.parse(localStorage.getItem("user"));
+  const isRoleUser = username?.roles?.includes("ROLE_USER");
+
+  console.log("Role", isRoleUser);
+  console.log("username.roles", username.roles);
 
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
@@ -110,8 +115,6 @@ function Product() {
   };
 
   const handleAddToCart = () => {
-    const username = JSON.parse(localStorage.getItem("user"));
-
     // console.log(username);
 
     if (!username) {
@@ -124,16 +127,6 @@ function Product() {
         onOk: () => {
           navigate("/login");
         },
-      });
-      return;
-    }
-
-    if (!username.roles.includes("ROLE_USER")) {
-      Modal.warning({
-        title: "Access Denied",
-        content: "You do not have permission to add products to the cart.",
-        okText: "OK",
-        centered: true,
       });
       return;
     }
@@ -416,17 +409,24 @@ function Product() {
                 </div>
 
                 <div className="product-form" style={{ marginTop: "20px" }}>
-                  <Button
-                    type="primary"
-                    icon={<ShoppingCartOutlined />}
-                    style={{
-                      backgroundColor: "#f28123",
-                      border: "none",
-                    }}
-                    onClick={handleAddToCart}
-                  >
-                    Add to cart
-                  </Button>
+                  {isRoleUser ? (
+                    <Button
+                      type="primary"
+                      icon={<ShoppingCartOutlined />}
+                      style={{
+                        backgroundColor: "#f28123",
+                        border: "none",
+                      }}
+                      disabled={!isRoleUser}
+                      onClick={handleAddToCart}
+                    >
+                      Add to cart
+                    </Button>
+                  ) : (
+                    <div style={{ fontSize: "16px", color: "red" }}>
+                      The account does not have permission to purchase the product!
+                    </div>
+                  )}
                 </div>
               </div>
             </Col>
