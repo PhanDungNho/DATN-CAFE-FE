@@ -423,7 +423,7 @@ const StatisticsDashboard = () => {
 
         <Col span={8}>
           <Card
-            title="Top 5 Best Selling Products"
+            title="Top Best Selling Products"
             bordered={false}
             style={{ minHeight: "500px" }}
           >
