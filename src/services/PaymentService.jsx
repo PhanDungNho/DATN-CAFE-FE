@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import { API_TRANSACTION, API_MOMO } from "./constant";
+import { API_TRANSACTION, API_MOMO, API } from "./constant";
 
 const ngrok = "https://4e4e-42-114-18-208.ngrok-free.app";
 
@@ -19,8 +19,8 @@ export default class PaymentService extends Component {
   // Hàm tạo giao dịch thanh toán
   createPayment = (amount, orderInfo, orderId) => {
     const partnerCode = "MOMO";
-    const redirectUrl = "http://localhost:80/paymentresult";
-    const ipnUrl = ngrok + "/api/v1/transactions/ipn";
+    const redirectUrl = "https://walacafe.io.vn/paymentresult";
+    const ipnUrl = API + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
     const requestId = newOrderId;
