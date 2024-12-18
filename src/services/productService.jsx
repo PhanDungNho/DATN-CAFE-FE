@@ -118,9 +118,7 @@ export default class ProductService {
 
   getProducts = async () => {
     return await axios.get(API_PRODUCT, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
+  
     });
   };
 
@@ -131,25 +129,19 @@ export default class ProductService {
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {
       params,
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
+   
     });
   };
 
   getProduct = async (id) => {
     return await axios.get(API_PRODUCT + "/" + id + "/get", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
-      },
+   
     });
   };
 
   getProductBySlug = async (slug) => {
     return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
-      },
+   
     });
   };
 

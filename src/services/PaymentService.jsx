@@ -19,7 +19,9 @@ export default class PaymentService extends Component {
   // Hàm tạo giao dịch thanh toán
   createPayment = (amount, orderInfo, orderId) => {
     const partnerCode = "MOMO";
-    const redirectUrl = "https://walacafe.io.vn/paymentresult";
+    const redirectUrl = "http://localhost/paymentresult";
+    // const redirectUrl = "https://walacafe.io.vn/shop/paymentresult";
+
     const ipnUrl = API + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất

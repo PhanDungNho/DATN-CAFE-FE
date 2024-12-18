@@ -35,8 +35,8 @@ function Product() {
   const username = JSON.parse(localStorage.getItem("user"));
   const isRoleUser = username?.roles?.includes("ROLE_USER");
 
-  console.log("Role", isRoleUser);
-  console.log("username.roles", username.roles);
+  // console.log("Role", isRoleUser);
+  // console.log("username.roles", username.roles);
 
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
@@ -397,7 +397,7 @@ function Product() {
                 </div>
                 <div style={{ marginTop: "20px" }}>
                   <Input
-                    placeholder="Ghi chú của bạn"
+                    placeholder="Note"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     style={{
