@@ -32,8 +32,13 @@ const columns = (editTopping, updateToppingActive) => [
     title: "Topping Price",
     dataIndex: "price",
     key: "price",
-    render: (text) => `${text} VNĐ`,
+    render: (text) => {
+      // Sử dụng toLocaleString để định dạng theo kiểu hàng nghìn
+      const formattedPrice = Number(text).toLocaleString('vi-VN');
+      return `${formattedPrice} VNĐ`;
+    },
   },
+  
   {
     title: "Active",
     dataIndex: "active",

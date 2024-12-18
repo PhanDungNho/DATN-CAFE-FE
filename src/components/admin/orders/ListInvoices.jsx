@@ -87,6 +87,7 @@ class ListInvoices extends Component {
           invoices={invoices}
           isLoading={isLoading}
           updateOrder={this.props.updateOrder}
+          getInvoices={this.props.getInvoices}
         />
       </>
     );

@@ -14,8 +14,10 @@ import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
 import { printBill } from "../../user/printBill";
 import PaymentService from "../../../services/PaymentService";
+import { getInvoices } from "../../../redux/actions/invoiceAction";
 const paymentService = new PaymentService();
-const columns = (updateOrderActive, updateOrder, showModal) => [
+
+const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
   {
     title: "ID",
     dataIndex: "id",
@@ -74,7 +76,6 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
       }
     },
   },
-
   {
     title: "Order Status",
     key: "orderStatus",
@@ -111,11 +112,16 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
       const handleStatusChange = async (record, value) => {
         try {
           await updateOrder(record.id, { orderStatus: value });
-  
+
           if (value === "CANCELLED"&& record.transactions[0]) {
-            const response = await paymentService.refund(record.transactions[0]);
-  
+            // Giả sử bạn có response từ một dịch vụ trước đó
+            const response = await paymentService.refund(
+              record.transactions[0]
+            );
+
+            // Xử lý phản hồi sau khi hoàn tiền nếu cần
             if (response.status === 200) {
+              await getInvoices();
               message.success("Refund successful");
             } else {
               message.error("Refund failed");
@@ -220,7 +226,7 @@ const expandColumns = [
   },
 ];
 
-const InvoicesList = ({ invoices, updateOrderActive, updateOrder }) => {
+const InvoicesList = ({ invoices, updateOrderActive, updateOrder, getInvoices }) => {
   const [data, setData] = useState(invoices);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
@@ -289,10 +295,10 @@ const InvoicesList = ({ invoices, updateOrderActive, updateOrder }) => {
     return (record.orderDetails || []).map((detail, index) => ({
       key: detail.id.toString(),
       id: index + 1,
-      productName: detail.productVariant.product.name,
+      productName: detail.productVariant?.product?.name || "N/A",
       quantity: detail.quantity,
       price: detail.momentPrice,
-      size: detail.productVariant.size.name,
+      size: detail.productVariant?.size?.name || "N/A",
       toppings: detail.orderDetailToppings
         .map(
           (topping) =>
@@ -306,27 +312,26 @@ const InvoicesList = ({ invoices, updateOrderActive, updateOrder }) => {
     }));
   };
 
-  const fetchData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const sortedInvoices = [...invoices].sort((a, b) => b.id - a.id);
-      setData(sortedInvoices);
-      setLoading(false);
-      setHasData(sortedInvoices.length > 0);
-      setTableParams((prev) => ({
-        ...prev,
-        pagination: {
-          ...prev.pagination,
-          total: sortedInvoices.length,
-        },
-      }));
-    }, 1000);
-  };
-
   useEffect(() => {
+    const fetchData = () => {
+      setLoading(true);
+      setTimeout(() => {
+        const sortedInvoices = [...invoices].sort((a, b) => b.id - a.id);
+        setData(sortedInvoices);
+        setLoading(false);
+        setHasData(sortedInvoices.length > 0);
+        setTableParams((prev) => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: sortedInvoices.length,
+          },
+        }));
+      }, 1000);
+    };
+
     fetchData();
-    setData(invoices);
-  }, [invoices]);
+  }, [invoices]); // Chỉ phụ thuộc vào 'invoices'
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -340,10 +345,13 @@ const InvoicesList = ({ invoices, updateOrderActive, updateOrder }) => {
     }
   };
 
+  console.log("invoice", invoices);
+  console.log("data", data);
+
   return (
     <>
       <Table
-        columns={columns(updateOrderActive, updateOrder, showModal)}
+        columns={columns(updateOrderActive, updateOrder, showModal, getInvoices)}
         rowKey="id"
         dataSource={hasData ? data : []}
         pagination={{ ...tableParams.pagination }}
