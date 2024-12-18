@@ -125,7 +125,7 @@ const StatisticsDashboard = () => {
   const fetchDailyRevenueData = async (year, month) => {
     try {
       const response = await axios.get(
-        `http://localhost:8081/api/v1/orders/daily-revenue`,
+        API + `/api/v1/orders/daily-revenue`,
         {
           params: { year, month },
         }
@@ -154,7 +154,7 @@ const StatisticsDashboard = () => {
   const fetchMonthlyRevenueData = async (year) => {
     try {
       const response = await axios.get(
-        `http://localhost:8081/api/v1/orders/monthly-revenue`,
+        API + `/api/v1/orders/monthly-revenue`,
         {
           params: { year },
         }

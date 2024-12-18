@@ -39,7 +39,7 @@ const columns = (editProduct, updateProductActive) => [
     render: () => <DragHandle />,
   },
   {
-    title: "STT",
+    title: "Ordering",
     dataIndex: "ordering",
     width: "10%",
     key: "ordering",

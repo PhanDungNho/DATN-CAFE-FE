@@ -179,8 +179,6 @@ const Cart = () => {
     },
   ];
 
-
-
   const columnsSelectedItems = [
     {
       title: "STT",
@@ -374,7 +372,9 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("An error occurred while processing the order. Please try again.");
+      message.error(
+        "An error occurred while processing the order. Please try again."
+      );
     }
   };
 
@@ -429,7 +429,9 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Error creating payment:", error);
-      message.error("An error occurred while creating the payment. Please try again.");
+      message.error(
+        "An error occurred while creating the payment. Please try again."
+      );
     }
   };
 
@@ -537,20 +539,29 @@ const Cart = () => {
   //API Address
   useEffect(() => {
     const loadProvinces = async () => {
-      const provincesData = await fetchProvinces();
+      try {
+        const provinceData = await fetchProvinces();
 
-      // Lọc để chỉ lấy dữ liệu của thành phố Cần Thơ
-      const canTho = provincesData.find(
-        (province) => province.ProvinceName === "Cần Thơ"
-      );
+        // Lọc ra thành phố "Cần Thơ"
+        const canTho = provinceData.find(
+          (province) => province.ProvinceName === "Cần Thơ"
+        );
 
-      if (canTho) {
-        setProvinces([canTho]); // Đặt provinces chỉ gồm "Cần Thơ"
-        form.setFieldsValue({ cityCode: canTho.ProvinceID });
-        handleProvinceChange(canTho.ProvinceID); // Gọi hàm để tải quận/huyện của Cần Thơ
+        if (canTho) {
+          setProvinces([canTho]); // Chỉ đặt "Cần Thơ" trong danh sách tỉnh/thành phố
+          form.setFieldsValue({ cityCode: canTho.ProvinceID }); // Đặt giá trị mặc định cho cityCode
+
+          // Gọi hàm để tải danh sách quận/huyện của Cần Thơ
+          await handleProvinceChange(canTho.ProvinceID);
+        } else {
+          console.error("Can Tho is not in the list of provinces/cities.");
+        }
+      } catch (error) {
+        console.error("Error when loading list of provinces/cities:", error);
       }
     };
-    loadProvinces();
+
+    loadProvinces(); // Gọi hàm tải danh sách tỉnh/thành phố
   }, []);
 
   const handleProvinceChange = async (value) => {
@@ -558,7 +569,17 @@ const Cart = () => {
     setWards([]);
     if (value) {
       const districtData = await fetchDistricts(value);
-      setDistricts(districtData);
+
+      // Lọc ra chỉ 2 quận: Quận Ninh Kiều và Quận Cái Răng
+      const allowedDistricts = districtData.filter(
+        (district) =>
+          district.DistrictName === "Quận Ninh Kiều" ||
+          district.DistrictName === "Quận Cái Răng"
+      );
+
+      setDistricts(allowedDistricts); // Đặt danh sách quận đã lọc vào state
+
+      // Nếu quận không có districtCode, không chọn quận mặc định
       form.setFieldsValue({ districtCode: undefined, wardCode: undefined });
     }
   };
@@ -633,34 +654,71 @@ const Cart = () => {
     setIsModalOpen(false);
 
     if (address.cityCode) {
-      const districtData = await fetchDistricts(address.cityCode);
-      setDistricts(districtData);
+      try {
+        // Lấy danh sách quận/huyện từ API
+        const districtData = await fetchDistricts(address.cityCode);
 
-      if (address.districtCode) {
-        const wardData = await fetchWards(address.districtCode);
-        setWards(wardData);
-
-        console.log("Fetched Wards:", wardData);
-
-        const selectedWard = wardData.find(
-          (ward) => String(ward.WardCode) === String(address.wardCode)
+        // Lọc chỉ lấy 2 quận: Quận Ninh Kiều và Quận Cái Răng
+        const allowedDistrictNames = ["Quận Ninh Kiều", "Quận Cái Răng"];
+        const allowedDistricts = districtData.filter((district) =>
+          allowedDistrictNames.includes(district.DistrictName)
         );
 
-        if (selectedWard) {
-          form.setFieldsValue({
-            ...mapAddressWithNames(address),
-            wardCode: selectedWard.WardCode,
-            wardName: selectedWard.WardName,
-          });
+        setDistricts(allowedDistricts);
+
+        // Nếu có districtCode trong địa chỉ
+        if (address.districtCode) {
+          // Kiểm tra nếu districtCode nằm trong danh sách quận hợp lệ
+          const isAllowedDistrict = allowedDistricts.some(
+            (district) =>
+              String(district.DistrictID) === String(address.districtCode)
+          );
+
+          if (isAllowedDistrict) {
+            // Lấy danh sách các phường/xã của quận
+            const wardData = await fetchWards(address.districtCode);
+            setWards(wardData);
+
+            // Kiểm tra và chọn phường đã có trong địa chỉ
+            const selectedWard = wardData.find(
+              (ward) => String(ward.WardCode) === String(address.wardCode)
+            );
+
+            if (selectedWard) {
+              form.setFieldsValue({
+                ...mapAddressWithNames(address),
+                wardCode: selectedWard.WardCode,
+                wardName: selectedWard.WardName,
+              });
+            } else {
+              form.setFieldsValue({
+                ...mapAddressWithNames(address),
+                wardCode: undefined,
+                wardName: undefined,
+              });
+            }
+          } else {
+            // Nếu districtCode không hợp lệ, reset lại các trường quận và phường
+            setWards([]);
+            form.setFieldsValue({
+              ...mapAddressWithNames(address),
+              districtCode: undefined,
+              wardCode: undefined,
+              wardName: undefined,
+            });
+          }
         } else {
-          form.setFieldsValue({
-            ...mapAddressWithNames(address),
-            wardCode: undefined,
-            wardName: undefined,
-          });
+          // Nếu không có districtCode, reset các trường phường/xã
+          setWards([]);
+          form.setFieldsValue(mapAddressWithNames(address));
         }
+      } catch (error) {
+        console.error("Error fetching district or ward data:", error);
       }
     } else {
+      // Nếu không có cityCode, reset tất cả các trường
+      setDistricts([]);
+      setWards([]);
       form.setFieldsValue(mapAddressWithNames(address));
     }
   };
@@ -680,6 +738,16 @@ const Cart = () => {
     setIsModalAddressOpen(true);
     setIsModalOpen(false);
     form.resetFields();
+    const canTho = provinces.find(
+      (province) => province.ProvinceName === "Cần Thơ"
+    );
+    if (canTho) {
+      form.setFieldsValue({
+        cityCode: canTho.ProvinceID, // Đặt cityCode là Cần Thơ mặc định
+        districtCode: undefined, // Reset quận
+        wardCode: undefined, // Reset phường
+      });
+    }
   };
 
   return (

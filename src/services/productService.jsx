@@ -43,13 +43,7 @@ export default class ProductService {
   }
 
   createSlug = (text) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[\s]+/g, "-")
-      .replace(/[^\w\-]+/g, "")
-      .replace(/\-\-+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    return text.trim().replace(/[\s]+/g, "-");
   };
 
   generateUniqueSlug(baseSlug, existingSlugs) {
@@ -117,9 +111,7 @@ export default class ProductService {
   };
 
   getProducts = async () => {
-    return await axios.get(API_PRODUCT, {
-  
-    });
+    return await axios.get(API_PRODUCT, {});
   };
 
   getProductsUser = async () => {
@@ -129,23 +121,16 @@ export default class ProductService {
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {
       params,
-   
     });
   };
 
   getProduct = async (id) => {
-    return await axios.get(API_PRODUCT + "/" + id + "/get", {
-   
-    });
+    return await axios.get(API_PRODUCT + "/" + id + "/get", {});
   };
 
   getProductBySlug = async (slug) => {
-    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {
-   
-    });
+    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {});
   };
-
-
 
   deleteProductImage = async (fileName) => {
     await axios.delete(API_PRODUCT + "/images/" + fileName, {
@@ -188,7 +173,7 @@ export default class ProductService {
 
   async uploadImages(formData) {
     const response = await axios.post(
-      API +  "/api/v1/products/images/", // Địa chỉ API của bạn
+      API + "/api/v1/products/images/", // Địa chỉ API của bạn
       formData,
       {
         headers: {

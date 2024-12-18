@@ -409,7 +409,7 @@ function Product() {
                 </div>
 
                 <div className="product-form" style={{ marginTop: "20px" }}>
-                  {isRoleUser ? (
+                  {!username || isRoleUser ? (
                     <Button
                       type="primary"
                       icon={<ShoppingCartOutlined />}
@@ -417,14 +417,14 @@ function Product() {
                         backgroundColor: "#f28123",
                         border: "none",
                       }}
-                      disabled={!isRoleUser}
                       onClick={handleAddToCart}
                     >
                       Add to cart
                     </Button>
                   ) : (
                     <div style={{ fontSize: "16px", color: "red" }}>
-                      The account does not have permission to purchase the product!
+                      The account does not have permission to purchase the
+                      product!
                     </div>
                   )}
                 </div>
