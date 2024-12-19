@@ -5,6 +5,8 @@ const ChatWidget = ({ apiUrl }) => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [typingText, setTypingText] = useState("Bot is typing");
+
   const chatBoxRef = useRef(null);
 
   const toggleChat = () => {
@@ -62,6 +64,21 @@ const ChatWidget = ({ apiUrl }) => {
     }
   }, [messages]);
 
+  // Hiệu ứng Bot is typing...
+  useEffect(() => {
+    let interval;
+    if (isLoading) {
+      interval = setInterval(() => {
+        setTypingText((prev) =>
+          prev === "Bot is typing...." ? "Bot is typing" : prev + "."
+        );
+      }, 500);
+    } else {
+      setTypingText("Bot is typing");
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
   return (
     <div>
       {!isOpen && (
@@ -91,7 +108,7 @@ const ChatWidget = ({ apiUrl }) => {
             bottom: "80px",
             right: "20px",
             width: "420px",
-            height: "600px",
+            height: "530px",
             background: "#f9f9f9",
             border: "1px solid #ccc",
             borderRadius: "15px",
@@ -140,11 +157,13 @@ const ChatWidget = ({ apiUrl }) => {
             style={{
               flexGrow: 1,
               padding: "15px",
-              paddingBottom: "40px",
               overflowY: "scroll",
               background: "white",
               borderTop: "1px solid #eee",
               position: "relative",
+              // Ẩn thanh cuộn khi không cần thiết
+              scrollbarWidth: "none" /* Firefox */,
+              msOverflowStyle: "none" /* Internet Explorer 10+ */,
             }}
           >
             {messages.map((msg, index) => (
@@ -186,22 +205,20 @@ const ChatWidget = ({ apiUrl }) => {
                 />
               </div>
             ))}
-            {isLoading && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: "15px",
-                  color: "#888",
-                  fontStyle: "italic",
-                  fontSize: "14px",
-                  animation: "typingEffect 1.5s infinite",
-                }}
-              >
-                Bot is typing...
-              </div>
-            )}
           </div>
+          {isLoading && (
+            <div
+              style={{
+                padding: "10px 15px",
+                color: "#888",
+                fontStyle: "italic",
+                fontSize: "14px",
+                backgroundColor: "#fff",
+              }}
+            >
+              <span>{typingText}</span>
+            </div>
+          )}
           <div
             style={{
               display: "flex",
@@ -215,7 +232,7 @@ const ChatWidget = ({ apiUrl }) => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Enter your question...."
+              placeholder="Enter your question..."
               style={{
                 flexGrow: 1,
                 padding: "10px",
@@ -243,21 +260,6 @@ const ChatWidget = ({ apiUrl }) => {
           </div>
         </div>
       )}
-      <style>
-        {`
-          div::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-          }
-
-          @keyframes typingEffect {
-            0% { content: 'Bot is typing.'; }
-            33% { content: 'Bot is typing..'; }
-            66% { content: 'Bot is typing...'; }
-            100% { content: 'Bot is typing.'; }
-          }
-        `}
-      </style>
     </div>
   );
 };
