@@ -66,9 +66,7 @@ const Login = () => {
 
               <Form.Item
                 name="username"
-                rules={[
-                  { required: true, message: "Please enter username!" },
-                ]}
+                rules={[{ required: true, message: "Please enter username!" }]}
               >
                 <Input
                   prefix={<UserOutlined />}
@@ -77,7 +75,8 @@ const Login = () => {
                 />
               </Form.Item>
 
-              <Form.Item style={{ marginBottom: "0" }} 
+              <Form.Item
+                style={{ marginBottom: "0" }}
                 name="password"
                 rules={[{ required: true, message: "Please enter password!" }]}
               >
@@ -110,14 +109,13 @@ const Login = () => {
                   Login
                 </Button>
               </Form.Item>
-              <label style={{   textAlign: "right", display: "block" }}>
-              New here? <a href="/register">Create an account</a>
- 
-</label>
+              <label style={{ textAlign: "right", display: "block" }}>
+                New here? <a href="/register">Create an account</a>
+              </label>
 
               <p className="text-center fw-bold my-3 text-muted">OR</p>
 
-              <Form.Item>
+              <Form.Item style={{ marginBottom: "10px" }}>
                 <GoogleOAuthProvider clientId="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com">
                   <GoogleLogin
                     useOneTap
@@ -136,6 +134,9 @@ const Login = () => {
                   />
                 </GoogleOAuthProvider>
               </Form.Item>
+              <label style={{ textAlign: "center", display: "block" }}>
+               <a href="/">Home</a>
+              </label>
             </Form>
           </div>
         </div>

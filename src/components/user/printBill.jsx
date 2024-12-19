@@ -16,7 +16,9 @@ export const printBill = (order) => {
 
         // Đảm bảo nội dung được hiển thị
         newWindow.document.close();
-
+        newWindow.onafterprint = () => {
+            newWindow.close();
+        };
         // Sử dụng setTimeout để đợi React render xong trước khi gọi print
         setTimeout(() => {
             newWindow.print();

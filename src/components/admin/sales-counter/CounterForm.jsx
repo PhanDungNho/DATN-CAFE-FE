@@ -48,14 +48,14 @@ const CounterForm = () => {
   // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], tabName: "Tab 1", customerId: "", paymentMethod: "CASH" },
+    { cart: [], tabName: "Order 1", customerId: "", paymentMethod: "CASH" },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
 
   const productService = new ProductService();
   const accountService = new AccountService();
-  const toppingService = new ToppingService();
+
   const orderService = new OrderService();
   const paymentService = new PaymentService();
 
