@@ -83,7 +83,7 @@ const Login = () => {
               >
                 <Input.Password
                   prefix={<FaLock />}
-                  placeholder="Password"
+                  placeholder="Password "
                   className="form-control-md"
                 />
               </Form.Item>

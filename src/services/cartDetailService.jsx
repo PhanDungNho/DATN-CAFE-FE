@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_CARTDETAIL } from "./constant";
+import { API_CARTDETAIL, API_CARTDETAILTOPPING } from "./constant";
 
 export default class CartDetailService {
   insertCartDetail(cartDetail) {
@@ -20,6 +20,14 @@ export default class CartDetailService {
 
   deleteCartDetail(id) {
     return axios.delete(API_CARTDETAIL + "/" + id, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+  }
+
+  deleteCartDetailTopping(id) {
+    return axios.delete(API_CARTDETAILTOPPING + "/" + id, {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("token"),
       },

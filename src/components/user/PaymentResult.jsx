@@ -5,7 +5,7 @@ const PaymentResult = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Lấy giá trị của 'resultCode' từ query string
+  // Retrieve the value of 'resultCode' from the query string
   const queryParams = new URLSearchParams(location.search);
   const result = queryParams.get('resultCode');
   const orderInfo = queryParams.get('orderInfo');
@@ -15,7 +15,7 @@ const PaymentResult = () => {
     orderId = orderInfo.split(": ")[1].trim();
   }
 
-  // Kiểm tra giá trị resultCode và đưa ra thông báo tương ứng
+  // Determine the message based on resultCode
   let message = '';
   let message2 = '';
   let headingStyle = {};
@@ -83,47 +83,47 @@ const PaymentResult = () => {
 
   switch (result) {
     case '9000':
-      message = 'Giao dịch đã được xác nhận thành công.';
-      message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
+      message = 'The transaction has been successfully confirmed.';
+      message2 = 'Thank you for using our service!';
       headingStyle = styles.headingSuccess;
       if (orderId) {
         localStorage.setItem(`payment_status_${orderId}`, "success");
       }
       break;
     case '0':
-      message = 'Thanh toán thành công.';
-      message2 = 'Cảm ơn quý khách đã sử dụng sản phẩm!';
+      message = 'Payment successful.';
+      message2 = 'Thank you for using our service!';
       headingStyle = styles.headingSuccess;
       if (orderId) {
         localStorage.setItem(`payment_status_${orderId}`, "success");
       }
       break;
     case '1006':
-      message = 'Giao dịch bị từ chối bởi người dùng.';
+      message = 'The transaction was declined by the user.';
       headingStyle = styles.headingFailure;
       buttonStyle = styles.failureButton;
-      buttonText = 'Đóng';
+      buttonText = 'Close';
       break;
     case '1001':
-      message = 'Thanh toán thất bại!';
-      message2 = 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.';
+      message = 'Payment failed!';
+      message2 = 'The payment failed due to insufficient funds.';
       headingStyle = styles.headingFailure;
       break;
     case '1005':
-      message = 'Giao dịch thất bại do url hoặc QR code đã hết hạn.';
-      message2 = 'Vui lòng gửi lại một yêu cầu thanh toán khác.';
+      message = 'The transaction failed due to an expired URL or QR code.';
+      message2 = 'Please send another payment request.';
       headingStyle = styles.headingFailure;
       break;
     default:
-      message = 'Thanh toán thất bại!';
-      message2 = 'Đã có lỗi xảy ra, xin vui lòng Đóng.';
+      message = 'Payment failed!';
+      message2 = 'An error occurred. Please click Close.';
       headingStyle = styles.headingFailure;
       buttonStyle = styles.failureButton;
-      buttonText = 'Đóng';
+      buttonText = 'Close';
       break;
   }
 
-  // Hàm xử lý nút Đóng
+  // Handle Close button
   const handleClose = () => {
     window.close();
   };
@@ -133,8 +133,8 @@ const PaymentResult = () => {
       <div style={styles.messageBox}>
         <h1 style={headingStyle}>{message}</h1>
         <p style={styles.paragraph}>{message2}</p>
-        {/* Nút Đóng */}
-        <button style={styles.closeButton} onClick={handleClose}>Đóng</button>
+        {/* Close button */}
+        <button style={styles.closeButton} onClick={handleClose}>Close</button>
       </div>
     </div>
   );

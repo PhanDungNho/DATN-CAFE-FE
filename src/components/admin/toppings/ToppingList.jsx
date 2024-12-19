@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Image, Space, Switch, Table, Tag } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
-import ToppingService from '../../../services/toppingService';
+import React, { useEffect, useState } from "react";
+import { Button, Image, Space, Switch, Table, Tag } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import ToppingService from "../../../services/toppingService";
+const username = JSON.parse(localStorage.getItem("user"));
 
 const columns = (editTopping, updateToppingActive) => [
   {
@@ -18,11 +19,9 @@ const columns = (editTopping, updateToppingActive) => [
     width: 80,
     render: (_, record) => (
       <Space size="middle">
-        <Image
-          src={ToppingService.getToppingLogoUrl(record.image)}
-        ></Image>
+        <Image src={ToppingService.getToppingLogoUrl(record.image)}></Image>
       </Space>
-    )
+    ),
   },
   {
     title: "Topping Name",
@@ -58,19 +57,17 @@ const columns = (editTopping, updateToppingActive) => [
     align: "center",
     render: (_, record) => (
       <Space size="middle">
-        <Button
-          type="primary"
-          size="small"
-          onClick={() => editTopping(record)}
-        >
+        <Button type="primary" size="small" onClick={() => editTopping(record)}>
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateToppingActive(record.id, checked);
-          }}
-        />
+        {username.roles.includes("ROLE_ADMIN") && (
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateToppingActive(record.id, checked);
+            }}
+          />
+        )}
       </Space>
     ),
   },
@@ -83,7 +80,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 10, 
+      pageSize: 10,
     },
   });
 
@@ -105,7 +102,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
 
   useEffect(() => {
     fetchData();
-  }, [toppings]); 
+  }, [toppings]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -131,7 +128,7 @@ const ToppingList = ({ toppings, editTopping, updateToppingActive }) => {
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: 'No toppings found' }}
+      locale={{ emptyText: "No toppings found" }}
     />
   );
 };

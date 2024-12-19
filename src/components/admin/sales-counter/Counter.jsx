@@ -33,16 +33,16 @@ class Counter extends Component {
   }
   handleTabChange = (key) => {
     this.setState({ activeTab: key });
-    if (key === "2") { // Là tab "Đơn hàng"
+    if (key === "2") {
+      // Là tab "Đơn hàng"
       this.props.getInvoices(); // Gọi lại hàm getInvoices
     }
   };
 
   render() {
     const { navigate } = this.props.router;
-   
-    const { isLoading, activeTab } = this.state;
-   
+
+    const { activeTab } = this.state;
 
     return (
       <Layout>
@@ -50,25 +50,23 @@ class Counter extends Component {
           navigate={navigate}
           title="Orders"
           className="site-page-header"
-        
-        
         />
         <Content style={{ padding: "20px" }}>
-
-        <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={this.handleTabChange}>
-          <TabPane tab="Sales counter" key="1">
-          <CounterForm />  
-          </TabPane>
-          <TabPane tab="Order" key="2">
-        <ListInvoices />
-          </TabPane>
-         
-        </Tabs>
-
-        
+          <Tabs
+            defaultActiveKey="1"
+            activeKey={activeTab}
+            onChange={this.handleTabChange}
+          >
+            <TabPane tab="Sales counter" key="1">
+              <CounterForm />
+            </TabPane>
+            <TabPane tab="Order" key="2">
+              <ListInvoices />
+            </TabPane>
+          </Tabs>
         </Content>
         <Footer style={{ textAlign: "center" }}>
-        Coffee shop management software ©2024
+          Coffee shop management software ©2024
         </Footer>
       </Layout>
     );
@@ -81,7 +79,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getAccounts,
-  getInvoices
+  getInvoices,
 };
 
 export default connect(

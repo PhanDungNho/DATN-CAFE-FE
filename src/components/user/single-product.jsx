@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom"; // Để lấy tham số URL
- 
-import { getProduct, getProductBySlug } from "../../redux/actions/productAction";
- 
+import { useNavigate, useParams } from "react-router-dom"; // Để lấy tham số URL
+
+import {
+  getProduct,
+  getProductBySlug,
+} from "../../redux/actions/productAction";
+
 import {
   getCartDetailsByUsername,
   insertCartDetail,
 } from "../../redux/actions/cartDetailAction";
 
-import { Row, Col, Image, Button, Card, Input } from "antd";
+import { Row, Col, Image, Button, Card, Input, Modal } from "antd";
 import {
   ShoppingCartOutlined,
   LeftOutlined,
@@ -28,20 +31,24 @@ function Product() {
   const [note, setNote] = useState(""); // Để lưu ghi chú
   const [price, setPrice] = useState(50000);
   const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0);
+  const navigate = useNavigate();
+  const username = JSON.parse(localStorage.getItem("user"));
+  const isRoleUser = username?.roles?.includes("ROLE_USER");
+
+  // console.log("Role", isRoleUser);
+  // console.log("username.roles", username.roles);
 
   const cartDetails = useSelector(
     (state) => state.cartDetailReducer.cartDetails
   );
-  
+
   const { id } = useParams();
- 
+
   const dispatch = useDispatch();
   const product = useSelector((state) => state.productReducer.product);
 
   useEffect(() => {
- 
-    dispatch(getProductBySlug(id));  
- 
+    dispatch(getProductBySlug(id));
   }, [dispatch, id]);
 
   const thumbnails = product?.images?.map((image) => image.filename) || [];
@@ -108,12 +115,19 @@ function Product() {
   };
 
   const handleAddToCart = () => {
-    const username = JSON.parse(localStorage.getItem("user"));
-
     // console.log(username);
 
     if (!username) {
-      console.error("User is not logged in");
+      Modal.confirm({
+        title: "User is not logged in",
+        content: "You need to log in to add products to the cart.",
+        okText: "Login",
+        centered: true,
+        cancelText: "Cancel",
+        onOk: () => {
+          navigate("/login");
+        },
+      });
       return;
     }
 
@@ -207,11 +221,10 @@ function Product() {
                   position: "relative",
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                   borderRadius: "8px",
-                  overflow: "hidden", 
+                  overflow: "hidden",
                   width: "400px",
-                  height: "400px", 
+                  height: "400px",
                   display: "flex",
-                  
                 }}
               >
                 <Image
@@ -224,41 +237,38 @@ function Product() {
                     width: "500px",
                     maxHeight: "450px",
                     objectFit: "cover",
-                    
                   }}
                 />
-                
               </div>
 
               <Button
-                  icon={<LeftOutlined />}
-                  shape="circle"
-                  onClick={handlePreviousImage}
-                  style={{
-                    position: "absolute",
-                    top: "40.5%",
-                    left: "-40px",
-                    transform: "translateY(-50%)",
-                    backgroundColor: "#666666",
-                    border: "none",
-                    color: "white",
-                    
-                  }}
-                />
-                <Button
-                  icon={<RightOutlined />}
-                  shape="circle"
-                  onClick={handleNextImage}
-                  style={{
-                    position: "absolute",
-                    top: "40%",
-                    right: "0px",
-                    transform: "translateY(-50%)",
-                    backgroundColor: "#666666",
-                    border: "none",
-                    color: "white",
-                  }}
-                />
+                icon={<LeftOutlined />}
+                shape="circle"
+                onClick={handlePreviousImage}
+                style={{
+                  position: "absolute",
+                  top: "40.5%",
+                  left: "-40px",
+                  transform: "translateY(-50%)",
+                  backgroundColor: "#666666",
+                  border: "none",
+                  color: "white",
+                }}
+              />
+              <Button
+                icon={<RightOutlined />}
+                shape="circle"
+                onClick={handleNextImage}
+                style={{
+                  position: "absolute",
+                  top: "40%",
+                  right: "0px",
+                  transform: "translateY(-50%)",
+                  backgroundColor: "#666666",
+                  border: "none",
+                  color: "white",
+                }}
+              />
 
               <div style={{ display: "flex", alignItems: "center" }}>
                 <Button
@@ -317,7 +327,7 @@ function Product() {
             <Col md={12}>
               <div className="product-content" style={{ marginLeft: "80px" }}>
                 <h3 style={{ color: "#f28123" }}>{product?.name}</h3>
-                <h5 style={{     textAlign: "justify"}}>{product?.description}</h5>
+                <h5 style={{ textAlign: "justify" }}>{product?.description}</h5>
                 <p
                   className="product-pricing"
                   style={{
@@ -344,18 +354,19 @@ function Product() {
                   <div className="size-options">
                     {sizes.map((item) => (
                       <Button
-                      key={item.size}
-                      onClick={() => handleSizeClick(item.size, item.price)}
-                      style={{
-                        marginRight: "10px",
-                        backgroundColor: selectedSize === item.size ? "#f28123" : "White",
-                        color: selectedSize === item.size ? "#fff" : "inherit",
-                        border: "0.1px solid #f28123",
-                      }}
-                    >
-                      {item.size}
-                    </Button>
-                    
+                        key={item.size}
+                        onClick={() => handleSizeClick(item.size, item.price)}
+                        style={{
+                          marginRight: "10px",
+                          backgroundColor:
+                            selectedSize === item.size ? "#f28123" : "White",
+                          color:
+                            selectedSize === item.size ? "#fff" : "inherit",
+                          border: "0.1px solid #f28123",
+                        }}
+                      >
+                        {item.size}
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -378,7 +389,7 @@ function Product() {
                             }
                             style={{ width: "50px" }}
                           />
-                           {topping.name} ({topping.price.toLocaleString()} VNĐ)
+                          {topping.name} ({topping.price.toLocaleString()} VNĐ)
                         </label>
                       </div>
                     ))}
@@ -386,7 +397,7 @@ function Product() {
                 </div>
                 <div style={{ marginTop: "20px" }}>
                   <Input
-                    placeholder="Ghi chú của bạn"
+                    placeholder="Note"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     style={{
@@ -398,17 +409,24 @@ function Product() {
                 </div>
 
                 <div className="product-form" style={{ marginTop: "20px" }}>
-                  <Button
-                    type="primary"
-                    icon={<ShoppingCartOutlined />}
-                    style={{
-                      backgroundColor: "#f28123",
-                      border: "none",
-                    }}
-                    onClick={handleAddToCart}
-                  >
-                    Add to cart
-                  </Button>
+                  {!username || isRoleUser ? (
+                    <Button
+                      type="primary"
+                      icon={<ShoppingCartOutlined />}
+                      style={{
+                        backgroundColor: "#f28123",
+                        border: "none",
+                      }}
+                      onClick={handleAddToCart}
+                    >
+                      Add to cart
+                    </Button>
+                  ) : (
+                    <div style={{ fontSize: "16px", color: "red" }}>
+                      The account does not have permission to purchase the
+                      product!
+                    </div>
+                  )}
                 </div>
               </div>
             </Col>

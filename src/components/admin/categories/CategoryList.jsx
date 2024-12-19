@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Space, Switch, Table, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
+const username = JSON.parse(localStorage.getItem("user"));
 
 const columns = (editCategory, updateCategoryActive) => [
   {
@@ -41,12 +42,14 @@ const columns = (editCategory, updateCategoryActive) => [
         >
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateCategoryActive(record.id, checked);
-          }}
-        />
+        {username.roles.includes("ROLE_ADMIN") && (
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateCategoryActive(record.id, checked);
+            }}
+          />
+        )}
       </Space>
     ),
   },
@@ -81,7 +84,7 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
 
   useEffect(() => {
     fetchData();
-  }, [categories]); 
+  }, [categories]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({

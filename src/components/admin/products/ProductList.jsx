@@ -14,6 +14,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { updateProductOrdering } from "../../../redux/actions/productAction";
 
 const RowContext = React.createContext({});
+const username = JSON.parse(localStorage.getItem("user"));
 const DragHandle = () => {
   const { setActivatorNodeRef, listeners } = useContext(RowContext);
   return (
@@ -38,7 +39,7 @@ const columns = (editProduct, updateProductActive) => [
     render: () => <DragHandle />,
   },
   {
-    title: "STT",
+    title: "Ordering",
     dataIndex: "ordering",
     width: "10%",
     key: "ordering",
@@ -97,15 +98,18 @@ const columns = (editProduct, updateProductActive) => [
         >
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateProductActive(record.id, checked);
-          }}
-        />
+        {username.roles.includes("ROLE_ADMIN") && (
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateProductActive(record.id, checked);
+            }}
+          />
+        )}
       </Space>
     ),
   },
+  
 ];
 
 const Row = (props) => {

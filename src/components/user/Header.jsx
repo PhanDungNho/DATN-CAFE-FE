@@ -22,6 +22,7 @@ import {
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
   deleteCartDetail,
+  deleteCartDetailTopping,
   getCartDetailsByUsername,
   setSelectedItems,
 } from "../../redux/actions/cartDetailAction";
@@ -31,6 +32,7 @@ import withRouter from "../../helpers/withRouter";
 import ProductService from "../../services/productService";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API } from "../../services/constant";
 
 // Custom hook để debounce
 function useDebounce(value, delay) {
@@ -49,34 +51,34 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 function Header() {
-  const [isLoading, setIsLoading] = useState(true);
   const stickerRef = useRef(null); // useRef to reference the sticker element
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300); // Debounce 300ms
   const navigate = useNavigate(); // Sử dụng hook để điều hướng trang
+
   // Gọi hàm tìm kiếm API khi debouncedSearchQuery thay đổi
   useEffect(() => {
-    if (debouncedSearchQuery.trim() === '') {
+    if (debouncedSearchQuery.trim() === "") {
       setProducts([]); // Xóa kết quả tìm kiếm khi ô tìm kiếm trống
       setShowDropdown(false);
       return;
     }
     const handleSearch = async () => {
       try {
-        const response = await axios.get(`http://localhost:8081/api/v1/products/search`, {
-          params: { name: debouncedSearchQuery }
+        const response = await axios.get(API + `/api/v1/products/search`, {
+          params: { name: debouncedSearchQuery },
         });
         setProducts(response.data);
         setShowDropdown(true);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
       }
     };
 
@@ -86,7 +88,7 @@ function Header() {
   const handleKeywordClick = async (keyword) => {
     try {
       // Gọi API tìm kiếm sản phẩm theo từ khóa
-      const response = await axios.get(`http://localhost:8081/api/v1/products/search`, {
+      const response = await axios.get(API + `/api/v1/products/search`, {
         params: { name: keyword },
       });
 
@@ -108,11 +110,11 @@ function Header() {
   };
   // Hàm xử lý khi nhấn Enter
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      if (searchQuery.trim() !== '') {
+    if (e.key === "Enter") {
+      if (searchQuery.trim() !== "") {
         navigate(`/shop?search=${searchQuery}`);
       } else {
-        navigate('/shop');
+        navigate("/shop");
       }
       setShowDropdown(false);
     }
@@ -127,20 +129,6 @@ function Header() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [totalCart, setTotalCart] = useState(0);
   const [grandTotal, setGrandTotal] = useState(0);
-
-  const colors = [
-    "magenta",
-    "red",
-    "volcano",
-    "orange",
-    "gold",
-    "lime",
-    "green",
-    "cyan",
-    "blue",
-    "geekblue",
-    "purple",
-  ];
 
   const showDrawer = () => {
     setOpen(true);
@@ -160,14 +148,24 @@ function Header() {
       title: "Product",
       dataIndex: "productVariant",
       key: "productVariant",
+      width: "40%", // Tăng chiều rộng của cột này
       render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            wordWrap: "break-word",
+            maxWidth: "100%",
+          }}
+        >
           <Image
             src={ProductService.getProductImageUrl(record.images[0].fileName)}
             style={{ width: 40, height: 40, marginRight: 10, borderRadius: 5 }}
           />
-          <div>
-            <div>{record.productVariant.product.name}</div>
+          <div style={{ wordWrap: "break-word", maxWidth: "100%" }}>
+            <Link to={`/single-product/${record.productVariant.product.slug}`}>
+              <div>{record.productVariant.product.name}</div>
+            </Link>
             <div>{record.productVariant.size.name}</div>
           </div>
         </div>
@@ -177,28 +175,56 @@ function Header() {
       title: "Topping",
       dataIndex: "cartDetailToppings",
       key: "toppings",
-      render: (toppings) =>
+      width: "40%", // Tăng chiều rộng của cột này
+      render: (toppings, record) =>
         toppings && toppings.length > 0
           ? toppings.map((topping) => (
-            <div key={topping.topping.id}>
-              <Tag color={colors[Math.floor(Math.random() * colors.length)]}>
-                {topping.topping.name} ({topping.topping.price}) x{" "}
-                {topping.quantity}
-              </Tag>
-            </div>
-          ))
+              <div
+                key={topping.topping.id}
+                style={{
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                  wordWrap: "break-word",
+                  maxWidth: "100%",
+                }}
+              >
+                <Tag>
+                  {topping.topping.name} ({topping.topping.price}) x{" "}
+                  {topping.quantity}
+                </Tag>
+                <Button
+                  type="link"
+                  onClick={() => {
+                    handleDeleteTopping(record.id, topping.id);
+                  }}
+                  style={{
+                    paddingLeft: "5px",
+                    paddingRight: "5px",
+                    color: "red",
+                  }}
+                >
+                  x
+                </Button>
+              </div>
+            ))
           : "",
     },
     {
       title: "Price",
       dataIndex: ["productVariant", "price"],
       key: "price",
+      render: (text, record) => (
+        <span style={{ paddingLeft: 0, paddingRight: 0 }}>
+          {record.productVariant.price}
+        </span>
+      ),
     },
     {
       title: "Remove",
       key: "remove",
+      width: "5%",
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="middle" style={{ paddingLeft: 0, paddingRight: 0 }}>
           <Popconfirm
             title="Are you sure to delete this item?"
             onConfirm={() => handleDelete(record.id)}
@@ -218,6 +244,17 @@ function Header() {
     },
   ];
 
+  const handleDeleteTopping = (cartItemId, toppingId) => {
+    console.log(`Xóa topping ${toppingId} từ sản phẩm ${cartItemId}`);
+    dispatch(deleteCartDetailTopping(toppingId))
+      .then(() => {
+        dispatch(getCartDetailsByUsername(username));
+      })
+      .catch((error) => {
+        console.error("Error deleting item from cart:", error);
+      });
+  };
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -228,9 +265,7 @@ function Header() {
       dispatch(getCartDetailsByUsername(user.username));
     }
 
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const timer = setTimeout(() => {}, 1000);
 
     const handleScroll = () => {
       if (!stickerRef.current) return;
@@ -263,7 +298,6 @@ function Header() {
     } else {
       setData([]);
     }
-    setIsLoading(false);
   }, [cartDetails]);
 
   const handleLogout = () => {
@@ -285,7 +319,6 @@ function Header() {
   const handleBlur = () => {
     setTimeout(() => setShowDropdown(false), 200); // Đợi để tránh mất kết quả khi nhấp vào
   };
-
 
   const handleCheckout = () => {
     const selectedItems = data.filter((item) =>
@@ -341,13 +374,6 @@ function Header() {
 
   return (
     <>
-      {isLoading && (
-        <div className="loader">
-          <div className="loader-inner">
-            <div className="circle"></div>
-          </div>
-        </div>
-      )}
       <style>
         {`
   .search-dropdown {
@@ -405,6 +431,24 @@ width: 180px;
   margin: 0 auto; /* Canh giữa nếu cần */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* Loại bỏ padding cho các cột "Topping", "Price" và "Remove" */
+.ant-table-tbody > tr > td {
+  padding-left: 5 !important;
+  padding-right: 5 !important;
+}
+
+.ant-table-thead > tr > td {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Thêm một chút padding cho các cột còn lại nếu cần */
+.ant-table-tbody > tr > td:not([data-column-key="stt"]) {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 
 .popular-keywords-title {
   font-size: 16px;
@@ -471,9 +515,6 @@ width: 180px;
                       <Link to="/about">About</Link>
                     </li>
                     <li>
-                      <Link to="#">Pages</Link>
-                    </li>
-                    <li>
                       <Link to="/shop">Products</Link>
                     </li>
                     <li>
@@ -493,19 +534,22 @@ width: 180px;
                             {products.length > 0 ? (
                               products.map((product) => (
                                 <Link
-                                  key={product.id}
-                                  to={`/single-product/${product.id}`}
+                                  key={product.slug}
+                                  to={`/single-product/${product.slug}`}
                                   className="search-item"
                                   onClick={() => setShowDropdown(false)}
                                 >
-                                  <h4 style={{ fontSize: '16.3px' }}>{product.name}</h4>
+                                  <h4 style={{ fontSize: "16.3px" }}>
+                                    {product.name}
+                                  </h4>
                                 </Link>
                               ))
                             ) : (
-                              <div className="search-item">Product not found!</div>
+                              <div className="search-item">
+                                Product not found!
+                              </div>
                             )}
                             {/* Hiển thị từ khóa phổ biến */}
-
                           </div>
                         )}
                       </li>
@@ -564,7 +608,7 @@ width: 180px;
                             </>
                           ) : (
                             <>
-                              <Link to="/manager/orders">
+                              <Link to="/manager/info">
                                 <IdcardOutlined
                                   style={{ marginRight: "8px" }}
                                 />{" "}
@@ -578,13 +622,20 @@ width: 180px;
                               </Link>
                               {/* Hiện admin nếu user có vai trò admin */}
                               {isLoggedIn &&
-                                JSON.parse(
-                                  localStorage.getItem("user")
-                                )?.roles.includes("ROLE_ADMIN") && (
-                                  <Link to="/admin">
+                                (() => {
+                                  const userRoles =
+                                    JSON.parse(localStorage.getItem("user"))
+                                      ?.roles || [];
+                                  return (
+                                    userRoles.includes("ROLE_ADMIN") ||
+                                    userRoles.includes("ROLE_STAFF") ||
+                                    userRoles.includes("ROLE_SUPERADMIN") 
+                                  );
+                                })() && (
+                                  <Link to="/admin/orders">
                                     <TeamOutlined
                                       style={{ marginRight: "8px" }}
-                                    />{" "}
+                                    />
                                     Admin
                                   </Link>
                                 )}
@@ -606,7 +657,12 @@ width: 180px;
                 </a>
                 <div className="mobile-menu" />
                 {/* menu end */}
-                <Drawer title="Shopping cart" onClose={onClose} open={open} className="drawerTable">
+                <Drawer
+                  title="Shopping cart"
+                  onClose={onClose}
+                  open={open}
+                  className="drawerTable"
+                >
                   <Table
                     rowSelection={rowSelection}
                     columns={columns}
@@ -667,6 +723,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   getCartDetailsByUsername,
   deleteCartDetail,
+  deleteCartDetailTopping,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Header));

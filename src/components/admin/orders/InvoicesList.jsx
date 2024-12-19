@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Select, Space, Switch, Table, Tag } from "antd";
+import {
+  Button,
+  message,
+  Modal,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Tag,
+} from "antd";
 import moment from "moment";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { BsListColumnsReverse } from "react-icons/bs";
 import { printBill } from "../../user/printBill";
+import PaymentService from "../../../services/PaymentService";
+import { getInvoices } from "../../../redux/actions/invoiceAction";
+const paymentService = new PaymentService();
 
-const columns = (updateOrderActive, updateOrder, showModal) => [
+const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
   {
     title: "ID",
     dataIndex: "id",
@@ -55,11 +67,13 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
     key: "paymentStatus",
     align: "left",
     render: (_, record) => {
-      return record.paymentStatus === "PAID" ? (
-        <Tag color="green">PAID</Tag>
-      ) : (
-        <Tag color="volcano">UNPAID</Tag>
-      );
+      if (record.paymentStatus === "PAID") {
+        return <Tag color="green">PAID</Tag>;
+      } else if (record.paymentStatus === "REFUND") {
+        return <Tag color="grey">REFUND</Tag>;
+      } else {
+        return <Tag color="volcano">UNPAID</Tag>;
+      }
     },
   },
   {
@@ -73,11 +87,16 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
           { value: "PROCESSING", label: "PROCESSING" },
           { value: "CANCELLED", label: "CANCELLED" },
         ],
-        PROCESSING: [
-          { value: "PROCESSING", label: "PROCESSING" },
-          { value: "DELIVERING", label: "DELIVERING" },
-          { value: "CANCELLED", label: "CANCELLED" },
-        ],
+        PROCESSING: record.orderType === "IN_STORE"
+          ? [
+              { value: "CANCELLED", label: "CANCELLED" },
+              { value: "COMPLETED", label: "COMPLETED" },
+            ]
+          : [
+              { value: "PROCESSING", label: "PROCESSING" },
+              { value: "DELIVERING", label: "DELIVERING" },
+              { value: "CANCELLED", label: "CANCELLED" },
+            ],
         DELIVERING: [
           { value: "DELIVERING", label: "DELIVERING" },
           { value: "DELIVERED", label: "DELIVERED" },
@@ -89,19 +108,43 @@ const columns = (updateOrderActive, updateOrder, showModal) => [
         COMPLETED: [{ value: "COMPLETED", label: "COMPLETED" }],
         CANCELLED: [{ value: "CANCELLED", label: "CANCELLED" }],
       };
+  
+      const handleStatusChange = async (record, value) => {
+        try {
+          await updateOrder(record.id, { orderStatus: value });
 
+          if (value === "CANCELLED"&& record.transactions[0]) {
+            // Giả sử bạn có response từ một dịch vụ trước đó
+            const response = await paymentService.refund(
+              record.transactions[0]
+            );
+
+            // Xử lý phản hồi sau khi hoàn tiền nếu cần
+            if (response.status === 200) {
+              await getInvoices();
+              message.success("Refund successful");
+            } else {
+              message.error("Refund failed");
+            }
+          }
+        } catch (error) {
+          message.error("Error processing refund");
+        }
+      };
+  
       return (
         <Select
           defaultValue={record.orderStatus}
           style={{ width: 150 }}
           options={statusOptions[record.orderStatus]}
           onChange={(value) => {
-            updateOrder(record.id, { orderStatus: value });
+            handleStatusChange(record, value);
           }}
         />
       );
     },
-  },
+  }
+  ,
   {
     title: "Active",
     dataIndex: "active",
@@ -183,11 +226,7 @@ const expandColumns = [
   },
 ];
 
-const InvoicesList = ({
-  invoices,
-  updateOrderActive,
-  updateOrder,
-}) => {
+const InvoicesList = ({ invoices, updateOrderActive, updateOrder, getInvoices }) => {
   const [data, setData] = useState(invoices);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
@@ -215,21 +254,23 @@ const InvoicesList = ({
 
   const expandedRowRender = (record) => {
     return (
-      <div style={{ padding: '20px', background: '#f9f9f9' }}>
+      <div style={{ padding: "20px", background: "#f9f9f9" }}>
         {record.fullAddress && (
           <p>
-            <strong>Address: </strong>{record.fullAddress}
+            <strong>Address: </strong>
+            {record.fullAddress}
           </p>
         )}
         {record.customer?.username && (
           <p>
-            <strong>Customer ID: </strong>{record.customer.username}
+            <strong>Customer ID: </strong>
+            {record.customer.username}
           </p>
         )}
         {record.shippingFee !== undefined && record.shippingFee > 0 && (
           <p>
             <strong>Shipping fee: </strong>
-            {record.shippingFee.toLocaleString() + ' VNĐ'}
+            {record.shippingFee.toLocaleString() + " VNĐ"}
           </p>
         )}
         <Table
@@ -238,7 +279,7 @@ const InvoicesList = ({
           pagination={false}
           bordered
         />
-        <div style={{ marginTop: '20px', textAlign: 'right' }}>
+        <div style={{ marginTop: "20px", textAlign: "right" }}>
           <Button
             type="primary"
             onClick={() => printBill(record)} // Chức năng in hóa đơn
@@ -249,44 +290,48 @@ const InvoicesList = ({
       </div>
     );
   };
-  
 
   const expandDataSource = (record) => {
     return (record.orderDetails || []).map((detail, index) => ({
       key: detail.id.toString(),
       id: index + 1,
-      productName: detail.productVariant.product.name,
+      productName: detail.productVariant?.product?.name || "N/A",
       quantity: detail.quantity,
       price: detail.momentPrice,
-      size: detail.productVariant.size.name,
+      size: detail.productVariant?.size?.name || "N/A",
       toppings: detail.orderDetailToppings
-        .map(topping => `${topping.topping.name} ${topping.momentPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} x ${topping.quantity}`)
+        .map(
+          (topping) =>
+            `${topping.topping.name} ${topping.momentPrice.toLocaleString(
+              "vi-VN",
+              { style: "currency", currency: "VND" }
+            )} x ${topping.quantity}`
+        )
         .join(", "),
       note: detail.note,
     }));
   };
 
-  const fetchData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const sortedInvoices = [...invoices].sort((a, b) => b.id - a.id);
-      setData(sortedInvoices);
-      setLoading(false);
-      setHasData(sortedInvoices.length > 0);
-      setTableParams((prev) => ({
-        ...prev,
-        pagination: {
-          ...prev.pagination,
-          total: sortedInvoices.length,
-        },
-      }));
-    }, 1000);
-  };
-
   useEffect(() => {
+    const fetchData = () => {
+      setLoading(true);
+      setTimeout(() => {
+        const sortedInvoices = [...invoices].sort((a, b) => b.id - a.id);
+        setData(sortedInvoices);
+        setLoading(false);
+        setHasData(sortedInvoices.length > 0);
+        setTableParams((prev) => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: sortedInvoices.length,
+          },
+        }));
+      }, 1000);
+    };
+
     fetchData();
-    setData(invoices);
-  }, [invoices]);
+  }, [invoices]); // Chỉ phụ thuộc vào 'invoices'
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -300,10 +345,13 @@ const InvoicesList = ({
     }
   };
 
+  console.log("invoice", invoices);
+  console.log("data", data);
+
   return (
     <>
       <Table
-        columns={columns(updateOrderActive, updateOrder, showModal)}
+        columns={columns(updateOrderActive, updateOrder, showModal, getInvoices)}
         rowKey="id"
         dataSource={hasData ? data : []}
         pagination={{ ...tableParams.pagination }}

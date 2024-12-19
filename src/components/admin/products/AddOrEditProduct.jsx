@@ -56,7 +56,7 @@ class AddOrEditProduct extends Component {
     };
 
     if (updatedProductImages.length === 0) {
-      message.error("Please upload at least one product image!");
+      message.warning("Please upload at least one product image!");
       return;
     }
 

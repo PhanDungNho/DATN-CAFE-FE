@@ -1,9 +1,10 @@
 // src/components/SizeList.jsx
 
-import React, { useEffect, useState } from 'react';
-import { Button, Space, Switch, Table, Tag } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from "react";
+import { Button, Space, Switch, Table, Tag } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import PropTypes from "prop-types";
+const username = JSON.parse(localStorage.getItem("user"));
 
 const SizeList = ({ sizes, editSize, updateSizeActive }) => {
   const [data, setData] = useState([]);
@@ -46,50 +47,52 @@ const SizeList = ({ sizes, editSize, updateSizeActive }) => {
 
   const columns = [
     {
-      title: 'Size ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "Size ID",
+      dataIndex: "id",
+      key: "id",
       width: 100,
-      align: 'center',
+      align: "center",
     },
     {
-      title: 'Size Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Size Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Active',
-      dataIndex: 'active',
-      key: 'active',
+      title: "Active",
+      dataIndex: "active",
+      key: "active",
       width: 100,
-      align: 'center',
+      align: "center",
       render: (active) => {
-        let color = active ? 'green' : 'volcano';
-        let statusText = active ? 'Active' : 'Inactive';
+        let color = active ? "green" : "volcano";
+        let statusText = active ? "Active" : "Inactive";
         return <Tag color={color}>{statusText}</Tag>;
       },
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       width: 150,
-      align: 'center',
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
-           <Button
-          key={record.key}
-          type="primary"
-          size="small"
-          onClick={() => editSize(record)}
-        >
-          <EditOutlined style={{ marginRight: 8 }} /> Edit
-        </Button>
-          <Switch
-            checked={record.active}
-            onChange={(checked) => {
-              updateSizeActive(record.id, checked);
-            }}
-          />
+          <Button
+            key={record.key}
+            type="primary"
+            size="small"
+            onClick={() => editSize(record)}
+          >
+            <EditOutlined style={{ marginRight: 8 }} /> Edit
+          </Button>
+          {username.roles.includes("ROLE_ADMIN") && (
+            <Switch
+              checked={record.active}
+              onChange={(checked) => {
+                updateSizeActive(record.id, checked);
+              }}
+            />
+          )}
         </Space>
       ),
     },
@@ -103,7 +106,7 @@ const SizeList = ({ sizes, editSize, updateSizeActive }) => {
       pagination={tableParams.pagination}
       loading={loading}
       size="small"
-      locale={{ emptyText: 'No sizes found' }}
+      locale={{ emptyText: "No sizes found" }}
       onChange={handleTableChange}
     />
   );

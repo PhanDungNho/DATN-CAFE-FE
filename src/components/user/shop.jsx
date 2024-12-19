@@ -229,7 +229,7 @@ function Shop() {
                       fontWeight: "560",
                     }}
                   >
-                    <UnorderedListOutlined /> Category
+                    <UnorderedListOutlined /> Categories
                   </h5>
                   <Menu
                     mode="inline"
@@ -383,7 +383,8 @@ function Shop() {
                       </div>
                     )}
 
-                    {/* <Row justify="end" style={{ marginTop: 20 }}>
+                    {/*
+                    <Row justify="end" style={{ marginTop: 20 }}>
                       <Select
                         defaultValue={pageSize}
                         style={{ width: 120 }}

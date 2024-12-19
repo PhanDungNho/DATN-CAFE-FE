@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, message, Tag, Descriptions } from "antd";
+import { Table, Button, Modal, message, Tag, Descriptions, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import invoiceService from "../../../services/invoiceService";
+import { updateOrder } from "../../../redux/actions/invoiceAction";
+import { useDispatch } from "react-redux";
+import PaymentService from "../../../services/PaymentService";
 
 const Allorder = () => {
+  const dispatch = useDispatch(); // Khai báo dispatch
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -17,7 +21,7 @@ const Allorder = () => {
   const navigate = useNavigate();
   const service = new invoiceService();
   const username = JSON.parse(localStorage.getItem("user"))?.username;
-
+  const paymentService = new PaymentService();
   const getRandomColor = () => {
     const colors = [
       "magenta",
@@ -60,6 +64,15 @@ const Allorder = () => {
   }, []);
 
   const handleDetailClick = (record) => {
+    // Kiểm tra nếu có transactions và transactions[0].transId
+    if (
+      record.transactions &&
+      record.transactions[0] &&
+      record.transactions[0].transId
+    ) {
+      console.log(record.transactions[0].transId);
+    }
+
     setSelectedRecord(record);
     setIsModalVisible(true);
   };
@@ -69,6 +82,43 @@ const Allorder = () => {
     setSelectedRecord(null);
   };
 
+  const handleStatusChange = async (record, status) => {
+    // Dispatch action updateOrder
+    dispatch(updateOrder(record.id, { orderStatus: status }));
+
+    // Cập nhật dữ liệu trong state sau khi dispatch
+    const updatedData = filteredData.map((order) =>
+      order.id === record.id ? { ...order, orderStatus: status } : order
+    );
+    setFilteredData(updatedData);
+
+    // Hiển thị alert với trạng thái mới
+    // alert(`New status for order ID ${record.id}: ${status}`);
+
+    // Kiểm tra nếu trạng thái là "CANCELLED", thực hiện hoàn tiền
+    if (status === "CANCELLED" && record.transactions[0]) {
+      try {
+        const response = await paymentService.refund(record.transactions[0]);
+
+        // Xử lý phản hồi sau khi hoàn tiền nếu cần
+        if (response.status === 200) {
+          // Cập nhật paymentStatus thành REFUND
+          const updatedWithRefundStatus = updatedData.map((order) =>
+            order.id === record.id
+              ? { ...order, paymentStatus: "REFUND" }
+              : order
+          );
+          setFilteredData(updatedWithRefundStatus);
+          message.success("Refund successful");
+        } else {
+          message.error("Refund failed");
+        }
+      } catch (error) {
+        console.error("Refund error:", error);
+        message.error("Error processing refund");
+      }
+    }
+  };
   const handleFilterChange = (status) => {
     setStatusFilter(status);
     if (status === "ALL") {
@@ -105,9 +155,26 @@ const Allorder = () => {
       key: "paymentStatus",
     },
     {
-      title: "Order status",
-      dataIndex: "orderStatus",
+      title: "Order Status",
       key: "orderStatus",
+      align: "center",
+      render: (_, record) => {
+        const statusOptions = [{ value: "CANCELLED", label: "CANCELLED" }];
+
+        // Kiểm tra trạng thái hiện tại để quyết định có hiển thị Select hay không
+        const canChangeStatus = record.orderStatus === "PROCESSING";
+
+        return canChangeStatus ? (
+          <Select
+            defaultValue={record.orderStatus}
+            style={{ width: 150 }}
+            options={statusOptions}
+            onChange={(value) => handleStatusChange(record, value)}
+          />
+        ) : (
+          <span>{record.orderStatus}</span> // Hiển thị trạng thái hiện tại nếu không thể thay đổi
+        );
+      },
     },
     {
       title: "Shipping fee",
@@ -129,7 +196,7 @@ const Allorder = () => {
       key: "action",
       render: (_, record) => (
         <Button type="primary" onClick={() => handleDetailClick(record)}>
-         See details
+          See details
         </Button>
       ),
     },
@@ -200,90 +267,94 @@ const Allorder = () => {
           <div>
             {/* Bảng đầu tiên */}
             <Table
-  className="no-header-table"
-  dataSource={[
-    {
-      key: "1",
-      info1: (
-        <span>
-          <strong>Order ID:</strong> {selectedRecord.id}
-        </span>
-      ),
-      info2: (
-        <span>
-          <strong>Payment status:</strong> {selectedRecord.paymentStatus}
-        </span>
-      ),
-    },
-    {
-      key: "2",
-      info1: (
-        <span>
-          <strong>Created time:</strong>{" "}
-          {new Date(selectedRecord.createdTime).toLocaleString("vi-VN")}
-        </span>
-      ),
-      info2: (
-        <span>
-          <strong>Order status:</strong> {selectedRecord.orderStatus}
-        </span>
-      ),
-    },
-    {
-      key: "3",
-      info1: (
-        <span>
-          <strong>Order type:</strong> {selectedRecord.orderType}
-        </span>
-      ),
-      info2: (
-        <span>
-          <strong>Shipping fee:</strong>{" "}
-          {selectedRecord.shippingFee.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
-        </span>
-      ),
-    },
-    {
-      key: "4",
-      info1: (
-        <span>
-          <strong>Payment method:</strong> {selectedRecord.paymentMethod}
-        </span>
-      ),
-      info2: (
-        <span>
-          <strong>Order value:</strong>{" "}
-          {selectedRecord.totalAmount.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
-        </span>
-      ),
-    },
-  ]}
-  pagination={false}
-  columns={[
-    {
-      dataIndex: "info1",
-      key: "info1",
-    },
-    {
-      dataIndex: "info2",
-      key: "info2",
-    },
-  ]}
-  style={{ marginBottom: "20px" }}
-/>
-
+              className="no-header-table"
+              dataSource={[
+                {
+                  key: "1",
+                  info1: (
+                    <span>
+                      <strong>Order ID:</strong> {selectedRecord.id}
+                    </span>
+                  ),
+                  info2: (
+                    <span>
+                      <strong>Payment status:</strong>{" "}
+                      {selectedRecord.paymentStatus}
+                    </span>
+                  ),
+                },
+                {
+                  key: "2",
+                  info1: (
+                    <span>
+                      <strong>Created time:</strong>{" "}
+                      {new Date(selectedRecord.createdTime).toLocaleString(
+                        "vi-VN"
+                      )}
+                    </span>
+                  ),
+                  info2: (
+                    <span>
+                      <strong>Order status:</strong>{" "}
+                      {selectedRecord.orderStatus}
+                    </span>
+                  ),
+                },
+                {
+                  key: "3",
+                  info1: (
+                    <span>
+                      <strong>Order type:</strong> {selectedRecord.orderType}
+                    </span>
+                  ),
+                  info2: (
+                    <span>
+                      <strong>Shipping fee:</strong>{" "}
+                      {selectedRecord.shippingFee.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </span>
+                  ),
+                },
+                {
+                  key: "4",
+                  info1: (
+                    <span>
+                      <strong>Payment method:</strong>{" "}
+                      {selectedRecord.paymentMethod}
+                    </span>
+                  ),
+                  info2: (
+                    <span>
+                      <strong>Order value:</strong>{" "}
+                      {selectedRecord.totalAmount.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </span>
+                  ),
+                },
+              ]}
+              pagination={false}
+              columns={[
+                {
+                  dataIndex: "info1",
+                  key: "info1",
+                },
+                {
+                  dataIndex: "info2",
+                  key: "info2",
+                },
+              ]}
+              style={{ marginBottom: "20px" }}
+            />
 
             <h5>Order details</h5>
 
             {/* Bảng thứ hai */}
             <Table
-              dataSource={selectedRecord.orderdetails}
+              dataSource={selectedRecord.orderDetails}
               columns={[
                 {
                   title: "Product",
@@ -291,7 +362,7 @@ const Allorder = () => {
                   render: (_, record) => {
                     const productName = record.productVariant.product.name;
                     const sizeName = record.productVariant.size.name;
-                    const productUrl = `/products/${record.productVariant.product.id}`;
+                    const productUrl = `/single-product/${record.productVariant.product.slug}`;
 
                     return (
                       <a
@@ -339,8 +410,7 @@ const Allorder = () => {
                         x {topping.quantity}
                       </div>
                     )),
-                }
-,                
+                },
                 {
                   title: "Note",
                   dataIndex: "note",

@@ -142,6 +142,7 @@ export const updateOrderActive = (id, active) => async (dispatch) => {
 };
 
 export const updateOrder = (id, order) => async (dispatch) => {
+
   const services = new invoiceService();
 
   try {

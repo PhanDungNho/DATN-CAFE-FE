@@ -1,272 +1,264 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaFacebookMessenger } from "react-icons/fa";
 
-const ChatWidget = ({
-  apiUrl,
-  avatarUrl = "../../../../public/assets/img/logo1.png",
-}) => {
+const ChatWidget = ({ apiUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
-
-  // Tạo ref cho div chứa tin nhắn
-  const messagesEndRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const chatBoxRef = useRef(null);
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
+    setTimeout(() => {
+      if (!isOpen && chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
+    }, 0);
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!userInput.trim()) return;
 
     const userMessage = userInput;
-    setMessages([...messages, { sender: "user", message: userMessage }]);
+    setMessages((prev) => [...prev, { sender: "user", message: userMessage }]);
     setUserInput("");
+    setIsLoading(true);
 
-    try {
-      const fetchWithRetry = async (retries) => {
-        for (let i = 0; i < retries; i++) {
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message: userMessage }),
-          });
-
-          if (response.ok) {
-            return response.json();
-          }
-
-          if (response.status === 503) {
-            console.log("Mô hình bị quá tải, thử lại...");
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-          }
-        }
-        throw new Error("Có lỗi xảy ra khi gọi API");
-      };
-
-      const data = await fetchWithRetry(3);
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          sender: "bot",
-          message: data.response || "Xin lỗi, bot chưa phản hồi.",
-        },
-      ]);
-    } catch (error) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: "bot", message: "Xin lỗi, có lỗi xảy ra!" },
-      ]);
-      console.error("Lỗi khi gọi API: ", error);
-    }
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: userMessage }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            message: data.response || "Sorry, the bot hasn't responded yet.",
+          },
+        ]);
+      })
+      .catch(() => {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", message: "Sorry, the bot hasn't responded yet!" },
+        ]);
+      })
+      .finally(() => setIsLoading(false));
   };
-
-  const handleInputChange = (event) => {
-    setUserInput(event.target.value);
-  };
-
-  // Tự động cuộn xuống cuối khi tin nhắn thay đổi
-  useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isOpen]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      event.preventDefault(); // Ngừng hành động mặc định của Enter (thường là xuống dòng)
-      handleSendMessage(); // Gửi tin nhắn
+      handleSendMessage();
     }
   };
 
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <>
-      <button
-        onClick={toggleChat}
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "linear-gradient(135deg, #FF6F00, #FFFF33)", // Gradient nút gửi
-          color: "white",
-          border: "none",
-          boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.3)",
-          cursor: "pointer",
-          transition:
-            "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out, opacity 0.3s ease",
-          display: isOpen ? "none" : "block",
-          opacity: isOpen ? 0.6 : 1,
-          zIndex: 1000,
-        }}
-      >
-        <FaFacebookMessenger style={{ fontSize: 32 }} />
-      </button>
+    <div>
+      {!isOpen && (
+        <button
+          onClick={toggleChat}
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            padding: "12px 25px",
+            borderRadius: "5px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            zIndex: 1001,
+          }}
+        >
+          Chat
+        </button>
+      )}
 
       {isOpen && (
         <div
           style={{
             position: "fixed",
-            bottom: "50px",
+            bottom: "80px",
             right: "20px",
-            width: "400px",
-            height: "500px",
+            width: "420px",
+            height: "600px",
+            background: "#f9f9f9",
+            border: "1px solid #ccc",
             borderRadius: "15px",
             boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
-            backgroundColor: "linear-gradient(135deg, #FFF3E0, #FFCC80)", // Gradient nền khung chat
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            fontFamily: "'Roboto', sans-serif",
-            zIndex: 1000,
+            fontFamily: "'Arial', sans-serif",
+            zIndex: 1001,
           }}
         >
           <div
             style={{
-              background: "linear-gradient(135deg, #FF6F00, #FFFF33)", // Gradient nút gửi
+              background: "linear-gradient(135deg, #007bff, #0056b3)",
               color: "white",
               padding: "15px",
-              fontSize: "18px",
-              textAlign: "center",
+              textAlign: "left",
+              fontSize: "20px",
               fontWeight: "bold",
+              position: "relative",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
               display: "flex",
-              alignItems: "center",
               justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <span>
-              <FaFacebookMessenger style={{ fontSize: 24 }} /> Trợ lý AI
-            </span>
+            <span>Wala AI Assistant</span>
             <button
               onClick={toggleChat}
               style={{
-                background: "none",
+                background: "transparent",
                 border: "none",
-                color: "black",
-                fontSize: "16px",
+                color: "white",
+                fontSize: "20px",
                 cursor: "pointer",
+                transition: "color 0.3s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#cccccc")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
             >
-              X
+              x
             </button>
           </div>
           <div
+            ref={chatBoxRef}
             style={{
-              flexGrow: "1",
-              overflowY: "auto",
-              scrollbarWidth: "none",
-              WebkitOverflowScrolling: "touch",
+              flexGrow: 1,
               padding: "15px",
-              background: "linear-gradient(135deg, #FFEBEE, #FFCDD2)",
+              paddingBottom: "40px",
+              overflowY: "scroll",
+              background: "white",
+              borderTop: "1px solid #eee",
+              position: "relative",
             }}
           >
             {messages.map((msg, index) => (
-              <div key={index} style={{ marginBottom: "15px" }}>
-                {msg.sender === "bot" ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <img
-                      src={`/assets/img/logo1.png`}
-                      alt="Avatar"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        marginRight: "10px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div
-                      style={{
-                        background: "linear-gradient(135deg, #FF6F00, #FFFF33)",
-                        color: "white",
-                        padding: "10px 15px",
-                        borderRadius: "20px",
-                        maxWidth: "70%",
-                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      {msg.message}
-                    </div>
-                  </div>
-                ) : (
-                  <div
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  justifyContent:
+                    msg.sender === "user" ? "flex-end" : "flex-start",
+                  marginBottom: "12px",
+                }}
+              >
+                {msg.sender === "bot" && (
+                  <img
+                    src="/assets/img/logo1.png"
+                    alt="Avatar"
                     style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      padding: "5px 10px",
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                      marginRight: "10px",
                     }}
-                  >
-                    <div
-                      style={{
-                        background: "linear-gradient(135deg, #FF6F00, #FFFF33)",
-                        color: "white",
-                        padding: "10px 15px",
-                        borderRadius: "20px",
-                        maxWidth: "70%",
-                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      {msg.message}
-                    </div>
-                  </div>
+                  />
                 )}
+                <div
+                  style={{
+                    maxWidth: "75%",
+                    padding: "10px 15px",
+                    borderRadius: "15px",
+                    backgroundColor:
+                      msg.sender === "user" ? "#007bff" : "#f1f1f1",
+                    color: msg.sender === "user" ? "white" : "#333",
+                    lineHeight: "1.5",
+                    wordBreak: "break-word",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: msg.message.replace(/\n/g, "<br>"),
+                  }}
+                />
               </div>
             ))}
-            <div ref={messagesEndRef} />
+            {isLoading && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  left: "15px",
+                  color: "#888",
+                  fontStyle: "italic",
+                  fontSize: "14px",
+                  animation: "typingEffect 1.5s infinite",
+                }}
+              >
+                Bot is typing...
+              </div>
+            )}
           </div>
           <div
             style={{
               display: "flex",
               padding: "10px",
+              background: "#fff",
               borderTop: "1px solid #ddd",
-              background: "linear-gradient(135deg, #FFEBEE, #FFCDD2)", // Gradient nền cho khung nhập liệu
             }}
           >
             <input
               type="text"
               value={userInput}
-              onChange={handleInputChange}
+              onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Nhập tin nhắn..."
+              placeholder="Enter your question...."
               style={{
-                flexGrow: "1",
-                padding: "12px 16px",
+                flexGrow: 1,
+                padding: "10px",
                 border: "1px solid #ccc",
-                borderRadius: "25px",
-                fontSize: "16px",
-                color: "#333",
-                backgroundColor: "#f9f9f9",
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                transition: "all 0.3s ease",
+                borderRadius: "20px",
+                outline: "none",
+                fontSize: "14px",
               }}
             />
             <button
               onClick={handleSendMessage}
               style={{
-                marginLeft: "12px",
-                background: "linear-gradient(135deg, #FF6F00, #FFFF33)",
+                backgroundColor: "#007bff",
                 color: "white",
-                padding: "12px 28px",
-                borderRadius: "30px",
-                cursor: "pointer",
                 border: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
-                transition: "all 0.3s ease",
+                borderRadius: "20px",
+                marginLeft: "10px",
+                padding: "10px 20px",
+                cursor: "pointer",
+                transition: "background-color 0.3s",
               }}
             >
-              Gửi
+              Send
             </button>
           </div>
         </div>
       )}
-    </>
+      <style>
+        {`
+          div::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+          }
+
+          @keyframes typingEffect {
+            0% { content: 'Bot is typing.'; }
+            33% { content: 'Bot is typing..'; }
+            66% { content: 'Bot is typing...'; }
+            100% { content: 'Bot is typing.'; }
+          }
+        `}
+      </style>
+    </div>
   );
 };
 

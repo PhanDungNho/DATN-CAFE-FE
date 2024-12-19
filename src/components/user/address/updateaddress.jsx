@@ -97,13 +97,24 @@ const UpdateAddress = () => {
     }
   };
 
-  const handleProvinceChange = async (value) => {
-    setDistricts([]);
-    setWards([]);
-    if (value) {
-      const districtData = await fetchDistricts(value);
-      setDistricts(districtData); // Load new district names based on city
-      form.setFieldsValue({ districtCode: undefined, wardCode: undefined }); // Reset district and ward fields
+  const handleProvinceChange = async (provinceID) => {
+    try {
+      // Gọi API để lấy danh sách quận/huyện của tỉnh/thành phố
+      const districtData = await fetchDistricts(provinceID);
+
+      // Lọc danh sách để chỉ lấy 2 quận: Quận Ninh Kiều và Quận Cái Răng
+      const allowedDistrictNames = ["Quận Ninh Kiều", "Quận Cái Răng"];
+      const allowedDistricts = districtData.filter((district) =>
+        allowedDistrictNames.includes(district.DistrictName)
+      );
+
+      // Cập nhật state với danh sách quận đã lọc
+      setDistricts(allowedDistricts);
+
+      // Không đặt giá trị mặc định cho districtCode
+      // form.setFieldsValue({ districtCode: undefined });
+    } catch (error) {
+      console.error("Error when loading list of districts:", error);
     }
   };
 
@@ -190,34 +201,71 @@ const UpdateAddress = () => {
     setIsModalVisible(true);
 
     if (address.cityCode) {
-      const districtData = await fetchDistricts(address.cityCode);
-      setDistricts(districtData);
+      try {
+        // Lấy danh sách quận/huyện từ API
+        const districtData = await fetchDistricts(address.cityCode);
 
-      if (address.districtCode) {
-        const wardData = await fetchWards(address.districtCode);
-        setWards(wardData);
-
-        console.log("Fetched Wards:", wardData);
-
-        const selectedWard = wardData.find(
-          (ward) => String(ward.WardCode) === String(address.wardCode)
+        // Lọc chỉ lấy 2 quận: Quận Ninh Kiều và Quận Cái Răng
+        const allowedDistrictNames = ["Quận Ninh Kiều", "Quận Cái Răng"];
+        const allowedDistricts = districtData.filter((district) =>
+          allowedDistrictNames.includes(district.DistrictName)
         );
 
-        if (selectedWard) {
-          form.setFieldsValue({
-            ...mapAddressWithNames(address),
-            wardCode: selectedWard.WardCode,
-            wardName: selectedWard.WardName,
-          });
+        setDistricts(allowedDistricts);
+
+        // Nếu có districtCode trong địa chỉ
+        if (address.districtCode) {
+          // Kiểm tra nếu districtCode nằm trong danh sách quận hợp lệ
+          const isAllowedDistrict = allowedDistricts.some(
+            (district) =>
+              String(district.DistrictID) === String(address.districtCode)
+          );
+
+          if (isAllowedDistrict) {
+            // Lấy danh sách các phường/xã của quận
+            const wardData = await fetchWards(address.districtCode);
+            setWards(wardData);
+
+            // Kiểm tra và chọn phường đã có trong địa chỉ
+            const selectedWard = wardData.find(
+              (ward) => String(ward.WardCode) === String(address.wardCode)
+            );
+
+            if (selectedWard) {
+              form.setFieldsValue({
+                ...mapAddressWithNames(address),
+                wardCode: selectedWard.WardCode,
+                wardName: selectedWard.WardName,
+              });
+            } else {
+              form.setFieldsValue({
+                ...mapAddressWithNames(address),
+                wardCode: undefined,
+                wardName: undefined,
+              });
+            }
+          } else {
+            // Nếu districtCode không hợp lệ, reset lại các trường quận và phường
+            setWards([]);
+            form.setFieldsValue({
+              ...mapAddressWithNames(address),
+              districtCode: undefined,
+              wardCode: undefined,
+              wardName: undefined,
+            });
+          }
         } else {
-          form.setFieldsValue({
-            ...mapAddressWithNames(address),
-            wardCode: undefined,
-            wardName: undefined,
-          });
+          // Nếu không có districtCode, reset các trường phường/xã
+          setWards([]);
+          form.setFieldsValue(mapAddressWithNames(address));
         }
+      } catch (error) {
+        console.error("Error fetching district or ward data:", error);
       }
     } else {
+      // Nếu không có cityCode, reset tất cả các trường
+      setDistricts([]);
+      setWards([]);
       form.setFieldsValue(mapAddressWithNames(address));
     }
   };
@@ -274,25 +322,32 @@ const UpdateAddress = () => {
                   <Button onClick={() => handleEdit(record)} type="primary">
                     Edit Address
                   </Button>
+
                   <Button
-                    onClick={() => dispatch(setIsDefault(record.id))}
-                    type="default"
+                    onClick={() => confirmDelete(record.id)} // Confirm delete action
+                    type="danger"
                     style={{
-                      backgroundColor: record.isDefault ? "red" : "#F28123",
+                      backgroundColor: "red",
                       color: "white",
                       border: "none",
                     }}
                     disabled={record.isDefault}
                   >
-                    Set as default
-                  </Button>
-                  <Button
-                    onClick={() => confirmDelete(record.id)} // Confirm delete action
-                    type="danger"
-                    disabled={record.isDefault}
-                  >
                     Delete Address
                   </Button>
+                  {!record.isDefault && (
+                    <Button
+                      onClick={() => dispatch(setIsDefault(record.id))}
+                      type="default"
+                      style={{
+                        backgroundColor: "#F28123",
+                        color: "white",
+                        border: "none",
+                      }}
+                    >
+                      Set as default
+                    </Button>
+                  )}
                 </div>
               ),
             },

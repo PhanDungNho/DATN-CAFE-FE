@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_PRODUCT } from "./constant";
+import { API, API_PRODUCT } from "./constant";
 
 export default class ProductService {
   insertProduct(product) {
@@ -43,13 +43,7 @@ export default class ProductService {
   }
 
   createSlug = (text) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[\s]+/g, "-")
-      .replace(/[^\w\-]+/g, "")
-      .replace(/\-\-+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    return text.trim().replace(/[\s]+/g, "-");
   };
 
   generateUniqueSlug(baseSlug, existingSlugs) {
@@ -117,11 +111,7 @@ export default class ProductService {
   };
 
   getProducts = async () => {
-    return await axios.get(API_PRODUCT, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+    return await axios.get(API_PRODUCT, {});
   };
 
   getProductsUser = async () => {
@@ -131,29 +121,16 @@ export default class ProductService {
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {
       params,
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
     });
   };
 
   getProduct = async (id) => {
-    return await axios.get(API_PRODUCT + "/" + id + "/get", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
-      },
-    });
+    return await axios.get(API_PRODUCT + "/" + id + "/get", {});
   };
 
   getProductBySlug = async (slug) => {
-    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
-      },
-    });
+    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {});
   };
-
-
 
   deleteProductImage = async (fileName) => {
     await axios.delete(API_PRODUCT + "/images/" + fileName, {
@@ -196,7 +173,7 @@ export default class ProductService {
 
   async uploadImages(formData) {
     const response = await axios.post(
-      "http://localhost:8081/api/v1/products/images/", // Địa chỉ API của bạn
+      API + "/api/v1/products/images/", // Địa chỉ API của bạn
       formData,
       {
         headers: {

@@ -55,7 +55,9 @@ function DashboardPage() {
 
   const msg = useSelector((state) => state.commonReducer.message);
   const err = useSelector((state) => state.commonReducer.error);
-
+  const isAdmin = LoginedUser?.roles?.includes("ROLE_ADMIN");
+  const isSuperadmin = LoginedUser?.roles?.includes("ROLE_SUPERADMIN");
+  const isStaff = LoginedUser?.roles?.includes("ROLE_STAFF");
   const handleLogout = () => {
     // Gọi action logout
     dispatch(logout());
@@ -74,7 +76,6 @@ function DashboardPage() {
       dispatch(setError(""));
       message.error(err);
     }
-
   }, [msg, err]);
 
   const selectedKey = () => {
@@ -108,18 +109,16 @@ function DashboardPage() {
     if (location.pathname === "/admin/authorities/list") {
       return "9";
     }
-    if (location.pathname === "/admin/invoices") {
-      return "10";
-    }
-
+   
     return "1"; // Mặc định là Home
   };
-  const userImage = LoginedUser && LoginedUser.image 
-  ? AccountService.getAccountLogoUrl(LoginedUser.image) 
-  : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
+  const userImage =
+    LoginedUser && LoginedUser.image
+      ? AccountService.getAccountLogoUrl(LoginedUser.image)
+      : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
 
-const userName = LoginedUser ? LoginedUser.username : "Guest";
-  
+  const userName = LoginedUser ? LoginedUser.username : "Guest";
+
   return (
     <Layout>
       <Sider
@@ -146,7 +145,9 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
         >
           <a href="/">
             <img
-              src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
+              src={
+                collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"
+              }
               alt="Logo"
               style={{
                 width: collapsed ? "90px" : "200px",
@@ -170,35 +171,41 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
               icon: <MdOutlineHome />,
               label: "Home",
               onClick: () => navigate("/admin/statistics/list"),
+              disabled: !(isAdmin),
             },
             {
               key: "2",
               icon: <MdCategory />,
               label: "Categories",
               onClick: () => navigate("/admin/categories/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "3",
               icon: <MdShoppingCart />,
               label: "Orders",
               onClick: () => navigate("/admin/orders"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "4",
               icon: <ProductOutlined />,
               label: "Products",
+              disabled: !(isAdmin || isStaff),
               children: [
                 {
                   key: "4a",
                   icon: <PlusOutlined />,
                   label: "Add Product",
                   onClick: () => navigate("/admin/products/add"),
+                  disabled: !(isAdmin || isStaff),
                 },
                 {
                   key: "4b",
                   icon: <MdFormatListBulleted />,
                   label: "List Products",
                   onClick: () => navigate("/admin/products/list"),
+                  disabled: !(isAdmin || isStaff),
                 },
               ],
             },
@@ -207,34 +214,38 @@ const userName = LoginedUser ? LoginedUser.username : "Guest";
               icon: <FaCoffee />,
               label: "Sizes",
               onClick: () => navigate("/admin/sizes/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "7",
               icon: <FaCookieBite />,
               label: "Toppings",
               onClick: () => navigate("/admin/toppings/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "8",
               icon: <MdSupervisorAccount />,
               label: "Accounts",
               onClick: () => navigate("/admin/accounts/list"),
+              disabled: !(isAdmin || isSuperadmin),
             },
             {
               key: "9",
               icon: <MdSecurity />,
               label: "Authorities",
               onClick: () => navigate("/admin/authorities/list"),
+              disabled: !(isSuperadmin),
             },
-            {
+              /*
+              {
               key: "10",
               icon: <ReconciliationOutlined />,
               label: "Invoices",
               onClick: () => navigate("/admin/invoices"),
-            },
-            
+             */
             {
-              key: "11",
+              key: "10",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,

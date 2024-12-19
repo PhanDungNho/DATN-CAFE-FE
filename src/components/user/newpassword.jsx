@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Add useNavigate import
 import 'antd/dist/reset.css'; // Ant Design CSS
+import {API} from '../../services/constant'
 
 const NewPasswordForm = () => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ const NewPasswordForm = () => {
     try {
       const email = localStorage.getItem('email'); // Get email from localStorage
 
-      const response = await fetch('http://localhost:8081/api/reset-password', {
+      const response = await fetch(API + '/api/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

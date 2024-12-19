@@ -165,7 +165,7 @@ const Bill = ({ billData }) => {
         123, 30th of April Street, An Khanh Ward, Ninh Kieu District - Can Tho City.
         </Text>
         <br />
-        <Text style={{ fontSize: "12px", color: "#555", marginBottom: "10px" }}>
+        <Text style={{ fontSize: "12px",color:"black", marginBottom: "10px" }}>
           Phone number: 0974.300.007 - 0909.191.195
         </Text>
       </div>
@@ -176,6 +176,7 @@ const Bill = ({ billData }) => {
           textAlign: "center",
           fontWeight: "bold",
           fontSize: "16px",
+          color:"black",
           margin: "0",
         }}
       >
@@ -202,7 +203,7 @@ const Bill = ({ billData }) => {
           marginBottom: "10px",
         }}
       >
-        <Text>Total: {displayData.totalAmount.toLocaleString()} VNĐ</Text>
+        <Text style={{color:"black"}}>Total: {displayData.totalAmount.toLocaleString()} VNĐ</Text>
       </div>
 
       <Divider style={{ marginTop: " 5px" }} />
@@ -212,10 +213,21 @@ const Bill = ({ billData }) => {
           fontStyle: "italic",
           fontSize: "14px",
           color:"black",
+          marginBottom:"4"
         }}
       >
       Thank you. See you again!
       </Text>
+      <Text
+      style={{
+        textAlign: "center",
+      
+        fontSize: "12px",
+        color:"black",
+      }}
+    >
+  Wifi password: THAYTRUNG
+    </Text>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ProductService from "../../services/productService";
 import { useNavigate } from "react-router-dom";
+import {API} from '../../services/constant'
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -31,7 +32,7 @@ function Index() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/v1/products"
+         API + "/api/v1/products"
         );
 
         // Xử lý sản phẩm để lấy ra top 10 sản phẩm bán chạy nhất
@@ -90,7 +91,7 @@ function Index() {
   useEffect(() => {
     // Gọi API để lấy danh sách sản phẩm bán chạy
     axios
-      .get("http://localhost:8081/api/v1/products/top-selling")
+      .get( API + "/api/v1/products/top-selling")
       .then((response) => {
         setTopProducts(response.data); // Lưu dữ liệu sản phẩm vào state
         setLoading(false);
