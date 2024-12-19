@@ -16,6 +16,7 @@ import { printBill } from "../../user/printBill";
 import PaymentService from "../../../services/PaymentService";
 import { getInvoices } from "../../../redux/actions/invoiceAction";
 const paymentService = new PaymentService();
+const username = JSON.parse(localStorage.getItem("user"));
 
 const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
   {
@@ -87,16 +88,17 @@ const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
           { value: "PROCESSING", label: "PROCESSING" },
           { value: "CANCELLED", label: "CANCELLED" },
         ],
-        PROCESSING: record.orderType === "IN_STORE"
-          ? [
-              { value: "CANCELLED", label: "CANCELLED" },
-              { value: "COMPLETED", label: "COMPLETED" },
-            ]
-          : [
-              { value: "PROCESSING", label: "PROCESSING" },
-              { value: "DELIVERING", label: "DELIVERING" },
-              { value: "CANCELLED", label: "CANCELLED" },
-            ],
+        PROCESSING:
+          record.orderType === "IN_STORE"
+            ? [
+                { value: "CANCELLED", label: "CANCELLED" },
+                { value: "COMPLETED", label: "COMPLETED" },
+              ]
+            : [
+                { value: "PROCESSING", label: "PROCESSING" },
+                { value: "DELIVERING", label: "DELIVERING" },
+                { value: "CANCELLED", label: "CANCELLED" },
+              ],
         DELIVERING: [
           { value: "DELIVERING", label: "DELIVERING" },
           { value: "DELIVERED", label: "DELIVERED" },
@@ -108,12 +110,12 @@ const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
         COMPLETED: [{ value: "COMPLETED", label: "COMPLETED" }],
         CANCELLED: [{ value: "CANCELLED", label: "CANCELLED" }],
       };
-  
+
       const handleStatusChange = async (record, value) => {
         try {
           await updateOrder(record.id, { orderStatus: value });
 
-          if (value === "CANCELLED"&& record.transactions[0]) {
+          if (value === "CANCELLED" && record.transactions[0]) {
             // Giả sử bạn có response từ một dịch vụ trước đó
             const response = await paymentService.refund(
               record.transactions[0]
@@ -127,11 +129,15 @@ const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
               message.error("Refund failed");
             }
           }
+
+          if (value === "CANCELLED") {
+            await getInvoices();
+          }
         } catch (error) {
           message.error("Error processing refund");
         }
       };
-  
+
       return (
         <Select
           defaultValue={record.orderStatus}
@@ -143,25 +149,26 @@ const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
         />
       );
     },
-  }
-  ,
-  {
-    title: "Active",
-    dataIndex: "active",
-    key: "active",
-    width: 80,
-    align: "center",
-    render: (_, record) => {
-      return (
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateOrderActive(record.id, checked);
-          }}
-        />
-      );
-    },
   },
+  ...(username.roles.includes("ROLE_ADMIN")
+    ? [
+        {
+          title: "Active",
+          dataIndex: "active",
+          key: "active",
+          width: 80,
+          align: "center",
+          render: (_, record) => (
+            <Switch
+              checked={record.active}
+              onChange={(checked) => {
+                updateOrderActive(record.id, checked);
+              }}
+            />
+          ),
+        },
+      ]
+    : []),
   {
     title: "",
     dataIndex: "createdTime",
@@ -226,7 +233,12 @@ const expandColumns = [
   },
 ];
 
-const InvoicesList = ({ invoices, updateOrderActive, updateOrder, getInvoices }) => {
+const InvoicesList = ({
+  invoices,
+  updateOrderActive,
+  updateOrder,
+  getInvoices,
+}) => {
   const [data, setData] = useState(invoices);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(true);
@@ -351,7 +363,12 @@ const InvoicesList = ({ invoices, updateOrderActive, updateOrder, getInvoices })
   return (
     <>
       <Table
-        columns={columns(updateOrderActive, updateOrder, showModal, getInvoices)}
+        columns={columns(
+          updateOrderActive,
+          updateOrder,
+          showModal,
+          getInvoices
+        )}
         rowKey="id"
         dataSource={hasData ? data : []}
         pagination={{ ...tableParams.pagination }}

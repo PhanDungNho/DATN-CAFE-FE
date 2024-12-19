@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, Card, message, Row, Col } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Navigation hook
-import {API} from '../../services/constant'
+import { API } from "../../services/constant";
 
 const VerifyOtp = () => {
   const [form] = Form.useForm();
@@ -14,7 +14,7 @@ const VerifyOtp = () => {
     try {
       const response = await axios.get(API + `/api/verify?otp=${values.otp}`, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       message.success(response.data.message);
@@ -24,7 +24,9 @@ const VerifyOtp = () => {
     } catch (error) {
       console.error("OTP verification failed:", error);
       if (error.response) {
-        message.error(error.response.data.message || "OTP verification failed.");
+        message.error(
+          error.response.data.message || "OTP verification failed."
+        );
       } else {
         message.error("OTP verification failed! Please try again.");
       }
@@ -59,35 +61,36 @@ const VerifyOtp = () => {
       >
         <Row gutter={16}>
           {/* Column containing image */}
-          <Col span={12}> {/* Set span to 12 to evenly split space */}
+          <Col span={12}>
             <img
               src="../../assets/img/otpdangky.png" // Image path
               alt="OTP"
-              style={{ 
-                width: "100%", 
+              style={{
+                width: "100%",
                 borderRadius: "5px", // Slightly rounded corners
                 objectFit: "cover", // Maintain aspect ratio of the image
-                height: "100%" // Ensure image doesn't get stretched
+                height: "100%", // Ensure image doesn't get stretched
               }}
             />
           </Col>
 
           {/* Column containing OTP form */}
-          <Col span={12}> {/* Set span to 12 to evenly split space */}
-            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Confirm OTP</h1> {/* Title */}
+          <Col span={12}>
+            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Confirm OTP
+            </h1>
             <Form form={form} onFinish={onFinish}>
               <Form.Item
                 name="otp"
                 rules={[{ required: true, message: "Please enter the OTP!" }]}
                 style={{
-                  border: "1px solid #d9d9d9", // Add border around input
-                  borderRadius: "5px", // Rounded corners
-                  padding: "5px", // Add padding inside the input
-                  marginBottom: "20px", // Space between form items
+                  marginBottom: "20px",
                 }}
               >
-                <Input.Password
-                  placeholder="Enter OTP" 
+                <Input.OTP
+                  length={6} // Độ dài OTP tùy chỉnh
+                  formatter={(str) => str.toUpperCase()} // Chuyển thành chữ in hoa
+                  placeholder="Enter OTP"
                   style={{
                     padding: "10px",
                     borderRadius: "5px", // Rounded corners for the input field
@@ -103,8 +106,10 @@ const VerifyOtp = () => {
                 >
                   Confirm
                 </Button>
-                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                  <p>Return to <a href="/">home page</a></p>
+                <div style={{ textAlign: "center", marginTop: "16px" }}>
+                  <p>
+                    Return to <a href="/">home page</a>
+                  </p>
                 </div>
               </Form.Item>
             </Form>

@@ -130,6 +130,7 @@ const UploadImage = (props) => {
         onRemove={handleRemove}
         accept=".jpg, .png, .gif"
         beforeUpload={() => false}
+        maxCount={4}
       >
         {uploadButton}
       </Upload>

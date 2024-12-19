@@ -20,7 +20,9 @@ import axios from "axios";
 import { Column } from "@ant-design/charts";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import {API} from '../../../services/constant'
+import { API } from "../../../services/constant";
+import { useSelector, useDispatch } from "react-redux";
+import { getInvoices } from "../../../redux/actions/invoiceAction";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -37,6 +39,7 @@ const StatisticsDashboard = () => {
   const [loadingRevenue, setLoadingRevenue] = useState(false);
   const [loadingTable, setLoadingTable] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const dispatch = useDispatch();
   const [filteredData, setFilteredData] = useState([]);
   const [visitorCount, setVisitorCount] = useState(0);
   const [productCount, setProductCount] = useState(0);
@@ -47,10 +50,15 @@ const StatisticsDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [pieChartData, setPieChartData] = useState({ labels: [], values: [] }); // Dữ liệu biểu đồ
 
-
   const [dailyRevenueData, setDailyRevenueData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(moment().year());
   const [selectedMonth, setSelectedMonth] = useState(moment().month() + 1);
+  const [invoices, setInvoices] = useState([]);
+  const invoicesFromStore = useSelector(
+    (state) => state.invoiceReducer.invoices
+  );
+  console.log("invoicesFromStore", invoicesFromStore);
+
   console.log(dailyRevenueData);
   console.log(monthlyRevenueData);
 
@@ -61,6 +69,18 @@ const StatisticsDashboard = () => {
       fetchMonthlyRevenueData(selectedYear);
     }
   }, [selectedYear, selectedMonth]);
+
+  useEffect(() => {
+    // Gọi action để lấy dữ liệu invoices khi component mount
+    dispatch(getInvoices());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Khi dữ liệu invoices thay đổi từ Redux, cập nhật lại state local
+    if (invoicesFromStore && invoicesFromStore.length > 0) {
+      setInvoices(invoicesFromStore);
+    }
+  }, [invoicesFromStore]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,8 +115,10 @@ const StatisticsDashboard = () => {
         setTableData(formattedData);
         setFilteredData(formattedData);
         const labels = formattedData.map((item) => item.productName);
-      const values = formattedData.map((item) => parseInt(item.totalQuantity, 10));
-      setPieChartData({ labels, values });
+        const values = formattedData.map((item) =>
+          parseInt(item.totalQuantity, 10)
+        );
+        setPieChartData({ labels, values });
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
       }
@@ -108,7 +130,7 @@ const StatisticsDashboard = () => {
   // Dữ liệu biểu đồ tròn
   const labels = productData.map((item) => item.productName);
   const values = productData.map((item) => parseInt(item.totalQuantity, 10));
-  
+
   const pieData = {
     labels: pieChartData.labels,
     datasets: [
@@ -116,20 +138,22 @@ const StatisticsDashboard = () => {
         label: "Quantity",
         data: pieChartData.values,
         backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
-        hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "orange", "red"],
+        hoverBackgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "orange",
+          "red",
+        ],
       },
     ],
-    
   };
 
   const fetchDailyRevenueData = async (year, month) => {
     try {
-      const response = await axios.get(
-        API + `/api/v1/orders/daily-revenue`,
-        {
-          params: { year, month },
-        }
-      );
+      const response = await axios.get(API + `/api/v1/orders/daily-revenue`, {
+        params: { year, month },
+      });
       const dailyData = response.data;
       const adjustedDailyData = dailyData.map((item) => ({
         ...item,
@@ -153,12 +177,9 @@ const StatisticsDashboard = () => {
 
   const fetchMonthlyRevenueData = async (year) => {
     try {
-      const response = await axios.get(
-        API + `/api/v1/orders/monthly-revenue`,
-        {
-          params: { year },
-        }
-      );
+      const response = await axios.get(API + `/api/v1/orders/monthly-revenue`, {
+        params: { year },
+      });
       const monthlyData = response.data;
       const adjustedMonthlyData = monthlyData.map((item) => ({
         ...item,
@@ -182,10 +203,10 @@ const StatisticsDashboard = () => {
       console.warn("Dates are invalid or not selected");
       return;
     }
-  
+
     setLoading(true);
     const [startDate, endDate] = dates;
-  
+
     try {
       const response = await axios.get(API + "/api/v1/orders/totals", {
         params: {
@@ -201,7 +222,6 @@ const StatisticsDashboard = () => {
       setLoading(false);
     }
   };
-  
 
   const handleYearChange = (value) => {
     setSelectedYear(value);
@@ -242,9 +262,8 @@ const StatisticsDashboard = () => {
             })
           : "0 VND",
     },
-    
   ];
-  
+
   const statsData = [
     {
       title: "Total orders",
@@ -285,7 +304,7 @@ const StatisticsDashboard = () => {
       setPieChartData({ labels, values }); // Cập nhật biểu đồ tròn với 5 sản phẩm bán chạy
       return;
     }
-  
+
     const [startDate, endDate] = dates;
     console.log(
       "Start Date:",
@@ -300,13 +319,13 @@ const StatisticsDashboard = () => {
       setFilteredData(tableData);
       return;
     }
-  
+
     setLoadingTable(true);
-  
+
     // Định dạng ngày theo kiểu "YYYY-MM-DD"
     const formattedStartDate = startDate.format("YYYY-MM-DD");
     const formattedEndDate = endDate.format("YYYY-MM-DD");
-  
+
     // Gửi yêu cầu đến API với tham số ngày
     axios
       .get(API + "/api/v1/orders/most-purchased-products/by-date", {
@@ -328,7 +347,7 @@ const StatisticsDashboard = () => {
             currency: "VND",
           }),
         }));
-  
+
         setFilteredData(formattedData);
         const labels = formattedData.map((item) => item.productName);
         const values = formattedData.map((item) => item.totalQuantity);
@@ -343,8 +362,14 @@ const StatisticsDashboard = () => {
         setLoadingTable(false);
       });
   };
-  
-  
+
+  const years = Array.from(
+    new Set(
+      invoices
+        .map((invoice) => new Date(invoice.createdTime).getFullYear()) // Lấy năm từ thuộc tính createdTime của invoice
+        .sort((a, b) => b - a) // Sắp xếp các năm theo thứ tự giảm dần
+    )
+  ).slice(0, 5); // Giới hạn lấy 5 năm gần nhất
 
   return (
     <div style={{ padding: "20px", margin: "auto" }}>
@@ -393,25 +418,26 @@ const StatisticsDashboard = () => {
           <Card
             title="Transaction List (Top Products)"
             bordered={false}
-            style={{ minHeight: "400px" }}
+            style={{ minHeight: "400px", overflow: "hidden" }}
           >
             <RangePicker
-  onChange={(dates) => {
-    handleDateRangeChange(dates); // Lọc dữ liệu theo ngày
-    fetchTotalStatistics(dates); // Tính toán tổng
-  }}
-  format="YYYY-MM-DD"
-  style={{ marginTop: "30px", marginBottom: "8px" }}
-/>
-
-            <Table
-              columns={columns}
-              dataSource={filteredData}
-              // pagination={tableParams.pagination}
-              // onChange={({ pagination }) => setTableParams({ pagination })}
-              loading={loadingTable}
-              pagination={false}
+              onChange={(dates) => {
+                handleDateRangeChange(dates); // Lọc dữ liệu theo ngày
+                fetchTotalStatistics(dates); // Tính toán tổng
+              }}
+              format="YYYY-MM-DD"
+              style={{ marginTop: "30px", marginBottom: "8px" }}
             />
+            <div style={{ height: "330px", overflowY: "auto" }}>
+              <Table
+                columns={columns}
+                dataSource={filteredData}
+                // pagination={tableParams.pagination}
+                // onChange={({ pagination }) => setTableParams({ pagination })}
+                loading={loadingTable}
+                pagination={false}
+              />
+            </div>
           </Card>
         </Col>
 
@@ -427,7 +453,7 @@ const StatisticsDashboard = () => {
       </div>
 
       <Row gutter={16} style={{ marginBottom: "20px" }}>
-        <Col span={24}>
+        <Col span={12}>
           <Title level={5} style={{ marginBottom: "8px" }}>
             Select Time Range
           </Title>
@@ -505,11 +531,11 @@ const StatisticsDashboard = () => {
         </Col>
         <Col span={12}>
           <Select
-            defaultValue={selectedYear}
+            defaultValue={selectedYear || years[0]} // Chọn năm mặc định là năm đầu tiên trong danh sách
             style={{ width: "100%" }}
             onChange={handleYearChange}
           >
-            {[2022, 2023, 2024].map((year) => (
+            {years.map((year) => (
               <Option key={year} value={year}>
                 {year}
               </Option>
@@ -543,10 +569,10 @@ const StatisticsDashboard = () => {
           <Card>
             <Title level={4}>Monthly Revenue</Title>
             <Column
-            data={monthlyRevenueData.map((item) => ({
-              ...item,
-              revenue: item.revenue || 0, // Ensure revenue is numeric
-            }))}
+              data={monthlyRevenueData.map((item) => ({
+                ...item,
+                revenue: item.revenue || 0, // Ensure revenue is numeric
+              }))}
               xField="month"
               yField="revenue"
               meta={{
