@@ -159,11 +159,18 @@ const Allorder = () => {
       key: "orderStatus",
       align: "center",
       render: (_, record) => {
-        const statusOptions = [{ value: "CANCELLED", label: "CANCELLED" }];
-
+        // Tùy chọn trạng thái có thể chuyển đổi
+        let statusOptions = [];
+    
+        if (record.orderStatus === "PROCESSING") {
+          statusOptions = [{ value: "CANCELLED", label: "CANCELLED" }];
+        } else if (record.orderStatus === "DELIVERED") {
+          statusOptions = [{ value: "COMPLETED", label: "COMPLETED" }];
+        }
+    
         // Kiểm tra trạng thái hiện tại để quyết định có hiển thị Select hay không
-        const canChangeStatus = record.orderStatus === "PROCESSING";
-
+        const canChangeStatus = record.orderStatus === "PROCESSING" || record.orderStatus === "DELIVERED";
+    
         return canChangeStatus ? (
           <Select
             defaultValue={record.orderStatus}
@@ -175,7 +182,8 @@ const Allorder = () => {
           <span>{record.orderStatus}</span> // Hiển thị trạng thái hiện tại nếu không thể thay đổi
         );
       },
-    },
+    }
+,    
     {
       title: "Shipping fee",
       dataIndex: "shippingFee",

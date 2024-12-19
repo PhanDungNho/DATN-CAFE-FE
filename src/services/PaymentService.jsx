@@ -3,8 +3,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { API_TRANSACTION, API_MOMO, API } from "./constant";
 
-const ngrok =
-  "https://2e57-2001-ee0-e0f1-ffb0-f554-e401-7f78-1aee.ngrok-free.app";
+const ngrok = "https://4de8-113-22-35-246.ngrok-free.app";
 
 export default class PaymentService extends Component {
   constructor(props) {

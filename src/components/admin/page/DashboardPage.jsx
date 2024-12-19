@@ -40,6 +40,7 @@ import AccountService from "../../../services/accountService";
 
 function DashboardPage() {
   const LoginedUser = JSON.parse(localStorage.getItem("user"));
+  console.log(LoginedUser)
 
   const [collapsed, setCollapsed] = useState(false);
   const {

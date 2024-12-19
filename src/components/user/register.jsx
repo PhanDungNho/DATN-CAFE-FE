@@ -13,7 +13,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { handleGoogleLoginSuccess } from "../../redux/actions/authActions";
-import {API} from '../../services/constant'
+import { API } from "../../services/constant";
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -23,23 +23,20 @@ const Register = () => {
     console.log("Giá trị form:", values);
 
     try {
-      const response = await axios.post(
-        API + "/api/register",
-        values,
-        {
-          
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await axios.post(API + "/api/register", values, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+      });
+      message.success(
+        "Please enter the OTP code to confirm your registration!"
       );
-      message.success("Vui Lòng Nhập Mã OTP Để Xác Nhận Đăng Ký!");
 
       // Điều hướng đến trang xác thực OTP sau khi đăng ký thành công
       navigate("/register/verifyotp"); // Thay đổi đường dẫn theo cấu trúc router của bạn
     } catch (error) {
-      console.error("Đăng ký thất bại:", error);
+      console.error("Registration failed:", error);
       if (error.response) {
         const { status, data } = error.response;
         console.error("Error status:", status);
@@ -48,16 +45,16 @@ const Register = () => {
         // Kiểm tra lỗi trùng username
         if (data.message === "Username already exists") {
           message.error(
-            "Tài khoản này đã tồn tại. Vui lòng chọn tài khoản khác."
+            "This account already exists. Please select a different account."
           );
         } else {
           message.error(
             data.message ||
-              "Username này đã tồn tại. Vui lòng nhập Username khác."
+              "This username already exists. Please enter a different Username."
           );
         }
       } else {
-        message.error("Đăng ký thất bại! Vui lòng thử lại.");
+        message.error("Registration failed! Please try again.");
       }
     }
   };
@@ -70,7 +67,7 @@ const Register = () => {
     if (!value || form.getFieldValue("password") === value) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error("Mật khẩu nhập lại không khớp!"));
+    return Promise.reject(new Error("The re-entered password does not match!"));
   };
 
   return (
@@ -105,7 +102,7 @@ const Register = () => {
           <Col xs={24} xl={14} className="register-image-col">
             <img
               src="/assets/img/nenregister2.png"
-              alt="Hình ảnh đăng ký"
+              alt=""
               className="register-image img-fluid"
               style={{
                 width: "630px",
@@ -132,26 +129,29 @@ const Register = () => {
                 className="register-title"
                 style={{ textAlign: "center", marginBottom: "5px" }}
               >
-                Đăng ký
+                Register
               </h3>
               <Form form={form} onFinish={onFinish}>
                 <Form.Item
                   name="username"
                   rules={[
-                    { required: true, message: "Vui lòng nhập tài khoản!" },
+                    { required: true, message: "Please enter your account!" },
                   ]}
                 >
-                  <Input prefix={<UserOutlined />} placeholder="Tài khoản" />
+                  <Input prefix={<UserOutlined />} placeholder="Account" />
                 </Form.Item>
                 <Form.Item
                   name="fullName"
                   rules={[
-                    { required: true, message: "Vui lòng nhập họ và tên!" },
+                    {
+                      required: true,
+                      message: "Please enter your first and last name!",
+                    },
                   ]}
                 >
                   <Input
                     prefix={<MdDriveFileRenameOutline />}
-                    placeholder="Họ và tên"
+                    placeholder="Full name"
                   />
                 </Form.Item>
                 <Form.Item
@@ -159,7 +159,7 @@ const Register = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập email!",
+                      message: "Please enter your email!",
                       type: "email",
                     },
                   ]}
@@ -169,37 +169,44 @@ const Register = () => {
                 <Form.Item
                   name="password"
                   rules={[
-                    { required: true, message: "Vui lòng nhập mật khẩu!" },
+                    { required: true, message: "Please enter the password!" },
                   ]}
                 >
-                  <Input.Password prefix={<FaLock />} placeholder="Mật khẩu" />
+                  <Input.Password prefix={<FaLock />} placeholder="Password" />
                 </Form.Item>
                 <Form.Item
                   name="confirmpassword"
                   dependencies={["password"]}
                   rules={[
-                    { required: true, message: "Vui lòng nhập lại mật khẩu!" },
+                    {
+                      required: true,
+                      message: "Please re-enter the password!",
+                    },
                     { validator: validatePassword },
                   ]}
                 >
                   <Input.Password
                     prefix={<LockOutlined />}
-                    placeholder="Nhập lại mật khẩu"
+                    placeholder="Re-enter the password"
                   />
                 </Form.Item>
                 <Form.Item
                   name="phone"
                   rules={[
-                    { required: true, message: "Vui lòng nhập số điện thoại!" },
+                    {
+                      required: true,
+                      message: "Please enter your phone number!",
+                    },
                     {
                       pattern: /^[0-9]{10}$/,
-                      message: "Số điện thoại phải bao gồm đúng 10 chữ số!",
+                      message:
+                        "The phone number must include exactly 10 digits!",
                     },
                   ]}
                 >
                   <Input
                     prefix={<PhoneOutlined />}
-                    placeholder="Số điện thoại"
+                    placeholder="Phone Number"
                   />
                 </Form.Item>
                 <div
@@ -213,25 +220,30 @@ const Register = () => {
                   >
                     Reset all
                   </Button>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-  <Button
-    type="primary"
-    htmlType="submit"
-    className="submit-button"
-  >
-    Submit
-  </Button>
-  <Button
-    type="default"
-    className="back-button"
-    onClick={() => (window.location.href = "/")}
-    icon={<HomeOutlined />}
-  />
-</div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className="submit-button"
+                    >
+                      Submit
+                    </Button>
+                    <Button
+                      type="default"
+                      className="back-button"
+                      onClick={() => (window.location.href = "/")}
+                      icon={<HomeOutlined />}
+                    />
+                  </div>
                 </div>
 
                 <Form.Item>
-                  
                   <p className="text-center fw-bold my-3 text-muted">OR</p>
 
                   <Form.Item>
@@ -253,31 +265,6 @@ const Register = () => {
                       />
                     </GoogleOAuthProvider>
                   </Form.Item>
-                  {/* <a href="http://localhost:8081/oauth2/authorization/google"
-      class="btn btn-block btn-google auth-form-btn w-100"  > <i
-      class="mdi mdi-google  me-2 text-warning"></i>Connect using
-      google
-    </a> */}
-
-                  {/* <Row gutter={16}>
-                    <Col span={4}>
-                      {" "}
-                    
-                      <Button
-                        type="default"
-                        icon={<HomeOutlined />}
-                        onClick={() => navigate("/")} // Chuyển hướng về trang chủ khi nhấn nút
-                        style={{
-                          backgroundColor: "#1890ff", // Màu nền cho nút
-                          color: "white",
-                          borderColor: "#1890ff",
-                          width: "100%",
-                          marginLeft: "20px",
-                          // Làm cho nút chiếm toàn bộ chiều rộng
-                        }}
-                      ></Button>
-                    </Col>
-                  </Row> */}
                 </Form.Item>
               </Form>
             </Card>
