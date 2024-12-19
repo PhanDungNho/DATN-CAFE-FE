@@ -393,7 +393,7 @@ const StatisticsDashboard = () => {
           <Card
             title="Transaction List (Top Products)"
             bordered={false}
-            style={{ minHeight: "400px" }}
+            style={{ minHeight: "400px", overflow: "hidden" }}
           >
             <RangePicker
   onChange={(dates) => {
@@ -403,7 +403,7 @@ const StatisticsDashboard = () => {
   format="YYYY-MM-DD"
   style={{ marginTop: "30px", marginBottom: "8px" }}
 />
-
+<div style={{ height: "330px", overflowY: "auto" }}>
             <Table
               columns={columns}
               dataSource={filteredData}
@@ -411,7 +411,9 @@ const StatisticsDashboard = () => {
               // onChange={({ pagination }) => setTableParams({ pagination })}
               loading={loadingTable}
               pagination={false}
+              
             />
+            </div>
           </Card>
         </Col>
 
@@ -427,7 +429,7 @@ const StatisticsDashboard = () => {
       </div>
 
       <Row gutter={16} style={{ marginBottom: "20px" }}>
-        <Col span={24}>
+        <Col span={12}>
           <Title level={5} style={{ marginBottom: "8px" }}>
             Select Time Range
           </Title>
