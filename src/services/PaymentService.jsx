@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import { API_TRANSACTION,API_MOMO } from "./constant";
+import { API_TRANSACTION, API_MOMO, API } from "./constant";
 
-const ngrok = "https://ed2c-113-161-210-31.ngrok-free.app"
+const ngrok =
+  "https://7d8b-14-241-166-117.ngrok-free.app";
 
 export default class PaymentService extends Component {
   constructor(props) {
@@ -17,9 +18,11 @@ export default class PaymentService extends Component {
   }
 
   // Hàm tạo giao dịch thanh toán
-  createPayment = (amount, orderInfo,orderId) => {
+  createPayment = (amount, orderInfo, orderId) => {
     const partnerCode = "MOMO";
-    const redirectUrl = "http://localhost:3000/paymentresult";
+    const redirectUrl = "http://localhost/paymentresult";
+    // const redirectUrl = "https://walacafe.io.vn/paymentresult";
+
     const ipnUrl = ngrok + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
@@ -34,29 +37,71 @@ export default class PaymentService extends Component {
     ).toString();
 
     const requestBody = {
-      partnerCode,      partnerName: "Test",
-      storeId: "MomoTestStore",      requestId,      amount,      orderId: newOrderId,      orderInfo,      redirectUrl,      ipnUrl,      lang,      requestType,      autoCapture,
-      extraData,      orderGroupId: "",      signature,dsa:"d"
+      partnerCode,
+      partnerName: "Test",
+      storeId: "MomoTestStore",
+      requestId,
+      amount,
+      orderId: newOrderId,
+      orderInfo,
+      redirectUrl,
+      ipnUrl,
+      lang,
+      requestType,
+      autoCapture,
+      extraData,
+      orderGroupId: "",
+      signature,
+      dsa: "d",
     };
-    console.log(requestBody)
+    console.log(requestBody);
 
-   return axios.post("http://localhost:2999/momo/create", requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-   
-      
+    return axios.post("http://localhost:2999/momo/create", requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
+  refund = function (transaction) {
+    const partnerCode = "MOMO";
+    const requestId = partnerCode + new Date().getTime();
+    const orderId = partnerCode + new Date().getTime();
+    const description = "Refund for transaction"; // Description được thêm vào rawSignature
+
+    const rawSignature = `accessKey=${this.accessKey}&amount=${transaction.amount}&description=${description}&orderId=${orderId}&partnerCode=${partnerCode}&requestId=${requestId}&transId=${transaction.transId}`;
+    const signature = CryptoJS.HmacSHA256(
+      rawSignature,
+      this.secretKey
+    ).toString();
+
+    const requestBody = {
+      partnerCode: partnerCode,
+      requestId: requestId,
+      orderId: orderId,
+      amount: transaction.amount,
+      transId: transaction.transId,
+      lang: "vi",
+      description: "Refund for transaction",
+      signature: signature,
+    };
+
+    console.log("Request Body:", requestBody);
+    return axios.post("http://localhost:2999/momo/refund", requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   };
 
   insertTransaction = async (transaction) => {
     return await axios.post(API_TRANSACTION, transaction, {
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token") // Gửi token trong header
-      }
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
     });
   };
-  
+
   // Hàm kiểm tra trạng thái của giao dịch đã tạo
   checkStatus = () => {
     const { orderId } = this.state;

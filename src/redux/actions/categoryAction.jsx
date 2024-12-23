@@ -22,6 +22,7 @@ export const insertCategory = (category) => async (dispatch) => {
       payload: true,
     });
 
+
     const response = await service.insertCategory(category);
     console.log(response);
 
@@ -38,7 +39,7 @@ export const insertCategory = (category) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Thêm thành công",
+        payload: "Added successfully",
       });
     } else {
       dispatch({
@@ -93,7 +94,7 @@ export const updateCategory = (id, category) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: "Cập nhật thành công",
+        payload: "Update successfully",
       });
     } else {
       dispatch({
@@ -225,7 +226,7 @@ export const updateCategoryActive =
 
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Cập nhật trạng thái thành công",
+          payload: "Status update successful",
         });
       } else {
         const previousActive = !active;

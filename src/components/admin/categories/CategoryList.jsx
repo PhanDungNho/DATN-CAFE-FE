@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Space, Switch, Table, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
+const username = JSON.parse(localStorage.getItem("user"));
+
 const columns = (editCategory, updateCategoryActive) => [
   {
     title: "Category ID",
@@ -40,12 +42,14 @@ const columns = (editCategory, updateCategoryActive) => [
         >
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateCategoryActive(record.id, checked);
-          }}
-        />
+        {username.roles.includes("ROLE_ADMIN") && (
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateCategoryActive(record.id, checked);
+            }}
+          />
+        )}
       </Space>
     ),
   },
@@ -63,24 +67,24 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
   });
   const fetchData = () => {
     setLoading(true);
+
     setTimeout(() => {
       setData(categories);
       setLoading(false);
       setHasData(categories.length > 0);
-      setTableParams({
-        ...tableParams,
+      setTableParams((prev) => ({
+        ...prev,
         pagination: {
-          ...tableParams.pagination,
+          ...prev.pagination,
           total: categories.length,
         },
-      });
-    }, 1000);
+      }));
+    }, 500);
   };
 
-  useEffect(fetchData, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-  ]);
+  useEffect(() => {
+    fetchData();
+  }, [categories]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -89,8 +93,9 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       sortOrder: sorter.order,
       sortField: sorter.field,
     });
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
+
+    if (pagination.pageSize !== tableParams.pagination.pageSize) {
+      setData(categories);
     }
   };
 
@@ -99,11 +104,13 @@ const CategoryList = ({ categories, editCategory, updateCategoryActive }) => {
       columns={columns(editCategory, updateCategoryActive)}
       rowKey="id"
       dataSource={hasData ? data : []}
-      pagination={tableParams.pagination}
+      pagination={{
+        ...tableParams.pagination,
+      }}
       loading={loading}
       onChange={handleTableChange}
       size="small"
-      locale={{ emptyText: "Không có dữ liệu" }}
+      locale={{ emptyText: "No data available" }}
     />
   );
 };

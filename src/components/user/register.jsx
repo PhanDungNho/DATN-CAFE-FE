@@ -1,4 +1,4 @@
-import React from "react"; 
+import React from "react";
 import { Form, Input, Button, Card, Col, Row, message } from "antd";
 import {
   UserOutlined,
@@ -8,9 +8,12 @@ import {
 } from "@ant-design/icons";
 import { FaLock } from "react-icons/fa";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-import { GoogleOutlined } from "@ant-design/icons";
+import { GoogleOutlined, HomeOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { handleGoogleLoginSuccess } from "../../redux/actions/authActions";
+import { API } from "../../services/constant";
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -20,17 +23,20 @@ const Register = () => {
     console.log("Giá trị form:", values);
 
     try {
-      const response = await axios.post("http://localhost:8081/api/register", values, {
+      const response = await axios.post(API + "/api/register", values, {
         headers: {
-          'Content-Type': 'application/json',
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
         },
       });
-      message.success("Vui Lòng Nhập Mã OTP Để Xác Nhận Đăng Ký!");
+      message.success(
+        "Please enter the OTP code to confirm your registration!"
+      );
 
       // Điều hướng đến trang xác thực OTP sau khi đăng ký thành công
       navigate("/register/verifyotp"); // Thay đổi đường dẫn theo cấu trúc router của bạn
     } catch (error) {
-      console.error("Đăng ký thất bại:", error);
+      console.error("Registration failed:", error);
       if (error.response) {
         const { status, data } = error.response;
         console.error("Error status:", status);
@@ -38,12 +44,17 @@ const Register = () => {
 
         // Kiểm tra lỗi trùng username
         if (data.message === "Username already exists") {
-          message.error("Tài khoản này đã tồn tại. Vui lòng chọn tài khoản khác.");
+          message.error(
+            "This account already exists. Please select a different account."
+          );
         } else {
-          message.error(data.message ||"Username này đã tồn tại. Vui lòng nhập Username khác.");
+          message.error(
+            data.message ||
+              "This username already exists. Please enter a different Username."
+          );
         }
       } else {
-        message.error("Đăng ký thất bại! Vui lòng thử lại.");
+        message.error("Registration failed! Please try again.");
       }
     }
   };
@@ -56,7 +67,7 @@ const Register = () => {
     if (!value || form.getFieldValue("password") === value) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error("Mật khẩu nhập lại không khớp!"));
+    return Promise.reject(new Error("The re-entered password does not match!"));
   };
 
   return (
@@ -73,12 +84,25 @@ const Register = () => {
         justifyContent: "center",
       }}
     >
-      <div className="card" style={{ maxWidth: "1000px", width: "100%", opacity: "0.95", marginTop: "20px" }}>
-        <Row gutter={32} align="middle" justify="center" style={{ height: "100%" }}>
+      <div
+        className="card"
+        style={{
+          maxWidth: "1000px",
+          width: "100%",
+          opacity: "0.95",
+          marginTop: "20px",
+        }}
+      >
+        <Row
+          gutter={32}
+          align="middle"
+          justify="center"
+          style={{ height: "100%" }}
+        >
           <Col xs={24} xl={14} className="register-image-col">
             <img
               src="/assets/img/nenregister2.png"
-              alt="Hình ảnh đăng ký"
+              alt=""
               className="register-image img-fluid"
               style={{
                 width: "630px",
@@ -101,78 +125,146 @@ const Register = () => {
                 justifyContent: "center",
               }}
             >
-              <h3 className="register-title" style={{ textAlign: "center", marginBottom: "5px" }}>
-                Đăng ký
+              <h3
+                className="register-title"
+                style={{ textAlign: "center", marginBottom: "5px" }}
+              >
+                Register
               </h3>
               <Form form={form} onFinish={onFinish}>
                 <Form.Item
                   name="username"
-                  rules={[{ required: true, message: "Vui lòng nhập tài khoản!" }]}
+                  rules={[
+                    { required: true, message: "Please enter your account!" },
+                  ]}
                 >
-                  <Input prefix={<UserOutlined />} placeholder="Tài khoản" />
+                  <Input prefix={<UserOutlined />} placeholder="Account" />
                 </Form.Item>
                 <Form.Item
-                  name="fullname"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
+                  name="fullName"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your first and last name!",
+                    },
+                  ]}
                 >
-                  <Input prefix={<MdDriveFileRenameOutline />} placeholder="Họ và tên" />
+                  <Input
+                    prefix={<MdDriveFileRenameOutline />}
+                    placeholder="Full name"
+                  />
                 </Form.Item>
                 <Form.Item
                   name="email"
-                  rules={[{ required: true, message: "Vui lòng nhập email!", type: "email" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your email!",
+                      type: "email",
+                    },
+                  ]}
                 >
                   <Input prefix={<MailOutlined />} placeholder="Email" />
                 </Form.Item>
                 <Form.Item
                   name="password"
-                  rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+                  rules={[
+                    { required: true, message: "Please enter the password!" },
+                  ]}
                 >
-                  <Input.Password prefix={<FaLock />} placeholder="Mật khẩu" />
+                  <Input.Password prefix={<FaLock />} placeholder="Password" />
                 </Form.Item>
                 <Form.Item
                   name="confirmpassword"
-                  dependencies={['password']}
+                  dependencies={["password"]}
                   rules={[
-                    { required: true, message: "Vui lòng nhập lại mật khẩu!" },
+                    {
+                      required: true,
+                      message: "Please re-enter the password!",
+                    },
                     { validator: validatePassword },
                   ]}
                 >
-                  <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" />
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="Re-enter the password"
+                  />
                 </Form.Item>
                 <Form.Item
                   name="phone"
                   rules={[
-                    { required: true, message: "Vui lòng nhập số điện thoại!" },
+                    {
+                      required: true,
+                      message: "Please enter your phone number!",
+                    },
                     {
                       pattern: /^[0-9]{10}$/,
-                      message: "Số điện thoại phải bao gồm đúng 10 chữ số!",
+                      message:
+                        "The phone number must include exactly 10 digits!",
                     },
                   ]}
                 >
-                  <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
+                  <Input
+                    prefix={<PhoneOutlined />}
+                    placeholder="Phone Number"
+                  />
                 </Form.Item>
-                <div className="register-buttons" style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button type="default" onClick={onReset} className="reset-button">
-                    Reset all
-                  </Button>
-                  <Button type="primary" htmlType="submit" className="submit-button">
-                    Submit
-                  </Button>
-                </div>
-                <p className="text-center fw-bold my-3 text-muted">HOẶC</p>
-                <Form.Item>
+                <div
+                  className="register-buttons"
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <Button
                     type="default"
-                    className="btn-block btn-form btn-gg"
-                    icon={<GoogleOutlined />}
+                    onClick={onReset}
+                    className="reset-button"
+                  >
+                    Reset all
+                  </Button>
+                  <div
                     style={{
-                      backgroundColor: "red",
-                      color: "white",
-                      borderColor: "red",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
                     }}
                   >
-                    Đăng ký với Google
-                  </Button>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className="submit-button"
+                    >
+                      Submit
+                    </Button>
+                    <Button
+                      type="default"
+                      className="back-button"
+                      onClick={() => (window.location.href = "/")}
+                      icon={<HomeOutlined />}
+                    />
+                  </div>
+                </div>
+
+                <Form.Item>
+                  <p className="text-center fw-bold my-3 text-muted">OR</p>
+
+                  <Form.Item>
+                    <GoogleOAuthProvider clientId="1054341439647-mp87d5v01991tj7l16t3drpceeb21m2u.apps.googleusercontent.com">
+                      <GoogleLogin
+                        useOneTap
+                        width={"360"}
+                        type="standard"
+                        size="medium"
+                        shape="square"
+                        theme="filled_black"
+                        text="continue_with"
+                        className="w-100"
+                        style={{ color: "red" }}
+                        onSuccess={handleGoogleLoginSuccess}
+                        onError={(error) => {
+                          console.error("Login Failed:", error);
+                        }}
+                      />
+                    </GoogleOAuthProvider>
+                  </Form.Item>
                 </Form.Item>
               </Form>
             </Card>

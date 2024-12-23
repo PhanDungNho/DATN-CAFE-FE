@@ -3111,7 +3111,7 @@ table.order-details tbody td {
   background-color: #fff;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 155px;
+  width: 160px;
   z-index: 1000; /* Đảm bảo hiển thị trên các phần tử khác */
 }
 
@@ -3147,24 +3147,15 @@ table.order-details tbody td {
   padding: 5px 10px;
   width: 220px;
   border-radius: 20px;
-  /* Bo góc tròn */
   border: 1px solid rgba(0, 0, 0, 0.1);
-  /* Đường viền mờ */
-  background-color: rgba(255, 255, 255, 0.8);
-  /* Màu nền mờ */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  /* Đổ bóng nhẹ */
   transition: box-shadow 0.3s ease, border 0.3s ease;
-  /* Hiệu ứng chuyển đổi */
 }
 
 .search-input:focus {
   outline: none;
-  /* Bỏ khung mặc định khi focus */
   box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
-  /* Đổ bóng đậm hơn khi focus */
   border: 1px solid rgba(0, 0, 0, 0.2);
-  /* Viền đậm hơn khi focus */
 }
 /* Thêm CSS cho hiệu ứng nhảy to nhỏ */
 @keyframes scaleAnimation {
@@ -3188,6 +3179,7 @@ table.order-details tbody td {
   letter-spacing: 5px;
   animation: scaleAnimation 1s infinite; /* Lặp lại hiệu ứng */
 }
+
 
 
 
@@ -3262,4 +3254,3 @@ table.order-details tbody td {
   border-radius: 3px; /* Bo góc cho nhãn */
   z-index: 10; /* Đảm bảo nhãn hiển thị trên cùng */
 }
-

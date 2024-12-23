@@ -72,8 +72,8 @@ class ToppingForm extends Component {
   render() {
     const { open, onSubmitForm, topping = {}, onCancel } = this.props;
     const isEdit = !!topping.id;
-    const title = isEdit ? "Cập nhật Topping" : "Thêm mới Topping";
-    const okText = isEdit ? "Cập nhật" : "Lưu";
+    const title = isEdit ? "Update Topping" : "Add new Topping";
+    const okText = isEdit ? "Update" : "Save";
 
     const logoUrl = ToppingService.getToppingLogoUrl(topping.image);
 
@@ -157,8 +157,8 @@ class ToppingForm extends Component {
             ]}
           >
             <Select>
-              <Select.Option value={true}>Visible</Select.Option>
-              <Select.Option value={false}>In-Visible</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
 

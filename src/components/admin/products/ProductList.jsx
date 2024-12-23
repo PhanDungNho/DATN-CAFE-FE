@@ -1,12 +1,55 @@
-import React, { useEffect, useState } from "react";
-import { EditOutlined } from "@ant-design/icons";
+import React, { useContext, useEffect, useState, useMemo } from "react";
+import { EditOutlined, HolderOutlined } from "@ant-design/icons";
 import { Button, Space, Switch, Table, Tag } from "antd";
+import { DndContext } from "@dnd-kit/core";
+import { useDispatch } from "react-redux";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { updateProductOrdering } from "../../../redux/actions/productAction";
+
+const RowContext = React.createContext({});
+const username = JSON.parse(localStorage.getItem("user"));
+const DragHandle = () => {
+  const { setActivatorNodeRef, listeners } = useContext(RowContext);
+  return (
+    <Button
+      type="text"
+      size="small"
+      icon={<HolderOutlined />}
+      style={{
+        cursor: "move",
+      }}
+      ref={setActivatorNodeRef}
+      {...listeners}
+    />
+  );
+};
 
 const columns = (editProduct, updateProductActive) => [
   {
+    key: "sort",
+    align: "center",
+    width: 80,
+    render: () => <DragHandle />,
+  },
+  {
+    title: "Ordering",
+    dataIndex: "ordering",
+    width: "10%",
+    key: "ordering",
+    sorter: (a, b) => Number(b.id) - Number(a.id),
+    showSorterTooltip: false,
+  },
+  {
     title: "Product ID",
     dataIndex: "id",
-    width: "20%",
+    width: "10%",
     key: "id",
     sorter: (a, b) => Number(b.id) - Number(a.id),
     showSorterTooltip: false,
@@ -55,47 +98,97 @@ const columns = (editProduct, updateProductActive) => [
         >
           <EditOutlined style={{ marginRight: 8 }} /> Edit
         </Button>
-        <Switch
-          checked={record.active}
-          onChange={(checked) => {
-            updateProductActive(record.id, checked);
-          }}
-        />
+        {username.roles.includes("ROLE_ADMIN") && (
+          <Switch
+            checked={record.active}
+            onChange={(checked) => {
+              updateProductActive(record.id, checked);
+            }}
+          />
+        )}
       </Space>
     ),
   },
+  
 ];
+
+const Row = (props) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: props["data-row-key"],
+  });
+
+  const style = {
+    ...props.style,
+    transform: CSS.Translate.toString(transform),
+    transition,
+    ...(isDragging
+      ? {
+          position: "relative",
+          zIndex: 9999,
+        }
+      : {}),
+  };
+
+  const contextValue = useMemo(
+    () => ({
+      setActivatorNodeRef,
+      listeners,
+    }),
+    [setActivatorNodeRef, listeners]
+  );
+
+  return (
+    <RowContext.Provider value={contextValue}>
+      <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+    </RowContext.Provider>
+  );
+};
 
 const ProductList = ({ products, editProduct, updateProductActive }) => {
   const [data, setData] = useState(products);
   const [loading, setLoading] = useState(false);
-  const [hasData, setHasData] = useState(true);
+  const dispatch = useDispatch();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      showSizeChanger: true,
+      pageSizeOptions: ["10", "20", "50", "100"],
     },
   });
-  const fetchData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setData(products);
-      setLoading(false);
-      setHasData(products.length > 0);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: products.length,
-        },
+
+  const onDragEnd = ({ active, over }) => {
+    if (active.id !== over?.id) {
+      setData((prevData) => {
+        const activeIndex = prevData.findIndex((item) => item.id === active.id);
+        const overIndex = prevData.findIndex((item) => item.id === over?.id);
+        const newData = arrayMove(prevData, activeIndex, overIndex).map(
+          (item, index) => ({ ...item, ordering: index + 1 })
+        );
+        console.log("List sau update ordering: ", newData);
+        dispatch(updateProductOrdering(newData));
+        return newData;
       });
-    }, 1000);
+    }
   };
 
-  useEffect(fetchData, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-  ]);
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setData(Array.isArray(products) ? products : []);
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [products]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -104,22 +197,35 @@ const ProductList = ({ products, editProduct, updateProductActive }) => {
       sortOrder: sorter.order,
       sortField: sorter.field,
     });
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
+
+    if (pagination.pageSize !== tableParams.pagination.pageSize) {
+      setData(products);
     }
   };
 
   return (
-    <Table
-      columns={columns(editProduct, updateProductActive)}
-      rowKey="id"
-      dataSource={hasData ? data : []}
-      pagination={tableParams.pagination}
-      loading={loading}
-      onChange={handleTableChange}
-      size="small"
-      locale={{ emptyText: "Không có dữ liệu" }}
-    />
+    <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+      <SortableContext
+        items={data.map((item) => item.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <Table
+          columns={columns(editProduct, updateProductActive)}
+          rowKey="id"
+          dataSource={Array.isArray(data) ? data : []}
+          loading={loading}
+          components={{
+            body: {
+              row: Row,
+            },
+          }}
+          pagination={{ ...tableParams.pagination }}
+          onChange={handleTableChange}
+          size="small"
+          locale={{ emptyText: "Không có dữ liệu" }}
+        />
+      </SortableContext>
+    </DndContext>
   );
 };
 

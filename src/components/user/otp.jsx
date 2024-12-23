@@ -1,11 +1,43 @@
-import React from 'react';
-import { Form, Input, Button, Row, Col } from 'antd';
-import 'antd/dist/reset.css'; // CSS của Ant Design
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, message } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Add useNavigate import
+import 'antd/dist/reset.css'; // Ant Design CSS
+import {API} from '../../services/constant'
 
 const OTPForm = () => {
-  const onFinish = (values) => {
-    console.log('Form submitted with values:', values);
-    // Xử lý logic gửi OTP tại đây
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
+  const onFinish = async (values) => {
+    setLoading(true); // Start loading
+    try {
+      // Assuming the email was sent previously and stored somewhere in the state
+      const email = localStorage.getItem('email'); // Get email from local storage or state
+      
+      const response = await fetch(API + '/api/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp: values.otp }), // Send email and OTP
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(errorData.message || 'An error occurred, please try again.');
+      } else {
+        const data = await response.json();
+        message.success(data.message);
+        
+        // Redirect the user to the password reset page
+        navigate('/forgotpassword/otp/newpassword'); // Redirect
+      }
+    } catch (error) {
+      message.error('An error occurred, please try again.');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false); // End loading
+    }
   };
 
   return (
@@ -14,7 +46,7 @@ const OTPForm = () => {
         display: 'flex',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url(../../assets/img/nennnn.jpg)', // Đường dẫn ảnh nền
+        backgroundImage: 'url(../../assets/img/nennnn.jpg)', // Background image path
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         justifyContent: 'center',
@@ -22,7 +54,7 @@ const OTPForm = () => {
     >
       <div
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Màu nền với độ trong suốt
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Background color with transparency
           padding: '20px',
           borderRadius: '10px',
           boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
@@ -40,7 +72,7 @@ const OTPForm = () => {
           </Col>
           <Col lg={10}>
             <div style={{ textAlign: 'center' }}>
-              <h1>Nhập Mã OTP</h1>
+              <h1>Enter OTP</h1>
               <Form
                 name="otp-form"
                 onFinish={onFinish}
@@ -49,17 +81,17 @@ const OTPForm = () => {
               >
                 <Form.Item
                   name="otp"
-                  rules={[{ required: true, message: 'Vui lòng nhập mã OTP!' }]}
+                  rules={[{ required: true, message: 'Please enter the OTP!' }]}
                 >
                   <Input placeholder="OTP" />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
-                    Xác Nhận
+                  <Button type="primary" htmlType="submit" block loading={loading}>
+                    Confirm
                   </Button>
                 </Form.Item>
               </Form>
-              <p>Trở về <a href="/home">trang chủ</a></p>
+              <p>Return to <a href="/">home page</a></p>
             </div>
           </Col>
         </Row>

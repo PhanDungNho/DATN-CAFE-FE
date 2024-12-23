@@ -36,8 +36,12 @@ import { setError, setMessage } from "../../../redux/actions/commonAction";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/actions/authActions";
 import { FaCoffee, FaCookieBite } from "react-icons/fa";
+import AccountService from "../../../services/accountService";
 
 function DashboardPage() {
+  const LoginedUser = JSON.parse(localStorage.getItem("user"));
+  console.log(LoginedUser)
+
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { borderRadiusLG },
@@ -52,7 +56,9 @@ function DashboardPage() {
 
   const msg = useSelector((state) => state.commonReducer.message);
   const err = useSelector((state) => state.commonReducer.error);
-
+  const isAdmin = LoginedUser?.roles?.includes("ROLE_ADMIN");
+  const isSuperadmin = LoginedUser?.roles?.includes("ROLE_SUPERADMIN");
+  const isStaff = LoginedUser?.roles?.includes("ROLE_STAFF");
   const handleLogout = () => {
     // Gọi action logout
     dispatch(logout());
@@ -91,9 +97,6 @@ function DashboardPage() {
       return "4b";
     }
 
-    if (location.pathname.startsWith("/admin/products/update")) {
-      return "5";
-    }
     if (location.pathname === "/admin/sizes/list") {
       return "6";
     }
@@ -107,21 +110,16 @@ function DashboardPage() {
     if (location.pathname === "/admin/authorities/list") {
       return "9";
     }
-    if (location.pathname === "/admin/invoices") {
-      return "10";
-    }
-    if (location.pathname === "/admin/productvariants/add") {
-      return "12a";
-    }
-    if (location.pathname === "/admin/productvariants/update") {
-      return "12a";
-    }
-    if (location.pathname === "/admin/productvariants/list") {
-      return "12b";
-    }
-
+   
     return "1"; // Mặc định là Home
   };
+  const userImage =
+    LoginedUser && LoginedUser.image
+      ? AccountService.getAccountLogoUrl(LoginedUser.image)
+      : "/assets/default-avatar.png"; // Ảnh mặc định nếu không có
+
+  const userName = LoginedUser ? LoginedUser.username : "Guest";
+
   return (
     <Layout>
       <Sider
@@ -146,15 +144,19 @@ function DashboardPage() {
             textAlign: "center",
           }}
         >
-          <img
-            src={collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"}
-            alt="Logo"
-            style={{
-              width: collapsed ? "90px" : "200px",
-              height: "60px",
-              transition: "width 0.2s",
-            }}
-          />
+          <a href="/">
+            <img
+              src={
+                collapsed ? "/assets/img/logo1.png" : "/assets/img/logo2.png"
+              }
+              alt="Logo"
+              style={{
+                width: collapsed ? "90px" : "200px",
+                height: "60px",
+                transition: "width 0.2s",
+              }}
+            />
+          </a>
         </div>
         <Menu
           theme="light" // Thay đổi theme thành light
@@ -169,95 +171,82 @@ function DashboardPage() {
               key: "1",
               icon: <MdOutlineHome />,
               label: "Home",
-              onClick: () => navigate("/admin"),
+              onClick: () => navigate("/admin/statistics/list"),
+              disabled: !(isAdmin),
             },
             {
               key: "2",
               icon: <MdCategory />,
               label: "Categories",
               onClick: () => navigate("/admin/categories/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "3",
               icon: <MdShoppingCart />,
               label: "Orders",
               onClick: () => navigate("/admin/orders"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "4",
               icon: <ProductOutlined />,
               label: "Products",
+              disabled: !(isAdmin || isStaff),
               children: [
                 {
                   key: "4a",
                   icon: <PlusOutlined />,
                   label: "Add Product",
                   onClick: () => navigate("/admin/products/add"),
+                  disabled: !(isAdmin || isStaff),
                 },
                 {
                   key: "4b",
                   icon: <MdFormatListBulleted />,
                   label: "List Products",
                   onClick: () => navigate("/admin/products/list"),
+                  disabled: !(isAdmin || isStaff),
                 },
               ],
-            },
-            {
-              key: "12",
-              icon: <ProductOutlined />,
-              label: "Product Variant",
-              children: [
-                {
-                  key: "12a",
-                  icon: <PlusOutlined />,
-                  label: "Add Product Variant",
-                  onClick: () => navigate("/admin/productvariants/add"),
-                },
-                {
-                  key: "12b",
-                  icon: <MdFormatListBulleted />,
-                  label: "List Product Variant",
-                  onClick: () => navigate("/admin/productvariants/list"),
-                },
-              ],
-            },
-            {
-              key: "5",
-              icon: <MdManageAccounts />,
-              label: "Profiles",
             },
             {
               key: "6",
               icon: <FaCoffee />,
               label: "Sizes",
               onClick: () => navigate("/admin/sizes/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "7",
               icon: <FaCookieBite />,
               label: "Toppings",
               onClick: () => navigate("/admin/toppings/list"),
+              disabled: !(isAdmin || isStaff),
             },
             {
               key: "8",
               icon: <MdSupervisorAccount />,
               label: "Accounts",
               onClick: () => navigate("/admin/accounts/list"),
+              disabled: !(isAdmin || isSuperadmin),
             },
             {
               key: "9",
               icon: <MdSecurity />,
               label: "Authorities",
               onClick: () => navigate("/admin/authorities/list"),
+              disabled: !(isSuperadmin),
             },
-            {
+              /*
+              {
               key: "10",
               icon: <ReconciliationOutlined />,
               label: "Invoices",
               onClick: () => navigate("/admin/invoices"),
-            },
+             */
             {
-              key: "11",
+              key: "10",
               icon: <MdLogout />,
               label: "Logout",
               onClick: handleLogout,
@@ -300,9 +289,13 @@ function DashboardPage() {
             }}
           />
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Avatar size="default" icon={<UserOutlined />} />
+            <Avatar
+              size="default"
+              src={AccountService.getAccountLogoUrl(LoginedUser.image)}
+              icon={!LoginedUser?.image && <UserOutlined />}
+            />
             <span style={{ marginLeft: 8, color: "#000000" }}>
-              Phan Dũng Nhớ
+              {LoginedUser.username}
             </span>
           </div>
         </Header>
@@ -310,12 +303,12 @@ function DashboardPage() {
           style={{
             margin: "70px 0 0 0",
             minHeight: 280,
-            background: "#FFFFFF", 
+            background: "#FFFFFF",
           }}
         >
           <div className="content-panel">
             <Routes>
-              <Route path="/" element={"Xin chào"}></Route>
+              <Route path="/admin/statistics/list" element={"Xin chào"}></Route>
               {/* Thêm các Route khác ở đây nếu cần */}
             </Routes>
             <Outlet></Outlet>

@@ -74,7 +74,7 @@ export const getSizes = () => async (dispatch) => {
 
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Cập nhật trạng thái thành công",
+          payload: "Status update successful",
         });
       } else {
         const previousActive = !active;
@@ -113,6 +113,7 @@ export const findSizeByNameContainsIgnoreCase =
     const service = new sizeService();
 
     try {
+      console.log("Find size")
       dispatch({
         type: COMMON_LOADING_SET,
         payload: true,
@@ -122,13 +123,11 @@ export const findSizeByNameContainsIgnoreCase =
         query
       );
 
-      // Kiểm tra nếu mã phản hồi không phải là 200
       if (response.status === 200) {
-        // Nếu response.data là mảng, trả về dữ liệu; ngược lại trả về mảng rỗng
-        const categories = Array.isArray(response.data) ? response.data : [];
+        const sizes = Array.isArray(response.data) ? response.data : [];
         dispatch({
           type: SIZES_SET,
-          payload: categories,
+          payload: sizes,
         });
       } else {
         dispatch({
@@ -138,7 +137,7 @@ export const findSizeByNameContainsIgnoreCase =
         dispatch({
           type: COMMON_ERROR_SET,
           payload:
-            response.message || "An error occurred while fetching categories",
+            response.message || "An error occurred while fetching sizes",
         });
       }
     } catch (error) {
@@ -186,7 +185,7 @@ export const findSizeByNameContainsIgnoreCase =
   
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Thêm thành công",
+          payload: "Added successfully",
         });
       } else {
         dispatch({
@@ -242,7 +241,7 @@ export const findSizeByNameContainsIgnoreCase =
   
         dispatch({
           type: COMMON_MESSAGE_SET,
-          payload: "Cập nhật thành công",
+          payload: "Updated successfully",
         });
       } else {
         dispatch({

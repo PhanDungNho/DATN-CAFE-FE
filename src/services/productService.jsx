@@ -1,19 +1,35 @@
 import axios from "axios";
-import { API_PRODUCT } from "./constant";
+import { API, API_PRODUCT } from "./constant";
 
 export default class ProductService {
   insertProduct(product) {
     const formData = new FormData();
 
+    const baseSlug = this.createSlug(product.name);
+
     // Append product fields to FormData
     formData.append("name", product.name);
     formData.append("active", product.active);
+    formData.append("slug", baseSlug);
     formData.append("description", product.description);
-    formData.append("categoryid", product.categoryid);
+    formData.append("categoryId", product.categoryId);
 
-    // Append image files
+    // Append image files (giữ lại file thực tế)
     product.imageFiles.forEach((file) => {
       formData.append("imageFiles", file);
+    });
+
+    // Append product variants
+    product.productVariants.forEach((variant, index) => {
+      formData.append(`productVariants[${index}].sizeId`, variant.sizeId);
+      formData.append(`productVariants[${index}].price`, variant.price);
+      formData.append(`productVariants[${index}].active`, variant.active);
+    });
+
+    // Append product toppings
+    product.productToppings.forEach((topping, index) => {
+      formData.append(`productToppings[${index}].toppingId`, topping.toppingId);
+      formData.append(`productToppings[${index}].productId`, product.id || "");
     });
 
     console.log("insert nè", [...formData]);
@@ -26,17 +42,35 @@ export default class ProductService {
     });
   }
 
+  createSlug = (text) => {
+    return text.trim().replace(/[\s]+/g, "-");
+  };
+
+  generateUniqueSlug(baseSlug, existingSlugs) {
+    let newSlug = baseSlug;
+    let count = 1;
+
+    while (existingSlugs.includes(newSlug)) {
+      newSlug = `${baseSlug}-${count}`;
+      count++;
+    }
+
+    return newSlug;
+  }
+
   updateProduct = async (id, product) => {
     const formData = new FormData();
+
+    const baseSlug = this.createSlug(product.name);
 
     // Append product fields to FormData
     formData.append("name", product.name);
     formData.append("active", product.active);
+    formData.append("slug", baseSlug); // Thêm slug
     formData.append("description", product.description);
-    formData.append("categoryid", product.categoryid);
+    formData.append("categoryId", product.categoryId);
 
     // Kiểm tra nếu imageFiles tồn tại và không rỗng trước khi append
-
     if (product.imageFiles && product.imageFiles.length > 0) {
       product.imageFiles.forEach((file) => {
         if (file) {
@@ -45,7 +79,28 @@ export default class ProductService {
       });
     }
 
-    console.log([...formData]);
+    // Append product variants (nếu có)
+    if (product.productVariants && product.productVariants.length > 0) {
+      product.productVariants.forEach((variant, index) => {
+        formData.append(`productVariants[${index}].id`, variant.id);
+        formData.append(`productVariants[${index}].sizeId`, variant.sizeId);
+        formData.append(`productVariants[${index}].price`, variant.price);
+        formData.append(`productVariants[${index}].active`, variant.active);
+      });
+    }
+
+    // Append product toppings (nếu có)
+    if (product.productToppings && product.productToppings.length > 0) {
+      product.productToppings.forEach((topping, index) => {
+        formData.append(
+          `productToppings[${index}].toppingId`,
+          topping.toppingId
+        ); // Sử dụng topping.toppingId thay vì topping.id
+        formData.append(`productToppings[${index}].productId`, product.id);
+      });
+    }
+
+    console.log("update nè", [...formData]);
 
     return axios.patch(API_PRODUCT + "/" + id, formData, {
       headers: {
@@ -56,34 +111,25 @@ export default class ProductService {
   };
 
   getProducts = async () => {
-    return await axios.get(API_PRODUCT, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+    return await axios.get(API_PRODUCT, {});
   };
 
   getProductsUser = async () => {
-    return await axios.get(API_PRODUCT, {
-    });
+    return await axios.get(API_PRODUCT, {});
   };
-
 
   getProductsByName = async (params) => {
     return await axios.get(API_PRODUCT + "/find", {
       params,
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
     });
   };
 
   getProduct = async (id) => {
-    return await axios.get(API_PRODUCT + "/" + id + "/get", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
-      },
-    });
+    return await axios.get(API_PRODUCT + "/" + id + "/get", {});
+  };
+
+  getProductBySlug = async (slug) => {
+    return await axios.get(API_PRODUCT + "/" + slug + "/getBySlug", {});
   };
 
   deleteProductImage = async (fileName) => {
@@ -127,7 +173,7 @@ export default class ProductService {
 
   async uploadImages(formData) {
     const response = await axios.post(
-      "http://localhost:8081/api/v1/products/images/", // Địa chỉ API của bạn
+      API + "/api/v1/products/images/", // Địa chỉ API của bạn
       formData,
       {
         headers: {
@@ -137,4 +183,12 @@ export default class ProductService {
     );
     return response;
   }
+
+  updateProductOrdering = async (newData) => {
+    return await axios.patch(API_PRODUCT + "/update-ordering", newData, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
 }

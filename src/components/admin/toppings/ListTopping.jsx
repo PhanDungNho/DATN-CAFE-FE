@@ -34,7 +34,7 @@ export class ListTopping extends Component {
 
     this.timeout = null;
   }
-
+  
   componentDidMount = () => {
     this.props.getToppings();
     console.log('Component Mounted: Fetching toppings');
@@ -80,7 +80,7 @@ export class ListTopping extends Component {
   closeModal = () => {
     this.setState({ open: false });
   };
-
+  
   render() {
     const { toppings, getToppings, isLoading, router } = this.props;
     const { open, query } = this.state;
@@ -113,6 +113,7 @@ export class ListTopping extends Component {
                   placeholder="Search toppings"
                   value={query}
                   onChange={this.handleSearch}
+                  allowClear
                 />
               </Form.Item>
             </Form>

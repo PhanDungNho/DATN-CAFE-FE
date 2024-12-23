@@ -1,34 +1,37 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Card, message, Row, Col } from "antd";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Hook điều hướng
+import { useNavigate } from "react-router-dom"; // Navigation hook
+import { API } from "../../services/constant";
 
 const VerifyOtp = () => {
   const [form] = Form.useForm();
-  const navigate = useNavigate(); // Sử dụng hook useNavigate để điều hướng
-  const [isSubmitting, setIsSubmitting] = useState(false); // Trạng thái để quản lý khi gửi form
+  const navigate = useNavigate(); // Using the useNavigate hook for navigation
+  const [isSubmitting, setIsSubmitting] = useState(false); // State to manage form submission
 
   const onFinish = async (values) => {
-    setIsSubmitting(true); // Bắt đầu quá trình gửi form
+    setIsSubmitting(true); // Start the form submission process
     try {
-      const response = await axios.get(`http://localhost:8081/api/verify?otp=${values.otp}`, {
+      const response = await axios.get(API + `/api/verify?otp=${values.otp}`, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       message.success(response.data.message);
 
-      // Điều hướng đến trang đăng nhập sau khi xác thực OTP thành công
-      navigate("/login"); // Đường dẫn đến trang đăng nhập (có thể thay đổi theo router của bạn)
+      // Navigate to the login page after successful OTP verification
+      navigate("/login"); // Redirect to the login page (can be changed according to your router)
     } catch (error) {
-      console.error("Xác thực OTP thất bại:", error);
+      console.error("OTP verification failed:", error);
       if (error.response) {
-        message.error(error.response.data.message || "Xác thực OTP thất bại.");
+        message.error(
+          error.response.data.message || "OTP verification failed."
+        );
       } else {
-        message.error("Xác thực OTP thất bại! Vui lòng thử lại.");
+        message.error("OTP verification failed! Please try again.");
       }
     } finally {
-      setIsSubmitting(false); // Kết thúc quá trình gửi form
+      setIsSubmitting(false); // End the form submission process
     }
   };
 
@@ -40,56 +43,57 @@ const VerifyOtp = () => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        backgroundImage: "url('../../assets/img/nennnn.jpg')", // Thay thế URL bằng ảnh nền mong muốn
-        backgroundSize: "cover", // Phủ kín toàn bộ khung hình
+        backgroundImage: "url('../../assets/img/nennnn.jpg')", // Replace URL with desired background image
+        backgroundSize: "cover", // Cover the entire screen
         backgroundPosition: "center",
         padding: "20px",
       }}
     >
       <Card
         style={{
-          maxWidth: "800px", // Tăng kích thước Card để chứa hình ảnh và form
+          maxWidth: "800px", // Increase card size to fit image and form
           width: "100%",
           padding: "20px",
           borderRadius: "10px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Thêm shadow để form nổi bật
-          background: "rgba(255, 255, 255, 0.8)", // Màu nền trắng với độ trong suốt 0.8
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Add shadow to make the form stand out
+          background: "rgba(255, 255, 255, 0.8)", // White background with 0.8 transparency
         }}
       >
         <Row gutter={16}>
-          {/* Cột chứa hình ảnh */}
-          <Col span={12}> {/* Đặt span là 12 để chia đều không gian */}
+          {/* Column containing image */}
+          <Col span={12}>
             <img
-              src="../../assets/img/otpdangky.png" // Đường dẫn đến hình ảnh
+              src="../../assets/img/otpdangky.png" // Image path
               alt="OTP"
-              style={{ 
-                width: "100%", 
-                borderRadius: "5px", // Bo tròn nhẹ cho góc
-                objectFit: "cover", // Giữ tỷ lệ hình ảnh
-                height: "100%" // Đảm bảo hình ảnh không bị méo
+              style={{
+                width: "100%",
+                borderRadius: "5px", // Slightly rounded corners
+                objectFit: "cover", // Maintain aspect ratio of the image
+                height: "100%", // Ensure image doesn't get stretched
               }}
             />
           </Col>
 
-          {/* Cột chứa form nhập mã OTP */}
-          <Col span={12}> {/* Đặt span là 12 để chia đều không gian */}
-            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Xác nhận OTP</h1> {/* Tiêu đề */}
+          {/* Column containing OTP form */}
+          <Col span={12}>
+            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Confirm OTP
+            </h1>
             <Form form={form} onFinish={onFinish}>
               <Form.Item
                 name="otp"
-                rules={[{ required: true, message: "Vui lòng nhập mã OTP!" }]}
+                rules={[{ required: true, message: "Please enter the OTP!" }]}
                 style={{
-                  border: "1px solid #d9d9d9", // Thêm khung viền xung quanh
-                  borderRadius: "5px", // Bo tròn các góc
-                  padding: "5px", // Thêm khoảng trống bên trong
-                  marginBottom: "20px", // Khoảng cách dưới giữa các form
+                  marginBottom: "20px",
                 }}
               >
-                <Input.Password
-                  placeholder="Nhập mã OTP" 
+                <Input.OTP
+                  length={6} // Độ dài OTP tùy chỉnh
+                  formatter={(str) => str.toUpperCase()} // Chuyển thành chữ in hoa
+                  placeholder="Enter OTP"
                   style={{
                     padding: "10px",
-                    borderRadius: "5px", // Bo góc cho ô nhập
+                    borderRadius: "5px", // Rounded corners for the input field
                   }}
                 />
               </Form.Item>
@@ -97,11 +101,16 @@ const VerifyOtp = () => {
                 <Button
                   type="primary"
                   htmlType="submit"
-                  loading={isSubmitting} // Hiển thị trạng thái chờ khi gửi form
+                  loading={isSubmitting} // Show loading state when submitting
                   block
                 >
-                  Xác nhận
+                  Confirm
                 </Button>
+                <div style={{ textAlign: "center", marginTop: "16px" }}>
+                  <p>
+                    Return to <a href="/">home page</a>
+                  </p>
+                </div>
               </Form.Item>
             </Form>
           </Col>

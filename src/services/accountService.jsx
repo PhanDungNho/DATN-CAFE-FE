@@ -11,7 +11,7 @@ export default class AccountService {
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountPaid", account.amountPaid);
+    formData.append("amountPaid", account.amountPaid ?? 0);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
@@ -25,6 +25,13 @@ export default class AccountService {
         "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
+    }).catch(error => {
+      // Nếu có lỗi, trả về lỗi cho frontend
+      if (error.response && error.response.status === 400) {
+        throw error.response.data; // Ném lỗi về frontend
+      } else {
+        throw error; // Lỗi chung
+      }
     });
   };
 
@@ -36,7 +43,7 @@ export default class AccountService {
     formData.append("password", account.password);
     formData.append("phone", account.phone);
     formData.append("email", account.email);
-    formData.append("amountPaid", account.amountPaid);
+    formData.append("amountPaid", account.amountPaid ?? 0);
     formData.append("active", account.active);
 
     if (account.imageFile[0].originFileObj) {
@@ -53,6 +60,14 @@ export default class AccountService {
 
   getAccounts = async () => {
     return await axios.get(API_ACCOUNT, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
+      },
+    });
+  };
+  
+  getAccountsAdmin = async () => {
+    return await axios.get(API_ACCOUNT+"?admin=true", {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("token"), // Gửi token trong header
       },
@@ -89,6 +104,18 @@ export default class AccountService {
       },
     });
   };
+
+  findAccountByNameContainsIgnoreCaseAdmin = async (query) => {
+    return await axios.get(API_ACCOUNT + "/findadmin", {
+      params: {
+        query: query,
+      },
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+  };
+
 
   findAccountByPhoneContainsIgnoreCase = async (query) => {
     return await axios.get(API_ACCOUNT + "/find/phone", {

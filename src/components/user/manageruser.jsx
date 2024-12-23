@@ -11,23 +11,23 @@ const items2 = [
   {
     key: "account",
     icon: React.createElement(UserOutlined),
-    label: "Tài khoản của tôi",
+    label: "My accounts",
     children: [
-      { label: "Địa chỉ", key: "address" },
-      { label: "Thông tin cá nhân", key: "info" },
+      { label: "Addresses", key: "address" },
+      { label: "Profiles", key: "info" },
     ],
   },
   {
     key: "orders",
     icon: React.createElement(LaptopOutlined),
-    label: "Đơn hàng",
-    children: [
-      { label: "Tất cả", key: "orders/all" },
-      { label: "Chờ xác nhận", key: "orders/pending" },
-      { label: "Vận chuyển", key: "orders/shipping" },
-      { label: "Hoàn thành", key: "orders/completed" },
-      { label: "Đã hủy", key: "orders/canceled" },
-    ],
+    label: "Orders",
+    // children: [
+    //   { label: "Tất cả", key: "orders" },
+    //   { label: "Chờ xác nhận", key: "orders/pending" },
+    //   { label: "Vận chuyển", key: "orders/shipping" },
+    //   { label: "Hoàn thành", key: "orders/completed" },
+    //   { label: "Đã hủy", key: "orders/canceled" },
+    // ],
   },
 ];
 
@@ -47,18 +47,21 @@ function ManagerUser() {
   return (
     <>
       <Header />
-      <div className="breadcrumb-section breadcrumb-bg">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8 offset-lg-2 text-center">
-              <div className="breadcrumb-text">
-                <p>Fresh and Organic</p>
-                <h1>Manager User</h1>
+      <div className="hero-area hero-bg">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-10 offset-lg-1 text-center">
+                <div className="hero-text">
+                  <div className="hero-text-tablecell">
+                    <h1>WELCOME TO WALACOFFEE</h1>
+                    <p className="subtitle">Manager User</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+
       <Layout
         className="container-fluid"
         style={{ minHeight: "100vh", margin: "25px auto" }}

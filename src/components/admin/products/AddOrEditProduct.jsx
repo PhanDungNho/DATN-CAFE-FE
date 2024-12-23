@@ -5,6 +5,8 @@ import { message, Skeleton } from "antd";
 import withRouter from "../../../helpers/withRouter";
 import ProductForm from "./ProductForm";
 import CategoryService from "../../../services/categoryService";
+import ToppingService from "../../../services/toppingService";
+import SizeService from "../../../services/sizeService";
 import {
   clearProductState,
   deleteProductImage,
@@ -12,6 +14,7 @@ import {
   insertProduct,
   updateProduct,
 } from "../../../redux/actions/productAction";
+import ProductService from "../../../services/productService";
 
 class AddOrEditProduct extends Component {
   constructor(props) {
@@ -22,11 +25,15 @@ class AddOrEditProduct extends Component {
         name: "",
         active: true,
         category: {},
+        productToppings: {},
         description: "",
         images: [],
       },
       updatedProductImages: [],
       categories: [],
+      toppings: [],
+      sizes: [],
+      products: [],
     };
 
     this.formRef = React.createRef();
@@ -37,10 +44,21 @@ class AddOrEditProduct extends Component {
     const { navigate } = this.props.router;
     const { updatedProductImages } = this.state;
 
+    const productToppings = values.toppingId.map((id) => ({
+      toppingId: id,
+      productId: values.id || "",
+    }));
+
     const productData = {
       ...values,
       imageFiles: updatedProductImages.map((file) => file.originFileObj),
+      productToppings: productToppings,
     };
+
+    if (updatedProductImages.length === 0) {
+      message.warning("Please upload at least one product image!");
+      return;
+    }
 
     if (!productData.id) {
       this.props.insertProduct(productData, navigate);
@@ -63,8 +81,21 @@ class AddOrEditProduct extends Component {
     try {
       const categoryService = new CategoryService();
       const categoryListResponse = await categoryService.getCategories();
+
+      const toppingService = new ToppingService();
+      const toppingListResponse = await toppingService.getToppings();
+
+      const sizeService = new SizeService();
+      const sizeListResponse = await sizeService.getSizes();
+
+      const productService = new ProductService();
+      const productListResponse = await productService.getProducts();
+
       this.setState({
         categories: categoryListResponse.data,
+        toppings: toppingListResponse.data,
+        sizes: sizeListResponse.data,
+        products: productListResponse.data,
       });
     } catch (error) {
       console.log(error);
@@ -101,10 +132,11 @@ class AddOrEditProduct extends Component {
   render() {
     const { isLoading, router } = this.props;
     const { navigate } = this.props.router;
-    const { categories, product } = this.state;
+    const { categories, product, toppings, sizes, productVariants, products } =
+      this.state;
     let title = "Add Product";
 
-    if(product.id){
+    if (product.id) {
       title = "Update Product";
     }
 
@@ -133,6 +165,10 @@ class AddOrEditProduct extends Component {
           ref={this.formRef}
           product={product}
           categories={categories}
+          toppings={toppings}
+          sizes={sizes}
+          productVariants={productVariants}
+          products={products}
           router={router}
           onUpdateFileList={this.onUpdateFileList}
           onSubmitForm={this.onSubmitForm}

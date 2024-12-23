@@ -4,6 +4,7 @@ import {
   PRODUCT_UPDATE_ACTIVE,
   PRODUCT_APPEND,
   PRODUCT_STATE_CLEAR,
+  PRODUCT_UPDATE_ORDERING,
 } from "../actions/actionType";
 
 export const initialState = {
@@ -18,6 +19,8 @@ const productReducer = (state = initialState, { type, payload }) => {
     case PRODUCTS_SET:
       return { ...state, products: payload };
     case PRODUCT_APPEND:
+      const updatedProducts = [payload, ...state.products];
+      console.log("Updated Products List:", updatedProducts);
       return {
         ...state,
         products: [payload, ...state.products],
@@ -33,6 +36,11 @@ const productReducer = (state = initialState, { type, payload }) => {
       };
     case PRODUCT_STATE_CLEAR:
       return { product: {}, products: [] };
+    case PRODUCT_UPDATE_ORDERING: 
+      return {
+        ...state,
+        products: payload, 
+      };
 
     default:
       return state;

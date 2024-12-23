@@ -29,28 +29,33 @@ import OrderTab from "./OrderTab";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import PaymentService from "../../../services/PaymentService";
 import Queue from "./Queue";
+import { deleteOrderById } from "../../../redux/actions/invoiceAction";
+import { useDispatch } from "react-redux";
+import { printBill } from "../../user/printBill";
 
 const { TabPane } = Tabs; // Khai báo TabPane từ Tabs
 const { Search } = Input;
 const { Option } = Select;
 
 const CounterForm = () => {
+  const dispatch = useDispatch();
+
   const [activeTab, setActiveTab] = useState("0");
   // const [ords, setOrds] = useState([]);
   const [products, setProducts] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [accounts, setAccounts] = useState([]);
-  const [toppings, setToppings] = useState([]);
+  // const [toppings, setToppings] = useState([]);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [orders, setOrders] = useLocalStorage("orders", [
-    { cart: [], customerName: "Đơn 1", customerId: "" },
+    { cart: [], tabName: "Order 1", customerId: "", paymentMethod: "CASH" },
   ]);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({}); // State lưu topping đã chọn cho mỗi sản phẩm
 
   const productService = new ProductService();
   const accountService = new AccountService();
-  const toppingService = new ToppingService();
+
   const orderService = new OrderService();
   const paymentService = new PaymentService();
 
@@ -69,12 +74,10 @@ const CounterForm = () => {
         });
         setSelectedVariants(initialSelectedVariants);
       } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        message.error("Không thể lấy sản phẩm.");
+        console.error("Error when retrieving product:", error);
+        message.error("Unable to get product.");
       }
     };
-
-  
 
     const fetchAccounts = async () => {
       try {
@@ -82,27 +85,25 @@ const CounterForm = () => {
         setAccounts(response.data);
         console.log(response.data);
       } catch (error) {
-        console.error("Lỗi khi lấy tài khoản:", error);
-        message.error("Không thể lấy tài khoản.");
+        console.error("Error while retrieving account:", error);
+        message.error("Unable to get account.");
       }
     };
 
-    const fetchToppings = async () => {
-      try {
-        const response = await toppingService.getToppings();
-        setToppings(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy topping:", error);
-        message.error("Không thể lấy topping.");
-      }
-    };
+    // const fetchToppings = async () => {
+    //   try {
+    //     const response = await toppingService.getToppings();
+    //     setToppings(response.data);
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.error("Lỗi khi lấy topping:", error);
+    //     message.error("Không thể lấy topping.");
+    //   }
+    // };
 
     fetchProducts();
-    fetchToppings();
+    // fetchToppings();
     fetchAccounts();
- 
-   
   }, []);
 
   const handleToppingChange = (productId, toppingId, value) => {
@@ -113,6 +114,42 @@ const CounterForm = () => {
         [toppingId]: value,
       },
     }));
+  };
+  const handleRemoveTopping = (productId, toppingId) => {
+    setSelectedToppings((prev) => {
+      const updatedToppings = { ...prev };
+
+      // Xóa topping từ selectedToppings
+      if (updatedToppings[productId] && updatedToppings[productId][toppingId]) {
+        delete updatedToppings[productId][toppingId]; // Xóa topping
+      }
+
+      // Cập nhật giỏ hàng
+      const newOrders = [...orders];
+      const currentCart = newOrders[activeTab].cart;
+
+      // Tìm sản phẩm trong giỏ hàng
+      const productInCart = currentCart.find((item) => item.id === productId);
+
+      if (productInCart) {
+        // Cập nhật topping và giá
+        productInCart.toppings = productInCart.toppings.filter(
+          (topping) => topping.id !== toppingId
+        );
+        productInCart.toppingPrice = productInCart.toppings.reduce(
+          (total, topping) => total + topping.price * topping.quantity,
+          0
+        );
+        // Cập nhật amount
+        productInCart.amount = productInCart.price + productInCart.toppingPrice;
+      }
+
+      // Cập nhật state và local storage
+      setOrders(newOrders);
+      localStorage.setItem("orders", JSON.stringify(newOrders));
+
+      return updatedToppings; // Trả lại updatedToppings
+    });
   };
 
   const handleAddToCart = (variantId, productId) => {
@@ -129,32 +166,43 @@ const CounterForm = () => {
       const newOrders = [...orders];
       const currentCart = newOrders[activeTab].cart;
 
+      // Lấy topping hợp lệ cho sản phẩm
+      const validToppings =
+        products.find((product) => product.id === productId)?.productToppings ||
+        [];
+
       // Tìm topping đã chọn cho sản phẩm
       const toppingsWithQuantity = Object.entries(
         selectedToppings[productId] || {}
       )
-        .filter(([toppingId, quantity]) => quantity > 0)
+        .filter(
+          ([toppingId, quantity]) =>
+            quantity > 0 &&
+            validToppings.some((t) => t.topping.id === parseInt(toppingId))
+        )
         .map(([toppingId, quantity]) => {
-          const foundTopping = toppings.find(
-            (t) => t.id === parseInt(toppingId)
+          const foundTopping = validToppings.find(
+            (t) => t.topping.id === parseInt(toppingId)
           );
           return foundTopping
             ? {
-                id: foundTopping.id,
-                name: foundTopping.name,
-                price: foundTopping.price,
+                productId, // Lưu productId để sử dụng khi xóa topping
+                id: foundTopping.topping.id,
+                name: foundTopping.topping.name,
+                price: foundTopping.topping.price,
                 quantity: quantity,
               }
             : null;
         })
         .filter((topping) => topping !== null);
 
-      // Tạo sản phẩm mới với topping đã chọn
+      // Tính giá topping
       const toppingPrice = toppingsWithQuantity.reduce(
         (total, topping) => total + topping.price * topping.quantity,
         0
       );
 
+      // Tạo sản phẩm mới với topping đã chọn
       const newItem = {
         ...selectedVariant,
         quantity: 1,
@@ -168,26 +216,27 @@ const CounterForm = () => {
 
       // Cập nhật orders và localStorage
       setOrders(newOrders);
+      localStorage.setItem("orders", JSON.stringify(newOrders));
 
       message.success(
-        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) đã được thêm vào giỏ hàng!`
+        `${selectedVariant.productName} (Size ${selectedVariant.size.name}) has been added to the cart!`
       );
 
       // Reset số lượng topping về 0 cho sản phẩm đã thêm
       setSelectedToppings((prev) => ({
         ...prev,
-        [productId]: toppings.reduce((acc, topping) => {
-          acc[topping.id] = 0;
+        [productId]: validToppings.reduce((acc, topping) => {
+          acc[topping.topping.id] = 0;
           return acc;
         }, {}),
       }));
     } else {
-      message.error("Không tìm thấy sản phẩm này.");
+      message.error("This product was not found.");
     }
   };
 
   const handleSearch = (value) => {
-    console.log("Tìm kiếm:", value);
+    console.log("Search:", value);
   };
   const handlePhoneNumberChange = (e, index) => {
     const enteredPhone = e.target.value;
@@ -200,11 +249,13 @@ const CounterForm = () => {
     setOrders((prevOrders) => {
       const updatedOrders = [...prevOrders];
       if (foundAccount) {
-        message.success("Đã nhập đúng số điện thoại!");
-        updatedOrders[index].customerName = foundAccount.fullname;
+        message.success("Entered the correct phone number!");
+
         updatedOrders[index].customerPhone = enteredPhone;
         updatedOrders[index].customerId = foundAccount.username;
+        updatedOrders[index].customerName = foundAccount.fullName;
       } else {
+        updatedOrders[index].customerId = "";
         updatedOrders[index].customerName = ""; // Reset tên khách hàng nếu không tìm thấy
         updatedOrders[index].customerPhone = ""; // Reset số điện thoại nếu không tìm thấy
       }
@@ -213,10 +264,13 @@ const CounterForm = () => {
   };
 
   const handleFinish = async (values, index) => {
+    // Lấy phương thức thanh toán từ orders cho tab hiện tại
+    const currentPaymentMethod = orders[index].paymentMethod;
+
     const cartItems = orders[index].cart.map((item) => ({
-      productvariant: { id: item.id },
+      productVariant: { id: item.id },
       quantity: item.quantity,
-      momentprice: item.price,
+      momentPrice: item.price,
       note: item.note,
       totalPrice:
         item.price * item.quantity +
@@ -224,62 +278,80 @@ const CounterForm = () => {
           (total, topping) => total + topping.price * topping.quantity,
           0
         ),
-      orderdetailtoppings: item.toppings.map((topping) => ({
+      orderDetailToppings: item.toppings.map((topping) => ({
         topping: {
           id: topping.id,
           name: topping.name,
           price: topping.price,
         },
         quantity: topping.quantity,
-        momentprice: topping.price,
+        momentPrice: topping.price,
       })),
     }));
+
     const totalAmount = cartItems.reduce(
       (total, item) => total + item.totalPrice,
       0
     );
 
     const order = {
-      cashierid: JSON.parse(localStorage.getItem("user")).username,
-      totalamount: totalAmount,
-
+      cashierId: JSON.parse(localStorage.getItem("user")).username,
+      totalAmount: totalAmount,
       phone: orders[index].customerPhone || phoneNumberInput,
-      status: paymentMethod === "ONLINE" ? 0 : 1,
-      paymentmethod: paymentMethod,
+      orderStatus: currentPaymentMethod === "ONLINE" ? 0 : 1,
+      paymentMethod: currentPaymentMethod,
+      paymentStatus: currentPaymentMethod === "CASH" ? 1 : 0,
       active: false,
-
-      shippingfee: 0,
-      ordertype: 0,
-      fulladdresstext: null,
-      customerid: orders[index].customerId || "test1",
-      orderdetails: cartItems,
+      shippingFee: 0,
+      orderType: 0,
+      fullAddress: null,
+      customerId: orders[index].customerId || "test1",
+      orderDetails: cartItems,
     };
 
     try {
       // Gọi insertOrder từ OrderService để gửi đơn hàng
-
+      console.log("Order not yet:", order);
       const orderResponse = await orderService.insertOrder(order);
       order.id = orderResponse.data.id;
       console.log("Order created:", order);
 
       // Chỉ thực hiện thanh toán nếu phương thức là ONLINE
-      if (paymentMethod === "ONLINE") {
-        await handleOnlinePayment(order, totalAmount, index);
+      if (currentPaymentMethod === "ONLINE") {
+        await handleOnlinePayment(
+          order,
+          totalAmount,
+          index,
+          orderResponse.data
+        );
       } else {
-        handleSuccess(order, index);
+        handleSuccess(order, index, orderResponse.data);
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý đơn hàng:", error);
-      message.error("Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+      console.error("Error when processing order:", error);
+      message.error(
+        "An error occurred while processing the order. Please try again."
+      );
     }
   };
-
+  const handlePaymentMethodChange = (value, index) => {
+    setOrders((prevOrders) => {
+      const updatedOrders = [...prevOrders];
+      updatedOrders[index].paymentMethod = value;
+      return updatedOrders;
+    });
+  };
   // Hàm xử lý thanh toán online
-  const handleOnlinePayment = async (order, totalAmount, index) => {
+  const handleOnlinePayment = async (
+    order,
+    totalAmount,
+    index,
+    orderResponse
+  ) => {
     try {
       const response = await paymentService.createPayment(
         totalAmount, // Số tiền thanh toán
-        `Thanh toán cho đơn hàng ID: ${order.id}`,
+        `Pay for the order ID: ${order.id}`,
         "d" // Thông tin đơn hàng
       );
 
@@ -291,62 +363,95 @@ const CounterForm = () => {
         });
 
         console.log("Payment URL created:", response);
-        window.open(response.data.payUrl, "_blank", "width=800,height=600");
+        const paymentWindow = window.open(
+          response.data.payUrl,
+          "_blank",
+          "width=800,height=600"
+        );
 
-        // handleSuccess(order, index);
+        const checkPaymentStatus = setInterval(() => {
+          if (paymentWindow.closed) {
+            clearInterval(checkPaymentStatus);
+
+            // Kiểm tra trạng thái thanh toán từ localStorage
+            const paymentStatus = localStorage.getItem(
+              `payment_status_${order.id}`
+            );
+
+            if (paymentStatus === "success") {
+              message.success("Payment successful!");
+              handleSuccess(order, index, orderResponse); // Đóng form bán hàng
+              setPhoneNumberInput("");
+              removeCustomer(index.toString());
+            } else {
+              dispatch(deleteOrderById(order.id));
+              message.error("Payment failed or canceled.");
+            }
+            console.log("first");
+            console.log(order.id);
+            console.log(order);
+            console.log(index);
+          }
+        }, 1000); // Kiểm tra mỗi giây
       } else {
-        throw new Error("Không thể tạo URL thanh toán.");
+        throw new Error("Unable to generate payment URL.");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo thanh toán:", error);
-      message.error("Đã xảy ra lỗi khi tạo thanh toán. Vui lòng thử lại.");
+      console.error("Error creating payment:", error);
+      message.error(
+        "An error occurred while creating the payment. Please try again."
+      );
     }
   };
 
   // Hàm xử lý thành công
-  const handleSuccess = async (order, index) => {
-    message.success(`Thanh toán thành công cho ${orders[index].customerName}!`);
-  
+  const handleSuccess = async (order, index, orderResponse) => {
+    message.success(`Successful payment for ${orders[index].tabName}!`);
+
     // Reset giỏ hàng và thông tin khách hàng sau khi thanh toán
     const newOrders = [...orders];
-  
-    // Xóa giỏ hàng của đơn hàng đã thanh toán
-    newOrders[index].cart = [];
-  
-    // Reset thông tin khách hàng
-    newOrders[index].customerName = "";
-    newOrders[index].customerPhone = "";
-    newOrders[index].customerId = "";
-  
-    // Reset input số điện thoại
     setPhoneNumberInput("");
-  
-    // Cập nhật trạng thái đơn hàng và đóng tab hiện tại
+    // Xóa giỏ hàng của đơn hàng đã thanh toán
+    newOrders[index].cart = []; // Giỏ hàng sẽ được làm sạch
+
+    // Làm sạch số điện thoại và ID khách hàng
+    newOrders[index].customerPhone = ""; // Reset số điện thoại
+    newOrders[index].customerId = ""; // Reset ID nếu cần
+    newOrders[index].customerName = ""; // Reset ID nếu cần
+
+    // Reset input số điện thoại trong trạng thái
+
+    // Cập nhật trạng thái đơn hàng mà không xóa tab
     setOrders(newOrders);
-  
+
     // Cập nhật Local Storage
     localStorage.setItem("orders", JSON.stringify(newOrders));
-  
-    // Đóng tab hiện tại
-    removeCustomer(index.toString()); // Gọi hàm xóa tab
-  
-
+    printBill(orderResponse);
+    // Không gọi removeCustomer để giữ nguyên tab
   };
 
-
-  
   const addNewOrder = () => {
-    let newCustomerIndex = 1;
-    let newCustomerName = `Đơn ${newCustomerIndex}`;
+    let newTabIndex = 1;
+    let newTabName = `Order ${newTabIndex}`;
 
-    while (
-      orders.some((customer) => customer.customerName === newCustomerName)
-    ) {
-      newCustomerIndex++;
-      newCustomerName = `Đơn ${newCustomerIndex}`;
+    while (orders.some((customer) => customer.tabName === newTabName)) {
+      newTabIndex++;
+      newTabName = `Order ${newTabIndex}`;
     }
 
-    setOrders([...orders, { cart: [], customerName: newCustomerName }]);
+    // Thêm đơn hàng mới với paymentMethod mặc định là "CASH"
+    const newOrder = {
+      cart: [],
+      tabName: newTabName,
+      paymentMethod: "CASH",
+      customerPhone: "", // Reset số điện thoại
+      customerId: "",
+      customerName: "",
+    };
+    setOrders([...orders, newOrder]);
+
+    console.log("New order added:", newOrder); // log giá trị của đơn hàng mới
+    console.log("Orders after add:", orders); // log giá trị orders hiện tại
     setActiveTab(`${orders.length}`);
   };
 
@@ -387,13 +492,13 @@ const CounterForm = () => {
 
   const columns = [
     {
-      title: "Sản phẩm",
+      title: "Product",
       dataIndex: "productName",
       key: "productName",
       render: (text, record) => `${record.productName} - ${record.size.name}`,
     },
     {
-      title: "Đơn giá",
+      title: "Price",
       dataIndex: "price",
       key: "price",
       render: (text) => `${text.toLocaleString()}`,
@@ -424,43 +529,30 @@ const CounterForm = () => {
       title: "Toppings",
       dataIndex: "toppings",
       key: "toppings",
-      render: (toppings) =>
+      render: (
+        toppings,
+        record // record được thêm vào để lấy productId
+      ) =>
         toppings
           .filter((topping) => topping !== null)
-
           .map((topping) => {
-            // Hàm tạo màu ngẫu nhiên
-            const getRandomColor = () => {
-              const colors = [
-                "magenta",
-                "red",
-                "volcano",
-                "orange",
-                "gold",
-                "lime",
-                "green",
-                "cyan",
-                "blue",
-                "geekblue",
-                "purple",
-              ];
-              return colors[Math.floor(Math.random() * colors.length)];
-            };
+            // const getRandomColor = () => {
+            //   const colors = [
+            //     "magenta", "red", "volcano", "orange", "gold",
+            //     "lime", "green", "cyan", "blue", "geekblue", "purple",
+            //   ];
+            //   return colors[Math.floor(Math.random() * colors.length)];
+            // };
 
             return (
               <p key={topping.id}>
-                <Tag color={getRandomColor()}>
+                <Tag>
                   {topping.name} ({topping.price.toLocaleString()})
+                
                 </Tag>{" "}
                 x {topping.quantity}
               </p>
             );
-            // return (
-            //   <p key={topping.id}>
-            //     <Tag color={getRandomColor()}>{topping.name}</Tag>{" "}
-            //     x {topping.quantity}
-            //   </p>
-            // );
           }),
     },
 
@@ -471,13 +563,13 @@ const CounterForm = () => {
     //   render: (text) => `${text.toLocaleString()}`,
     // },
     {
-      title: "Ghi chú",
+      title: "Note",
       dataIndex: "note",
       key: "note",
       render: (text, record, index) => (
         <div>
           <Input
-            placeholder="Ghi chú"
+            placeholder="Note"
             value={text}
             onChange={(e) => {
               const newOrders = [...orders];
@@ -520,31 +612,27 @@ const CounterForm = () => {
     const newOrders = [...orders];
     newOrders[activeTab].cart.splice(index, 1);
     setOrders(newOrders);
-    message.success("Sản phẩm đã được xóa khỏi giỏ hàng!");
+    message.success("The product has been removed from the cart!");
   };
 
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} md={12}>
-    
-            <ProductItem
-              products={products}
-              toppings={toppings}
-              selectedVariants={selectedVariants}
-              handleSelectVariant={handleSelectVariant}
-              handleToppingChange={handleToppingChange}
-              handleAddToCart={handleAddToCart}
-              selectedToppings={selectedToppings}
-              setSelectedToppings={setSelectedToppings}
-            />
-    
-        
+        <ProductItem
+          products={products}
+          selectedVariants={selectedVariants}
+          handleSelectVariant={handleSelectVariant}
+          handleToppingChange={handleToppingChange}
+          handleAddToCart={handleAddToCart}
+          selectedToppings={selectedToppings}
+        />
       </Col>
 
       <Col xs={24} md={12}>
         {/* Code hiển thị giỏ hàng */}
         <OrderTab
           orders={orders}
+          handlePaymentMethodChange={handlePaymentMethodChange}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           addNewOrder={addNewOrder}
@@ -556,6 +644,7 @@ const CounterForm = () => {
           setPaymentMethod={setPaymentMethod}
           columns={columns}
           handleRemoveItem={handleRemoveItem}
+          handleRemoveTopping={handleRemoveTopping} // Thêm vào đây
         />
       </Col>
     </Row>

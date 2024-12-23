@@ -5,11 +5,14 @@ import commonReducer from "./reducers/commonReducer";
 import  authReducer  from "./reducers/authReducer";
 import  sizeReducer  from "./reducers/sizeReducer";
 import  toppingReducer  from "./reducers/toppingReducer";
+import  authorityReducer  from "./reducers/authorityReducer";
 
 import  invoiceReducer  from "./reducers/invoiceReducer";
 import  accountReducer  from "./reducers/accountReducer";
 import  decentralizationReducer  from "./reducers/authorityReducer";
 import productVariantReducer from "./reducers/productVariantReducer";
+import cartDetailReducer from "./reducers/cartDetailReducer";
+import addressReducer from "./reducers/addressReducer";
 
 
 const rootReducer = combineReducers({
@@ -19,11 +22,13 @@ const rootReducer = combineReducers({
     auth: authReducer,
     sizeReducer: sizeReducer,
     productVariantReducer: productVariantReducer,
-
+    authorityReducer:authorityReducer,
     invoiceReducer: invoiceReducer,
     toppingReducer: toppingReducer,
     accountReducer: accountReducer,
     decentralizationReducer: decentralizationReducer,
+    cartDetailReducer: cartDetailReducer,
+    addressReducer:addressReducer,
 
 });
 

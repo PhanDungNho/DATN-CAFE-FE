@@ -1,23 +1,65 @@
-import { Button, Input, Form } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, message } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Add useNavigate import
+import 'antd/dist/reset.css'; // Ant Design CSS
+import {API} from '../../services/constant'
 
-const NewPassword = () => {
+const NewPasswordForm = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
+  const onFinish = async (values) => {
+    setLoading(true); // Start loading
+    try {
+      const email = localStorage.getItem('email'); // Get email from localStorage
+
+      const response = await fetch(API + '/api/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          newPassword: values.newPassword,
+          confirmPassword: values.confirmPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(errorData.message || 'An error occurred, please try again.');
+      } else {
+        const data = await response.json();
+        message.success(data.message);
+
+        // Remove email from localStorage after successful password reset
+        localStorage.removeItem('email');
+
+        // Redirect to the login page and replace history to prevent going back
+        navigate('/login', { replace: true });
+      }
+    } catch (error) {
+      message.error('An error occurred, please try again.');
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
   return (
-    <section
-      className="new-password"
+    <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url("../../assets/img/nennnn.jpg")',
+        backgroundImage: 'url(../../assets/img/nennnn.jpg)', // Background image path
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        justifyContent: 'center',
       }}
     >
       <div
-        className="container"
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background color
           padding: '20px',
           borderRadius: '10px',
           boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
@@ -25,72 +67,64 @@ const NewPassword = () => {
           width: '100%',
         }}
       >
-        <div
-          className="row"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '20px',
-          }}
-        >
-          <div className="col-lg-5">
+        <Row gutter={20} justify="center" align="middle">
+          <Col lg={10}>
             <img
-              src="../../assets/img/pass2.webp"
+              src="/assets/img/pass2.webp"
               alt="New Password"
-              style={{ maxWidth: '100%' }}
+              style={{ width: '100%', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}
             />
-          </div>
-          <div
-            className="col-lg-5"
-            style={{
-              border: '1px solid #d9d9d9',
-              padding: '20px',
-              borderRadius: '10px',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <h1>Nhập Mật Khẩu Mới</h1>
-            <Form
-              action="/auth/newpassword"
-              method="post"
-              layout="vertical"
-              style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }} // Canh giữa input
-            >
-              <Form.Item
-                name="new_password"
-                rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới' }]}
+          </Col>
+          <Col lg={10}>
+            <div style={{ textAlign: 'center' }}>
+              <h1>Enter New Password</h1>
+              <Form
+                name="new-password-form"
+                onFinish={onFinish}
+                layout="vertical"
+                style={{ maxWidth: '400px', margin: '0 auto' }}
               >
-                <Input.Password placeholder="Nhập mật khẩu mới" />
-              </Form.Item>
-              <Form.Item
-                name="confirm_password"
-                rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu' }]}
-              >
-                <Input.Password placeholder="Xác nhận mật khẩu" />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<i className="fa fa-envelope"></i>}
-                  style={{ marginTop: '10px', width: '100%' }} // Nút nằm ở giữa và rộng 100%
+                <Form.Item
+                  name="newPassword"
+                  rules={[
+                    { required: true, message: 'Please enter a new password!' },
+                    {
+                      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, 
+                      message: 'Password must have at least 8 characters, one uppercase letter, one lowercase letter, and one number.',
+                    },
+                  ]}
                 >
-                  Xác Nhận
-                </Button>
-              </Form.Item>
-            </Form>
-            <p style={{ marginTop: '10px' }}>
-              Trở về <a href="/home">trang chủ</a>
-            </p>
-          </div>
-        </div>
+                  <Input.Password placeholder="New Password" />
+                </Form.Item>
+                <Form.Item
+                  name="confirmPassword"
+                  rules={[
+                    { required: true, message: 'Please confirm your password!' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('newPassword') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('Passwords do not match!'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password placeholder="Confirm Password" />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" block loading={loading}>
+                    Confirm
+                  </Button>
+                </Form.Item>
+              </Form>
+              <p>Back to <a href="/">home page</a></p>
+            </div>
+          </Col>
+        </Row>
       </div>
-    </section>
+    </div>
   );
 };
 
-export default NewPassword;
+export default NewPasswordForm;
