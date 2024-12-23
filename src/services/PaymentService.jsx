@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import { API_TRANSACTION, API_MOMO, API } from "./constant";
 
 const ngrok =
-  "https://9034-42-112-90-219.ngrok-free.app";
+  "https://7d8b-14-241-166-117.ngrok-free.app";
 
 export default class PaymentService extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class PaymentService extends Component {
     const redirectUrl = "http://localhost/paymentresult";
     // const redirectUrl = "https://walacafe.io.vn/paymentresult";
 
-    const ipnUrl = API + "/api/v1/transactions/ipn";
+    const ipnUrl = ngrok + "/api/v1/transactions/ipn";
     const requestType = "payWithMethod";
     const newOrderId = partnerCode + new Date().getTime(); // Tạo orderId duy nhất
     const requestId = newOrderId;

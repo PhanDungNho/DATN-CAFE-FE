@@ -158,7 +158,7 @@ export const updateOrder = (id, order) => async (dispatch) => {
 
       dispatch({
         type: COMMON_MESSAGE_SET,
-        payload: `Successfully updated for order ID: ${id}`,
+        payload: `Successfully updated`,
       });
     } else {
       dispatch({

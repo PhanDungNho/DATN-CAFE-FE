@@ -91,8 +91,8 @@ const columns = (updateOrderActive, updateOrder, showModal, getInvoices) => [
         PROCESSING:
           record.orderType === "IN_STORE"
             ? [
-                { value: "CANCELLED", label: "CANCELLED" },
                 { value: "COMPLETED", label: "COMPLETED" },
+                { value: "CANCELLED", label: "CANCELLED" },
               ]
             : [
                 { value: "PROCESSING", label: "PROCESSING" },
@@ -277,6 +277,12 @@ const InvoicesList = ({
           <p>
             <strong>Customer ID: </strong>
             {record.customer.username}
+          </p>
+        )}
+        {record.customer?.phone && (
+          <p>
+            <strong>Phone: </strong>
+            {record.customer.phone}
           </p>
         )}
         {record.shippingFee !== undefined && record.shippingFee > 0 && (
