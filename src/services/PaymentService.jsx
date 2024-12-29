@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import { API_TRANSACTION, API_MOMO, API } from "./constant";
 
 const ngrok =
-  "https://7d8b-14-241-166-117.ngrok-free.app";
+  "https://e7f4-42-112-90-206.ngrok-free.app";
 
 export default class PaymentService extends Component {
   constructor(props) {
